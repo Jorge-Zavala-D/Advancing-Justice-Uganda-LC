@@ -1,12 +1,12 @@
 /*------------------------------------------------------------------------------*
 | Title: 			Data Analysis												|
-| Project: 			Transitional Justice Information RCT Peru				   	|
+| Project: 			Advancing Justice Uganda LC training RCT				   	|
 | Authors:			Jorge Zavala 												|
 | 					  									                        |
 |																				|
 | Description:		This .do performs statistical analysis of cleaned data		|
 |                                                                               |
-| Date created: 16/12/2025			 					                        |										          
+| Date created: 24/04/2026			 					                        |										          
 |																			    |
 | Version: Stata 13/16 	                    							 	    |
 *-------------------------------------------------------------------------------*/
@@ -25,7 +25,6 @@
 **#		Baseline analysis		*
 *-------------------------------*
 
-use "${input_dir}/2 Working/Peru TJ RCT_Baseline.dta", clear	
 	
 	*-------------------*
 	**#		Balance		*
