@@ -1,0 +1,288 @@
+* 00000007
+*! version 1.0.0
+* Do not erase or edit this file
+* It is used by Stata to track the ado and help
+* files you have installed.
+
+S http://fmwww.bc.edu/repec/bocode/r
+N randomize.pkg
+D 28 Dec 2025
+U 1
+d 'RANDOMIZE': module to create random assignments for experimental trials, including blocking, balance checking, and automated rerandomization
+d 
+d  randomize conducts random assignment of units to equally sized
+d groups. It can check for balance on a specified list of
+d covariates. If blocking variables are specified it will conduct
+d the randomization within blocks. It can rerandomize within blocks
+d a certain number of times, such as conducting 100 randomizations
+d and choosing the randomization with the best balance across
+d covariates. It can also rerandomize until the balance statistic
+d (Wilks' lambda on a manova) exceeds a certain cut-off value (e.g.
+d 0.2). If unequal allocation sizes are desired, multiple groups
+d can be aggregated after the randomization. Assignments are
+d allocated in a random order within each block, ensuring that
+d group sizes differ by no more than one observation in each block. d
+d KW: data management
+d KW: randomization
+d KW: experimental trials
+d KW: covariate balance
+d 
+d Requires: Stata version 12
+d 
+d Distribution-Date: 20170601
+d 
+d Author: Chris Kennedy, University of California, Berkeley
+d Support: email ck37@@berkeley.edu
+d 
+d Author: Christopher B. Mann, Skidmore College
+d Support: email
+d 
+f r\randomize.ado
+f r\randomize.sthlp
+e
+S http://fmwww.bc.edu/repec/bocode/i
+N ietoolkit.pkg
+D 28 Dec 2025
+U 2
+d 'IETOOLKIT': module providing commands specially developed for Impact Evaluations
+d 
+d  ietookit provides a set of commands that address different
+d aspects of data management and data analysis in relation to
+d Impact Evaluations. The list of commands will be extended
+d continuously, and suggestions on new commands are highly
+d appreciated. Some of the commands are related to standardized
+d practices developed at the World Bank’s unit for Impact
+d Evaluations (DIME) and might not apply to practices adopted at
+d other institutions. For these commands, the corresponding help
+d files provide justifications for the standardized practices
+d applied. ieduplicates and iecompdup are useful tools to identify
+d and correct for duplicates. iebaltab is a tool for multiple
+d treatment arm balance tables. ieboilstart standardizes the
+d boilerplate code at the top of all do-files. iegraph produces
+d graphs based on common impact evaluation regression models. See
+d https://github.com/worldbank/ietoolkit for more details.
+d 
+d KW: reproducible research
+d KW: impact evaluations
+d KW: data management
+d KW: survey data
+d KW: data analysis
+d KW: balance tables
+d KW: difference-in-differences
+d KW: matching
+d 
+d Requires: Stata version 12
+d 
+d Distribution-Date: 20240212
+d 
+d Author: DIME Analytics, The World Bank, DECIE
+d Support: email  lcardosodeandrad@@worldbank.org
+d 
+f i\ietoolkit.ado
+f i\ietoolkit.sthlp
+f i\iebaltab.ado
+f i\iebaltab.sthlp
+f i\ieboilsave.ado
+f i\ieboilsave.sthlp
+f i\ieboilstart.ado
+f i\ieboilstart.sthlp
+f i\ieddtab.ado
+f i\ieddtab.sthlp
+f i\iedorep.ado
+f i\iedorep.sthlp
+f i\iedropone.ado
+f i\iedropone.sthlp
+f i\iefolder.ado
+f i\iefolder.sthlp
+f i\iegitaddmd.ado
+f i\iegitaddmd.sthlp
+f i\iegraph.ado
+f i\iegraph.sthlp
+f i\iekdensity.ado
+f i\iekdensity.sthlp
+f i\iematch.ado
+f i\iematch.sthlp
+f i\iesave.ado
+f i\iesave.sthlp
+e
+S http://fmwww.bc.edu/repec/bocode/i
+N iefieldkit.pkg
+D 28 Dec 2025
+U 3
+d 'IEFIELDKIT': module providing Stata commands for primary data collection and cleaning
+d 
+d  iefieldkit provides a set of commands that enable a reproducible
+d primary data collection and cleaning workflow. The package is
+d developed to facilitate a workflow including (1) data collection
+d (in particular using opendatakit.org, more specifically
+d surveycto.com); (2) basic data cleaning, such as labeling and
+d recoding; (3) reconciling survey rounds; (4) preparing codebooks
+d to document data sets. iefieldkit was developed to standardize
+d and simplify best practices for high-quality primary data
+d collection across the World Bank's Development Research Group
+d Impact Evaluations team (DIME). The commands can also be used
+d independently, and are developed to be applicable to many other
+d contexts as well. See https://github.com/worldbank/iefieldkit for
+d more details.
+d 
+d KW:  impact evaluations
+d KW: field work
+d KW: ODK
+d KW: survey data
+d KW: primary data collection
+d KW: SurveyCTO
+d KW: data cleaning
+d KW: survey harmonization
+d KW: duplicates
+d KW: codebooks
+d 
+d Requires: Stata version 11
+d 
+d Distribution-Date: 20230802
+d 
+d Author: DIME Analytics, The World Bank, DECIE
+d Support: email  lcardosodeandrad@@worldbank.org
+d 
+f i\iefieldkit.ado
+f i\iefieldkit.sthlp
+f i\iecodebook.ado
+f i\iecodebook.sthlp
+f i\iecompdup.ado
+f i\iecompdup.sthlp
+f i\iecorrect.ado
+f i\iecorrect.sthlp
+f i\ieduplicates.ado
+f i\ieduplicates.sthlp
+f i\ietestform.ado
+f i\ietestform.sthlp
+e
+S http://fmwww.bc.edu/repec/bocode/s
+N sumstats.pkg
+D 28 Dec 2025
+U 4
+d 'SUMSTATS': module to produce tables of summary statistics
+d 
+d  sumstats easily generates a table of summary statistics with
+d various if-restrictions and prints them to a specified output
+d file using putexcel.
+d 
+d KW: descriptive statistics
+d KW: summary statistics
+d KW: spreadsheet
+d 
+d Requires: Stata version 15.1
+d 
+d Distribution-Date: 20191221
+d 
+d Author: Benjamin Daniels, World Bank
+d Support: email bbdaniels@@gmail.com
+d 
+f s\sumstats.ado
+f s\sumstats.sthlp
+e
+S http://fmwww.bc.edu/repec/bocode/e
+N estout.pkg
+D 28 Dec 2025
+U 5
+d 'ESTOUT': module to make regression tables
+d 
+d  estout produces a table of regression results from one or
+d several models for use with spreadsheets, LaTeX, HTML, or a
+d word-processor table. eststo stores a quick copy of the active
+d estimation results for later tabulation. esttab is a wrapper for
+d estout. It displays a pretty looking publication-style regression
+d table without much typing. estadd adds additional results to the
+d e()-returns for one or several models previously fitted and
+d stored. This package subsumes the previously circulated esto,
+d esta, estadd,  and estadd_plus. An earlier version of estout is
+d available  as estout1.
+d 
+d KW: estimates
+d KW: LaTeX
+d KW: HTML
+d KW: word processor
+d KW: output
+d 
+d Requires: Stata version 8.2
+d 
+d Distribution-Date: 20230212
+d 
+d Author: Ben Jann, University of Bern
+d Support: email jann@@soz.unibe.ch
+d 
+f _\_eststo.ado
+f _\_eststo.hlp
+f e\estadd.ado
+f e\estadd.hlp
+f e\estout.ado
+f e\estout.hlp
+f e\eststo.ado
+f e\eststo.hlp
+f e\estpost.ado
+f e\estpost.hlp
+f e\esttab.ado
+f e\esttab.hlp
+e
+S http://fmwww.bc.edu/repec/bocode/t
+N todate.pkg
+D  2 Jan 2026
+U 6
+d 'TODATE': module to generate Stata date variables from run-together date variables
+d 
+d todate takes run-together date variables consisting of integers
+d or integer characters and generates the corresponding Stata date
+d variables. (Stata's date() function cannot convert such variables
+d to Stata date  variables.) todate requires Stata 8 or later.
+d Users of  Stata 7 may use todate7, whose files are  also included
+d in this package.
+d 
+d KW: dates
+d KW: split
+d KW: run-together
+d KW: date variables
+d 
+d Requires: Stata version 8.0 (7.0 for todate7)
+d 
+d 
+d Author: Nicholas J. Cox, Durham University
+d Support: email  N.J.Cox@@durham.ac.uk
+d 
+d Distribution-Date: 20050908
+f t\todate.ado
+f t\todate.hlp
+f t\todate7.ado
+f t\todate7.hlp
+e
+S http://fmwww.bc.edu/repec/bocode/r
+N randtreat.pkg
+D  3 Feb 2026
+U 7
+d 'RANDTREAT': module to randomly assign treatments uneven treatments and deal with misfits
+d 
+d      The randtreat command performs random treatment assignment.
+d It can handle an arbitrary number    of treatments and uneven
+d treatment fractions, which are common in real-world randomized
+d control trials.  Stratified randomization can be achieved by
+d optionally specifying a variable    list that defines multiple
+d strata.  It also provides several methods to deal with 'misfits',
+d a    practical issue that arises in treatment assignment whenever
+d observations can't be neatly   distributed among treatments.
+d The command performs all tasks in a way that marks misfit
+d observations and provides several methods to deal with those
+d misfits.
+d 
+d KW: treatment effects
+d KW: treatment
+d KW: random treatment
+d KW: misfits
+d 
+d Requires: Stata version 11
+d 
+d Distribution-Date: 20170413
+d 
+d Author: Alvaro Carril, University of Chile
+d Support: email acarril@@fen.uchile.cl
+d 
+f r\randtreat.ado
+f r\randtreat.sthlp
+e
