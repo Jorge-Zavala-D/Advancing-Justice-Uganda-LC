@@ -1,0 +1,2298 @@
+---------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/log
+> s/phase1_baseline_executive_analysis.log
+  log type:  text
+ opened on:  13 Jun 2026, 20:34:47
+
+. 
+. set scheme plotplain
+
+. graph set window fontface "Arial"
+
+. 
+. use "`analysis_data'", clear
+(Advancing Justice Uganda - Phase 1 baseline, cleaned analysis file)
+
+. 
+. keep if analysis_sample == 1
+(0 observations deleted)
+
+. 
+. * Basic integrity checks
+. isid survey_record_id
+
+. capture isid submission_key
+
+. if _rc {
+.     display as error "Warning: submission_key is not unique. Review before using item-level exports."
+. }
+
+. 
+. * Encode district for regressions/tables where needed
+. capture drop district_id
+
+. encode district_scto, gen(district_id)
+
+. label var district_id "District numeric ID from SurveyCTO-selected district"
+
+. 
+. * Helpful global file paths for helper programs
+. global AJU_EXEC_XLSX "`excel_exec'"
+
+. global AJU_ITEMS_XLSX "`excel_items'"
+
+. global AJU_FIG_DIR   "`fig_dir'"
+
+. 
+. * Core variable lists
+. local core_indices ///
+>     idx_respondent_capacity ///
+>     idx_institutional_functioning ///
+>     idx_legal_classif_knowledge ///
+>     idx_adr_mediation_practice ///
+>     idx_referral_practice ///
+>     idx_record_quality ///
+>     idx_committee_functioning ///
+>     idx_perceived_legitimacy ///
+>     idx_safeguards ///
+>     idx_reintegration_norms
+
+. 
+. local composite_indices ///
+>     idx_lcc_operational_capacity ///
+>     idx_lcc_case_handling_quality ///
+>     idx_lcc_legitimacy_and_norms ///
+>     idx_p1_base_mentor_ready_proxy
+
+. 
+. local all_indices `core_indices' `composite_indices'
+
+. 
+. local high_flags ///
+>     high_operational_capacity ///
+>     high_case_handling_quality ///
+>     high_legitimacy_norms ///
+>     high_mentor_readiness_proxy
+
+. 
+. * Add compact labels for the most important indices
+. label var idx_respondent_capacity          "Respondent capacity"
+
+. label var idx_institutional_functioning   "Institutional functioning"
+
+. label var idx_legal_classif_knowledge     "Legal/classification knowledge"
+
+. label var idx_adr_mediation_practice      "ADR/mediation practice"
+
+. label var idx_referral_practice           "Referral practice"
+
+. label var idx_record_quality              "Record quality"
+
+. label var idx_committee_functioning       "Committee functioning"
+
+. label var idx_perceived_legitimacy        "Perceived legitimacy"
+
+. label var idx_safeguards                  "Safeguards/referral knowledge"
+
+. label var idx_reintegration_norms         "Reintegration norms"
+
+. label var idx_lcc_operational_capacity    "Operational capacity"
+
+. label var idx_lcc_case_handling_quality   "Case-handling quality"
+
+. label var idx_lcc_legitimacy_and_norms    "Legitimacy and reintegration"
+
+. label var idx_p1_base_mentor_ready_proxy  "Baseline mentor-readiness proxy"
+
+. 
+. *------------------------------------------------------------------------------*
+. **# 0.2 Presentation labels and output hygiene
+. *------------------------------------------------------------------------------*
+. * These labels affect output readability only. They do not change values or scoring.
+. 
+. capture confirm numeric variable enum
+
+. if !_rc {
+.     local enum_vallab : value label enum
+.     if "`enum_vallab'" != "" {
+.         capture label define `enum_vallab' 11 "Enumerator 11 - name pending", modify
+.     }
+. }
+
+. 
+. capture label var flag_caseload_30d_gt_3m "30-day caseload exceeds reported 3-month caseload"
+
+. capture label var flag_pending_gt_3m "Pending/unresolved cases exceed reported 3-month caseload"
+
+. capture label var flag_direct_gt_3m "Directly brought cases exceed reported 3-month caseload"
+
+. capture label var flag_referred_to_lcc_gt_3m "Cases referred to LCC exceed reported 3-month caseload"
+
+. capture label var flag_referred_onward_gt_3m "Cases referred onward exceed reported 3-month caseload"
+
+. capture label var lcc_vacancies_count "Number of vacant LCC/LC committee positions"
+
+. capture label var any_serious_or_sensitive_case_3m "Any child, SGBV, or other serious/sensitive case in past 
+> 3 months"
+
+. 
+. capture label var m3_q04_1  "Land or boundary disputes"
+
+. capture label var m3_q04_2  "Family or marital disputes"
+
+. capture label var m3_q04_3  "Debt, loan, or money disputes"
+
+. capture label var m3_q04_4  "Neighbor insults, threats, or verbal conflicts"
+
+. capture label var m3_q04_5  "Minor assault or physical fights"
+
+. capture label var m3_q04_6  "Property damage or theft matters"
+
+. capture label var m3_q04_7  "Child-related cases"
+
+. capture label var m3_q04_8  "Sexual violence or SGBV cases"
+
+. capture label var m3_q04_9  "Alcohol, disorderly conduct, or public disturbance"
+
+. capture label var m3_q04_10 "Reintegration/former prisoner conflicts"
+
+. 
+. capture label var v01_boundary_q1_correct "Boundary vignette: correct classification"
+
+. capture label var v01_boundary_q2_correct "Boundary vignette: correct action/referral"
+
+. capture label var v01_boundary_q3_correct "Boundary vignette: correct documentation/procedure"
+
+. capture label var v02_family_q1_correct "Family dispute vignette: correct classification"
+
+. capture label var v02_family_q2_correct "Family dispute vignette: correct action/referral"
+
+. capture label var v02_family_q3_correct "Family dispute vignette: correct documentation/procedure"
+
+. capture label var v05_child_q1_correct "Child-related vignette: correct classification"
+
+. capture label var v05_child_q2_correct "Child-related vignette: correct action/referral"
+
+. capture label var v05_child_q3_correct "Child-related vignette: correct documentation/procedure"
+
+. capture label var v06_sgbv_q1_correct "SGBV vignette: correct classification"
+
+. capture label var v06_sgbv_q2_correct "SGBV vignette: correct action/referral"
+
+. capture label var v06_sgbv_q3_correct "SGBV vignette: correct documentation/procedure"
+
+. 
+. capture label var m5_q01_score "ADR practice score: hearing both sides"
+
+. capture label var m5_q02_score "ADR practice score: neutrality/impartiality"
+
+. capture label var m5_q03_score "ADR practice score: encouraging voluntary agreement"
+
+. capture label var m5_q06_score "ADR practice score: recording agreements"
+
+. capture label var m5_q07_score "ADR practice score: follow-up after mediation"
+
+. capture label var adr_confidence_score "Confidence mediating ordinary local disputes"
+
+. capture label var deescalation_confidence_score "Confidence de-escalating tense disputes"
+
+. capture label var m5_q14_score "Appropriate response to non-compliance with mediated agreement"
+
+. capture label var m5_q16_score "Knowledge of when ADR is not appropriate"
+
+. 
+. capture label var m5_q11_1 "Parties refuse to attend or participate"
+
+. capture label var m5_q11_2 "Parties do not trust the LCC"
+
+. capture label var m5_q11_3 "Conflict too intense or parties too angry"
+
+. capture label var m5_q11_4 "Power imbalance between parties"
+
+. capture label var m5_q11_5 "Case outside LCC mandate"
+
+. capture label var m5_q11_6 "LCC members need more training"
+
+. capture label var m5_q11_7 "Lack of records, forms, or materials"
+
+. capture label var m5_q11_8 "Weak cooperation from formal authorities"
+
+. capture label var m5_q11_9 "Fear of retaliation or community pressure"
+
+. capture label var m5_q11_10 "No major ADR barriers"
+
+. 
+. capture label var m5_q13_1 "Mediation between parties"
+
+. capture label var m5_q13_2 "Community dialogue"
+
+. capture label var m5_q13_3 "Reconciliation meeting"
+
+. capture label var m5_q13_4 "Negotiated written agreement"
+
+. capture label var m5_q13_5 "Advice or warning to parties"
+
+. capture label var m5_q13_6 "Referral to another authority"
+
+. capture label var m5_q13_7 "Committee hearing and decision"
+
+. capture label var m5_q13_8 "Restitution or compensation agreement"
+
+. 
+. capture label var referral_frequency_score "Referral practice score: frequency/regularity"
+
+. capture label var referral_documentation_score "Referral practice score: documentation"
+
+. capture label var referral_feedback_score "Referral practice score: receiving feedback"
+
+. capture label var police_coordination_score "Coordination score with police"
+
+. capture label var court_coordination_score "Coordination score with court/formal justice actors"
+
+. capture label var referral_path_conf_score "Confidence knowing where to refer cases"
+
+. capture label var referral_explain_conf_score "Confidence explaining referrals to community members"
+
+. 
+. capture label var m6_q04_1 "Referral reason: outside LCC mandate"
+
+. capture label var m6_q04_2 "Referral reason: serious violence/threat to life"
+
+. capture label var m6_q04_3 "Referral reason: sexual violence or SGBV"
+
+. capture label var m6_q04_4 "Referral reason: child protection concern"
+
+. capture label var m6_q04_5 "Referral reason: parties refused local mediation"
+
+. capture label var m6_q04_6 "Referral reason: local agreement not followed"
+
+. capture label var m6_q04_7 "Referral reason: facts or evidence too complex"
+
+. capture label var m6_q04_8 "Referral reason: LCC lacked quorum/capacity"
+
+. 
+. capture label var m6_q12_1 "Referral barrier: authority too far away"
+
+. capture label var m6_q12_2 "Referral barrier: transport cost/lack of transport"
+
+. capture label var m6_q12_3 "Referral barrier: parties do not want referral"
+
+. capture label var m6_q12_4 "Referral barrier: fear costs, delay, or consequences"
+
+. capture label var m6_q12_5 "Referral barrier: receiving authority slow"
+
+. capture label var m6_q12_6 "Referral barrier: unclear receiving authority"
+
+. capture label var m6_q12_7 "Referral barrier: lack referral-procedure knowledge"
+
+. capture label var m6_q12_8 "Referral barrier: lack forms/documentation tools"
+
+. capture label var m6_q12_9 "Referral barrier: pressure to keep case local"
+
+. capture label var m6_q12_10 "Referral barrier: fear retaliation/worse conflict"
+
+. capture label var m6_q12_11 "No major referral barriers"
+
+. 
+. capture label var m7_q15_1 "Record challenge: no registers/books/forms/paper"
+
+. capture label var m7_q15_2 "Record challenge: no pens/basic stationery"
+
+. capture label var m7_q15_3 "Record challenge: need training on case records"
+
+. capture label var m7_q15_4 "Record challenge: limited time for records"
+
+. capture label var m7_q15_5 "Record challenge: difficulty writing required language"
+
+. capture label var m7_q15_6 "Record challenge: record holder often unavailable"
+
+. capture label var m7_q15_7 "Record challenge: records lost/damaged/insecure"
+
+. capture label var m7_q15_8 "Record challenge: hard to record sensitive cases"
+
+. capture label var m7_q15_9 "No major record-keeping challenges"
+
+. 
+. capture label var m8_q15_1 "Committee challenge: members often absent"
+
+. capture label var m8_q15_2 "Committee challenge: members lack time"
+
+. capture label var m8_q15_3 "Committee challenge: members need training"
+
+. capture label var m8_q15_4 "Committee challenge: one member dominates"
+
+. capture label var m8_q15_5 "Committee challenge: women/junior members less active"
+
+. capture label var m8_q15_6 "Committee challenge: quorum difficult"
+
+. capture label var m8_q15_7 "Committee challenge: disagreements delay decisions"
+
+. capture label var m8_q15_8 "Committee challenge: no meeting place/materials/records"
+
+. capture label var m8_q15_9 "Committee challenge: community prefers one leader"
+
+. capture label var m8_q15_10 "No major committee challenges"
+
+. 
+. capture label var m11_q10_1 "Reintegration support: family/community acceptance"
+
+. capture label var m11_q10_2 "Reintegration support: livelihood or income"
+
+. capture label var m11_q10_3 "Reintegration support: psychosocial/emotional support"
+
+. capture label var m11_q10_4 "Reintegration support: family/community mediation"
+
+. capture label var m11_q10_5 "Reintegration support: LC/community leaders"
+
+. capture label var m11_q10_6 "Reintegration support: religious/clan/cultural leaders"
+
+. capture label var m11_q10_7 "Reintegration support: legal/administrative support"
+
+. capture label var m11_q10_8 "Reintegration support: skills training/education"
+
+. capture label var m11_q10_9 "No support needed/manage alone"
+
+. 
+. capture label var m11_q12_1 "Reintegration barrier: fear of reoffending"
+
+. capture label var m11_q12_2 "Reintegration barrier: fear of violence/conflict"
+
+. capture label var m11_q12_3 "Reintegration barrier: shame or stigma"
+
+. capture label var m11_q12_4 "Reintegration barrier: lack of trust"
+
+. capture label var m11_q12_5 "Reintegration barrier: victims/families not reconciled"
+
+. capture label var m11_q12_6 "Reintegration barrier: lack livelihood/work"
+
+. capture label var m11_q12_7 "Reintegration barrier: weak support structures"
+
+. capture label var m11_q12_8 "Reintegration barrier: people do not know how to support"
+
+. capture label var m11_q12_9 "Community usually willing to accept"
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 0.3 Helper programs
+. *------------------------------------------------------------------------------*
+. 
+. capture program drop aju_mean_table
+
+. program define aju_mean_table
+  1.     syntax anything, SHEET(string) MODULE(string) [XLSX(string) GRAPH(string) TITLE(string) GAP]
+  2. 
+.     tempfile out
+  3.     tempname memhold
+  4.     postfile `memhold' str80 module str80 variable str160 label ///
+>         long n double mean sd min p25 p50 p75 max gap using `out', replace
+  5. 
+.     local clean_module "`module'"
+  6.     local rawvars `anything'
+  7. 
+.     foreach v of local rawvars {
+  8.         capture confirm numeric variable `v'
+  9.         if !_rc {
+ 10.             quietly count if !missing(`v')
+ 11.             local n = r(N)
+ 12.             local vlab : variable label `v'
+ 13.             if `"`vlab'"' == "" local vlab "`v'"
+ 14.             local vlab = substr(`"`vlab'"', 1, 160)
+ 15. 
+.             if `n' > 0 {
+ 16.                 quietly summarize `v', detail
+ 17.                 local mean = r(mean)
+ 18.                 local sd   = r(sd)
+ 19.                 local min  = r(min)
+ 20.                 local p25  = r(p25)
+ 21.                 local p50  = r(p50)
+ 22.                 local p75  = r(p75)
+ 23.                 local max  = r(max)
+ 24.                 local gapval = .
+ 25.                 if "`gap'" != "" & `mean' >= 0 & `mean' <= 1 local gapval = 1 - `mean'
+ 26.             }
+ 27.             else {
+ 28.                 local mean   = .
+ 29.                 local sd     = .
+ 30.                 local min    = .
+ 31.                 local p25    = .
+ 32.                 local p50    = .
+ 33.                 local p75    = .
+ 34.                 local max    = .
+ 35.                 local gapval = .
+ 36.             }
+ 37. 
+.             post `memhold' (`"`clean_module'"') (`"`v'"') (`"`vlab'"') ///
+>                 (`n') (`mean') (`sd') (`min') (`p25') (`p50') (`p75') (`max') (`gapval')
+ 38.         }
+ 39.     }
+ 40.     postclose `memhold'
+ 41. 
+.     local outxlsx "${AJU_EXEC_XLSX}"
+ 42.     if `"`xlsx'"' != "" local outxlsx `"`xlsx'"'
+ 43. 
+.     preserve
+ 44.         use `out', clear
+ 45.         drop if n == 0
+ 46.         order module variable label n mean sd min p25 p50 p75 max gap
+ 47.         if "`gap'" == "" drop gap
+ 48.         export excel using `"`outxlsx'"', sheet("`sheet'", replace) firstrow(variables)
+ 49. 
+.         if `"`graph'"' != "" {
+ 50.             quietly count if !missing(mean)
+ 51.             if r(N) > 0 {
+ 52.                 local graphname = strtoname("`graph'")
+ 53.                 local graphname = substr("`graphname'", 1, 32)
+ 54.                 local graphtitle `"`title'"'
+ 55.                 if `"`graphtitle'"' == "" local graphtitle "`sheet'"
+ 56. 
+.                 graph hbar mean if !missing(mean), ///
+>                     over(label, sort(mean) descending label(labsize(vsmall))) ///
+>                     ytitle("Share / mean") ///
+>                     title(`"`graphtitle'"', size(medsmall)) ///
+>                     name(`graphname', replace)
+ 57. 
+.                 graph export "${AJU_FIG_DIR}/`graph'.png", replace width(2400)
+ 58.                 graph export "${AJU_FIG_DIR}/`graph'.pdf", replace
+ 59.             }
+ 60.         }
+ 61.     restore
+ 62. end
+
+. 
+. capture program drop aju_tab_numeric_all
+
+. program define aju_tab_numeric_all
+  1.     syntax anything, SHEET(string)
+  2. 
+.     tempfile out
+  3.     tempname memhold
+  4.     postfile `memhold' str30 module str80 variable str200 label ///
+>         long n n_missing double mean sd min p25 p50 p75 max using `out', replace
+  5. 
+.     local rawvars `anything'
+  6.     foreach v of local rawvars {
+  7.         capture confirm numeric variable `v'
+  8.         if !_rc {
+  9.             quietly count
+ 10.             local Ntotal = r(N)
+ 11.             quietly count if !missing(`v')
+ 12.             local n = r(N)
+ 13.             local nmiss = `Ntotal' - `n'
+ 14. 
+.             local module "Other"
+ 15.             if regexm("`v'","^m0_") local module "M0 Geography/metadata"
+ 16.             if regexm("`v'","^m1_") local module "M1 Respondent profile"
+ 17.             if regexm("`v'","^m2_") local module "M2 Institutional setup"
+ 18.             if regexm("`v'","^m3_") local module "M3 Caseload"
+ 19.             if regexm("`v'","^m4_") local module "M4 Legal knowledge"
+ 20.             if regexm("`v'","^m5_") local module "M5 ADR/mediation"
+ 21.             if regexm("`v'","^m6_") local module "M6 Referrals"
+ 22.             if regexm("`v'","^m7_") local module "M7 Records"
+ 23.             if regexm("`v'","^m8_") local module "M8 Committee"
+ 24.             if regexm("`v'","^m9_") local module "M9 Legitimacy"
+ 25.             if regexm("`v'","^m10_") local module "M10 Safeguards"
+ 26.             if regexm("`v'","^m11_") local module "M11 Reintegration"
+ 27.             if regexm("`v'","^idx_") local module "Indices"
+ 28.             if regexm("`v'","^flag_") local module "QA flags"
+ 29. 
+.             local vlab : variable label `v'
+ 30.             if `"`vlab'"' == "" local vlab "`v'"
+ 31.             local vlab = substr(`"`vlab'"', 1, 200)
+ 32. 
+.             if `n' > 0 {
+ 33.                 quietly summarize `v', detail
+ 34.                 post `memhold' (`"`module'"') (`"`v'"') (`"`vlab'"') ///
+>                     (`n') (`nmiss') (r(mean)) (r(sd)) (r(min)) (r(p25)) (r(p50)) (r(p75)) (r(max))
+ 35.             }
+ 36.             else {
+ 37.                 post `memhold' (`"`module'"') (`"`v'"') (`"`vlab'"') ///
+>                     (`n') (`nmiss') (.) (.) (.) (.) (.) (.) (.)
+ 38.             }
+ 39.         }
+ 40.     }
+ 41.     postclose `memhold'
+ 42. 
+.     preserve
+ 43.         use `out', clear
+ 44.         sort module variable
+ 45.         export excel using "${AJU_ITEMS_XLSX}", sheet("`sheet'", replace) firstrow(variables)
+ 46.     restore
+ 47. end
+
+. 
+. capture program drop aju_tab_categorical_all
+
+. program define aju_tab_categorical_all
+  1.     syntax anything, SHEET(string) [MAXLEVELS(integer 25)]
+  2. 
+.     tempfile out
+  3.     tempname memhold
+  4.     postfile `memhold' str30 module str80 variable str200 label ///
+>         str40 value str200 value_label long n double percent using `out', replace
+  5. 
+.     local rawvars `anything'
+  6.     foreach v of local rawvars {
+  7.         capture confirm numeric variable `v'
+  8.         if !_rc {
+  9.             quietly levelsof `v' if !missing(`v'), local(levels)
+ 10.             local k : word count `levels'
+ 11. 
+.             if `k' > 0 & `k' <= `maxlevels' {
+ 12.                 quietly count if !missing(`v')
+ 13.                 local denom = r(N)
+ 14. 
+.                 local module "Other"
+ 15.                 if regexm("`v'","^m0_") local module "M0 Geography/metadata"
+ 16.                 if regexm("`v'","^m1_") local module "M1 Respondent profile"
+ 17.                 if regexm("`v'","^m2_") local module "M2 Institutional setup"
+ 18.                 if regexm("`v'","^m3_") local module "M3 Caseload"
+ 19.                 if regexm("`v'","^m4_") local module "M4 Legal knowledge"
+ 20.                 if regexm("`v'","^m5_") local module "M5 ADR/mediation"
+ 21.                 if regexm("`v'","^m6_") local module "M6 Referrals"
+ 22.                 if regexm("`v'","^m7_") local module "M7 Records"
+ 23.                 if regexm("`v'","^m8_") local module "M8 Committee"
+ 24.                 if regexm("`v'","^m9_") local module "M9 Legitimacy"
+ 25.                 if regexm("`v'","^m10_") local module "M10 Safeguards"
+ 26.                 if regexm("`v'","^m11_") local module "M11 Reintegration"
+ 27.                 if regexm("`v'","^idx_") local module "Indices"
+ 28.                 if regexm("`v'","^flag_") local module "QA flags"
+ 29. 
+.                 local vlab : variable label `v'
+ 30.                 if `"`vlab'"' == "" local vlab "`v'"
+ 31.                 local vlab = substr(`"`vlab'"', 1, 200)
+ 32. 
+.                 local vallab : value label `v'
+ 33. 
+.                 foreach lev of local levels {
+ 34.                     quietly count if `v' == `lev'
+ 35.                     local n = r(N)
+ 36.                     local pct = 100 * `n' / `denom'
+ 37. 
+.                     local levlabel "`lev'"
+ 38.                     if `"`vallab'"' != "" {
+ 39.                         capture local levlabel : label `vallab' `lev'
+ 40.                         if _rc local levlabel "`lev'"
+ 41.                     }
+ 42.                     local levlabel = substr(`"`levlabel'"', 1, 200)
+ 43. 
+.                     post `memhold' (`"`module'"') (`"`v'"') (`"`vlab'"') ///
+>                         (`"`lev'"') (`"`levlabel'"') (`n') (`pct')
+ 44.                 }
+ 45.             }
+ 46.         }
+ 47.     }
+ 48.     postclose `memhold'
+ 49. 
+.     preserve
+ 50.         use `out', clear
+ 51.         sort module variable value
+ 52.         export excel using "${AJU_ITEMS_XLSX}", sheet("`sheet'", replace) firstrow(variables)
+ 53.     restore
+ 54. end
+
+. 
+. capture program drop aju_module_of_var
+
+. program define aju_module_of_var, rclass
+  1.     args v
+  2.     local module "Other"
+  3.     if regexm("`v'","^m0_") local module "M0 Geography/metadata"
+  4.     if regexm("`v'","^m1_") local module "M1 Respondent profile"
+  5.     if regexm("`v'","^m2_") local module "M2 Institutional setup"
+  6.     if regexm("`v'","^m3_") local module "M3 Caseload"
+  7.     if regexm("`v'","^m4_") local module "M4 Legal knowledge"
+  8.     if regexm("`v'","^m5_") local module "M5 ADR/mediation"
+  9.     if regexm("`v'","^m6_") local module "M6 Referrals"
+ 10.     if regexm("`v'","^m7_") local module "M7 Records"
+ 11.     if regexm("`v'","^m8_") local module "M8 Committee"
+ 12.     if regexm("`v'","^m9_") local module "M9 Legitimacy"
+ 13.     if regexm("`v'","^m10_") local module "M10 Safeguards"
+ 14.     if regexm("`v'","^m11_") local module "M11 Reintegration"
+ 15.     if regexm("`v'","^idx_") local module "Indices"
+ 16.     if regexm("`v'","^flag_") local module "QA flags"
+ 17.     return local module "`module'"
+ 18. end
+
+. 
+. *------------------------------------------------------------------------------*
+. **# 1. README and analysis metadata
+. *------------------------------------------------------------------------------*
+. 
+. putexcel set "`excel_exec'", replace sheet("README")
+note: file will be replaced when the first putexcel command is issued.
+
+. putexcel A1 = "Advancing Justice Uganda - Phase 1 Baseline Executive Analysis"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A3 = "Purpose"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B3 = "Targeted pre-intervention descriptive analysis for CDFU/FCDU meeting with implementation team.
+> "
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A4 = "Input dataset"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B4 = "`analysis_data'"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A5 = "Analysis sample"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B5 = "Consented SurveyCTO submissions only."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A6 = "Causal status"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B6 = "Descriptive baseline analysis only. Phase 1 is not the causal RCT stage."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A7 = "Main caveat"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B7 = "Replacement-village corrections are pending record-level mapping; sample-frame metadata should
+>  not yet be used substantively."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A8 = "Generated outputs"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B8 = "Executive workbook, all-item workbook, figures, and analysis log."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel A9 = "Output note"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B9 = "Fully missing variables are excluded from executive tables/graphs and listed in the all-item w
+> orkbook field-status sheet."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+. quietly count
+
+. local N = r(N)
+
+. putexcel A10 = "N records"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B10 = `N'
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+. quietly summarize interview_date, meanonly
+
+. 
+. local first_interview = string(r(min), "%tdDDmonCCYY")
+
+. local last_interview  = string(r(max), "%tdDDmonCCYY")
+
+. 
+. putexcel A11 = "First interview date"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B11 = "`first_interview'"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+. putexcel A12 = "Last interview date"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. putexcel B12 = "`last_interview'"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+. *------------------------------------------------------------------------------*
+. **# 2. Sample, fieldwork, and data-quality profile
+. *------------------------------------------------------------------------------*
+. 
+. * 2.1 District distribution
+. preserve
+
+.     contract district_scto
+
+.     rename _freq n_records
+
+.     gen percent = 100 * n_records / _N
+
+.     quietly summarize n_records, meanonly
+
+.     replace percent = 100 * n_records / r(sum)
+(3 real changes made)
+
+.     export excel using "`excel_exec'", sheet("sample_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+.     graph bar n_records, over(district_scto, label(angle(0))) ///
+>         blabel(bar, format(%9.0f)) ///
+>         ytitle("Number of interviews") ///
+>         title("Phase 1 baseline sample by district", size(medsmall))
+
+.     graph export "`fig_dir'/fig_01_sample_by_district.png", width(2400) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_01_sample_by_district.png saved as PNG format
+
+.     graph export "`fig_dir'/fig_01_sample_by_district.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_01_sample_by_district.pdf saved as PDF format
+
+. restore
+
+. 
+. * 2.2 Enumerator distribution
+. preserve
+
+.     contract enum
+
+.     rename _freq n_records
+
+.     quietly summarize n_records, meanonly
+
+.     gen percent = 100 * n_records / r(sum)
+
+.     export excel using "`excel_exec'", sheet("sample_enumerator", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. * 2.3 Fieldwork duration summary
+. preserve
+
+.     keep duration_min interview_date district_scto
+
+.     collapse (count) n=duration_min ///
+>         (mean) mean=duration_min ///
+>         (sd) sd=duration_min ///
+>         (p25) p25=duration_min ///
+>         (p50) median=duration_min ///
+>         (p75) p75=duration_min ///
+>         (min) min=duration_min ///
+>         (max) max=duration_min
+
+.     export excel using "`excel_exec'", sheet("fieldwork_duration", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. preserve
+
+.     keep district_scto duration_min
+
+.     collapse (count) n=duration_min ///
+>         (mean) mean=duration_min ///
+>         (p50) median=duration_min ///
+>         (min) min=duration_min ///
+>         (max) max=duration_min, by(district_scto)
+
+.     export excel using "`excel_exec'", sheet("duration_by_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. * 2.4 QA flags
+. local qa_flags ///
+>     flag_duplicate_submission_key ///
+>     flag_duplicate_scto_village ///
+>     flag_duration_short ///
+>     flag_duration_long ///
+>     flag_date_outside_fieldwork ///
+>     flag_caseload_30d_gt_3m ///
+>     flag_pending_gt_3m ///
+>     flag_direct_gt_3m ///
+>     flag_referred_to_lcc_gt_3m ///
+>     flag_referred_onward_gt_3m ///
+>     flag_any_data_quality_issue
+
+. 
+. aju_mean_table `qa_flags', sheet("qa_flags") module("Data quality flags") ///
+>     graph("fig_13_data_quality_flags") ///
+>     title("Automated data-quality flags")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_000005.tmp not found)
+(2 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_13_data_quality_flags.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_13_data_quality_flags.pdf saved as PDF format
+
+. 
+. * 2.5 Duplicate SurveyCTO village records for follow-up
+. preserve
+
+.     keep if flag_duplicate_scto_village > 0
+(123 observations deleted)
+
+.     keep survey_record_id submission_key interview_date enum district_scto subcounty_scto parish_scto village
+> _scto ///
+>         actual_village duration_min
+
+.     sort district_scto subcounty_scto parish_scto village_scto interview_date
+
+.     export excel using "`excel_exec'", sheet("duplicate_villages", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 3. Executive index dashboard and mentor-readiness profile
+. *------------------------------------------------------------------------------*
+. 
+. * 3.1 Overall index summary and graph
+. aju_mean_table `all_indices', sheet("index_summary") module("Core and composite indices") ///
+>     graph("fig_02_core_indices_overall") ///
+>     title("Average baseline scores across core domains") gap
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_000006.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_02_core_indices_overall.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_02_core_indices_overall.pdf saved as PDF format
+
+. 
+. * 3.2 Index means by district
+. preserve
+
+.     keep survey_record_id district_scto `all_indices'
+
+.     reshape long idx_, i(survey_record_id) j(index_name) string
+(j = adr_mediation_practice committee_functioning institutional_functioning lcc_case_handling_quality lcc_legit
+> imacy_and_norms lcc_operational_capacity legal_classif_knowledge p1_base_mentor_ready_proxy perceived_legitim
+> acy record_quality referral_practice reintegration_norms respondent_capacity safeguards)
+
+Data                               Wide   ->   Long
+-----------------------------------------------------------------------------
+Number of observations              133   ->   1,862       
+Number of variables                  16   ->   4           
+j variable (14 values)                    ->   index_name
+xij variables:
+idx_adr_mediation_practice idx_committee_functioning ... idx_safeguards->idx_
+-----------------------------------------------------------------------------
+
+.     rename idx_ index_value
+
+. 
+.     gen domain = index_name
+
+.     replace domain = "Respondent capacity" if domain == "respondent_capacity"
+(133 real changes made)
+
+.     replace domain = "Institutional functioning" if domain == "institutional_functioning"
+(133 real changes made)
+
+.     replace domain = "Legal/classification knowledge" if domain == "legal_classif_knowledge"
+variable domain was str26 now str30
+(133 real changes made)
+
+.     replace domain = "ADR/mediation practice" if domain == "adr_mediation_practice"
+(133 real changes made)
+
+.     replace domain = "Referral practice" if domain == "referral_practice"
+(133 real changes made)
+
+.     replace domain = "Record quality" if domain == "record_quality"
+(133 real changes made)
+
+.     replace domain = "Committee functioning" if domain == "committee_functioning"
+(133 real changes made)
+
+.     replace domain = "Perceived legitimacy" if domain == "perceived_legitimacy"
+(133 real changes made)
+
+.     replace domain = "Safeguards/referral knowledge" if domain == "safeguards"
+(133 real changes made)
+
+.     replace domain = "Reintegration norms" if domain == "reintegration_norms"
+(133 real changes made)
+
+.     replace domain = "Operational capacity" if domain == "lcc_operational_capacity"
+(133 real changes made)
+
+.     replace domain = "Case-handling quality" if domain == "lcc_case_handling_quality"
+(133 real changes made)
+
+.     replace domain = "Legitimacy and reintegration" if domain == "lcc_legitimacy_and_norms"
+(133 real changes made)
+
+.     replace domain = "Mentor-readiness proxy" if domain == "p1_base_mentor_ready_proxy"
+(133 real changes made)
+
+. 
+.     collapse (count) n=index_value (mean) mean=index_value (sd) sd=index_value, by(district_scto domain)
+
+.     export excel using "`excel_exec'", sheet("index_by_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+.     keep if inlist(domain,"Operational capacity","Case-handling quality","Legitimacy and reintegration","Ment
+> or-readiness proxy")
+(30 observations deleted)
+
+.     graph bar mean, over(domain, label(angle(35) labsize(vsmall))) over(district_scto) ///
+>         ytitle("Mean score, 0-1") ///
+>         title("Composite baseline domains by district", size(medsmall)) ///
+>         legend(off)
+
+.     graph export "`fig_dir'/fig_03_composite_indices_by_district.png", width(2800) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_03_composite_indices_by_district.png saved as PNG format
+
+.     graph export "`fig_dir'/fig_03_composite_indices_by_district.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_03_composite_indices_by_district.pdf saved as PDF format
+
+. restore
+
+. 
+. * 3.3 Priority gaps: highest gaps indicate domains requiring most training attention
+. preserve
+
+.     keep `core_indices'
+
+.     gen obs_id = _n
+
+.     reshape long idx_, i(obs_id) j(index_name) string
+(j = adr_mediation_practice committee_functioning institutional_functioning legal_classif_knowledge perceived_l
+> egitimacy record_quality referral_practice reintegration_norms respondent_capacity safeguards)
+
+Data                               Wide   ->   Long
+-----------------------------------------------------------------------------
+Number of observations              133   ->   1,330       
+Number of variables                  11   ->   3           
+j variable (10 values)                    ->   index_name
+xij variables:
+idx_adr_mediation_practice idx_committee_functioning ... idx_safeguards->idx_
+-----------------------------------------------------------------------------
+
+.     rename idx_ index_value
+
+. 
+.     gen domain = index_name
+
+.     replace domain = "Respondent capacity" if domain == "respondent_capacity"
+(133 real changes made)
+
+.     replace domain = "Institutional functioning" if domain == "institutional_functioning"
+(133 real changes made)
+
+.     replace domain = "Legal/classification knowledge" if domain == "legal_classif_knowledge"
+variable domain was str25 now str30
+(133 real changes made)
+
+.     replace domain = "ADR/mediation practice" if domain == "adr_mediation_practice"
+(133 real changes made)
+
+.     replace domain = "Referral practice" if domain == "referral_practice"
+(133 real changes made)
+
+.     replace domain = "Record quality" if domain == "record_quality"
+(133 real changes made)
+
+.     replace domain = "Committee functioning" if domain == "committee_functioning"
+(133 real changes made)
+
+.     replace domain = "Perceived legitimacy" if domain == "perceived_legitimacy"
+(133 real changes made)
+
+.     replace domain = "Safeguards/referral knowledge" if domain == "safeguards"
+(133 real changes made)
+
+.     replace domain = "Reintegration norms" if domain == "reintegration_norms"
+(133 real changes made)
+
+. 
+.     collapse (count) n=index_value (mean) mean=index_value (sd) sd=index_value, by(domain)
+
+.     gen gap_to_full_score = 1 - mean
+
+.     gsort -gap_to_full_score
+
+.     export excel using "`excel_exec'", sheet("priority_gaps", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+.     graph hbar gap_to_full_score, over(domain, sort(gap_to_full_score) label(labsize(vsmall))) ///
+>         blabel(bar, format(%4.2f) size(vsmall)) ///
+>         ytitle("Gap to full score: 1 - mean") ///
+>         title("Training priority gaps by baseline domain", size(medsmall)) ///
+>         note("Higher values identify domains where pre-training scores leave more room for improvement.", siz
+> e(vsmall))
+
+.     graph export "`fig_dir'/fig_04_priority_gaps.png", width(2600) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_04_priority_gaps.png saved as PNG format
+
+.     graph export "`fig_dir'/fig_04_priority_gaps.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_04_priority_gaps.pdf saved as PDF format
+
+. restore
+
+. 
+. * 3.4 Mentor-readiness distribution
+. histogram idx_p1_base_mentor_ready_proxy, percent width(.05) start(0) ///
+>     xline(.75, lpattern(dash)) ///
+>     xtitle("Baseline mentor-readiness proxy, 0-1") ///
+>     ytitle("Percent of LC chairpersons") ///
+>     title("Distribution of baseline mentor-readiness proxy", size(medsmall)) ///
+>     note("The 0.75 line is a descriptive flag, not a final mentor eligibility rule.", size(vsmall))
+(bin=17, start=0, width=.05)
+
+. graph export "`fig_dir'/fig_05_mentor_readiness_distribution.png", width(2600) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_05_mentor_readiness_distribution.png saved as PNG format
+
+. graph export "`fig_dir'/fig_05_mentor_readiness_distribution.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_05_mentor_readiness_distribution.pdf saved as PDF format
+
+. 
+. * 3.5 High-capacity flags
+. aju_mean_table `high_flags', sheet("high_capacity_flags") module("High-capacity descriptive flags") ///
+>     graph("fig_06_high_capacity_flags") ///
+>     title("Share of chairpersons above high-capacity thresholds")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_000008.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_06_high_capacity_flags.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_06_high_capacity_flags.pdf saved as PDF format
+
+. 
+. * 3.6 Readiness quartiles and domain profiles
+. capture drop readiness_quartile
+
+. xtile readiness_quartile = idx_p1_base_mentor_ready_proxy, nq(4)
+
+. label define readiness_q 1 "Q1 lowest readiness" 2 "Q2" 3 "Q3" 4 "Q4 highest readiness", replace
+
+. label values readiness_quartile readiness_q
+
+. label var readiness_quartile "Quartile of baseline mentor-readiness proxy"
+
+. 
+. preserve
+
+.     keep readiness_quartile `all_indices' `high_flags'
+
+.     collapse (count) n=idx_p1_base_mentor_ready_proxy ///
+>         (mean) `all_indices' `high_flags', by(readiness_quartile)
+
+.     export excel using "`excel_exec'", sheet("readiness_quartiles", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. * 3.7 Descriptive district differences in main indices
+. tempfile district_tests
+
+. tempname dt
+
+. postfile `dt' str80 outcome str160 label double p_value using `district_tests', replace
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_000009.tmp not found)
+
+. foreach v of local all_indices {
+  2.     capture confirm numeric variable `v'
+  3.     if !_rc {
+  4.         quietly regress `v' i.district_id
+  5.         quietly testparm i.district_id
+  6.         local vl : variable label `v'
+  7.         if `"`vl'"' == "" local vl "`v'"
+  8.         post `dt' (`"`v'"') (`"`vl'"') (r(p))
+  9.     }
+ 10. }
+
+. postclose `dt'
+
+. preserve
+
+.     use `district_tests', clear
+
+.     export excel using "`excel_exec'", sheet("district_diff_tests", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 4. Chairperson profile and pre-training exposure
+. *------------------------------------------------------------------------------*
+. 
+. local chair_profile ///
+>     respondent_female ///
+>     completed_secondary_or_above ///
+>     education_score ///
+>     lc_experience_years ///
+>     lc_experience_score ///
+>     record_literacy_score ///
+>     can_record_english ///
+>     can_record_runyankore ///
+>     cannot_complete_records ///
+>     prior_justice_training ///
+>     prior_formal_coordination ///
+>     prior_cdfu_fhri_training ///
+>     n_prior_training_topics ///
+>     case_experience_score ///
+>     handled_child_or_sgbv_case ///
+>     weekly_lc_time_score ///
+>     idx_respondent_capacity
+
+. 
+. aju_mean_table `chair_profile', sheet("chair_profile") module("LC chairperson profile") ///
+>     graph("fig_07_chairperson_profile") ///
+>     title("Chairperson profile: capacity and prior exposure")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000b.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_07_chairperson_profile.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_07_chairperson_profile.pdf saved as PDF format
+
+. 
+. preserve
+
+.     keep district_scto `chair_profile'
+
+.     collapse (count) n=idx_respondent_capacity (mean) `chair_profile', by(district_scto)
+
+.     export excel using "`excel_exec'", sheet("chair_profile_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 5. Institutional functioning and operational readiness
+. *------------------------------------------------------------------------------*
+. 
+. local institutional_vars ///
+>     lcc_members_total ///
+>     lcc_women_members ///
+>     lcc_women_share ///
+>     lcc_has_woman_member ///
+>     lcc_has_vacancy ///
+>     lcc_vacancies_count ///
+>     lcc_sittings_12m ///
+>     meeting_frequency_score ///
+>     quorum_score ///
+>     fixed_place_score ///
+>     inst_record_exist_score ///
+>     inst_record_uptodate_score ///
+>     materials_score ///
+>     n_materials_missing ///
+>     record_seen_score_m2 ///
+>     recent_entries_uptodate_score_m2 ///
+>     idx_institutional_functioning
+
+. 
+. aju_mean_table `institutional_vars', sheet("institutional_function") module("Institutional functioning") ///
+>     graph("fig_08_institutional_functioning") ///
+>     title("Institutional functioning and operational readiness")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000c.tmp not found)
+(1 observation deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_08_institutional_functioning.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_08_institutional_functioning.pdf saved as PDF format
+
+. 
+. preserve
+
+.     keep district_scto `institutional_vars'
+
+.     collapse (count) n=idx_institutional_functioning (mean) `institutional_vars', by(district_scto)
+
+.     export excel using "`excel_exec'", sheet("institutional_by_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 6. Caseload and dispute profile
+. *------------------------------------------------------------------------------*
+. 
+. local caseload_vars ///
+>     caseload_30d ///
+>     caseload_3m ///
+>     pending_cases ///
+>     pending_share_3m ///
+>     directly_brought_cases_3m ///
+>     directly_brought_share_3m ///
+>     n_case_types_received_3m ///
+>     any_child_or_sgbv_case_3m ///
+>     any_reintegration_case_3m ///
+>     any_serious_or_sensitive_case_3m ///
+>     petty_case_share_score ///
+>     caseload_accuracy_score
+
+. 
+. aju_mean_table `caseload_vars', sheet("caseload_summary") module("Caseload and dispute profile") ///
+>     graph("fig_09_caseload_selected") ///
+>     title("Caseload and sensitive-case exposure")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000d.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_09_caseload_selected.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_09_caseload_selected.pdf saved as PDF format
+
+. 
+. preserve
+
+.     keep district_scto `caseload_vars'
+
+.     collapse (count) n=caseload_3m (mean) `caseload_vars' ///
+>         (p50) median_caseload_3m=caseload_3m, by(district_scto)
+
+.     export excel using "`excel_exec'", sheet("caseload_by_district", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. histogram caseload_3m if !missing(caseload_3m), frequency discrete ///
+>     xtitle("Cases received in past 3 months") ///
+>     ytitle("Number of LC chairpersons") ///
+>     title("Distribution of 3-month LCC caseload", size(medsmall))
+(start=0, width=1)
+
+. graph export "`fig_dir'/fig_10_caseload_3m_distribution.png", width(2600) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_10_caseload_3m_distribution.png saved as PNG format
+
+. graph export "`fig_dir'/fig_10_caseload_3m_distribution.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_10_caseload_3m_distribution.pdf saved as PDF format
+
+. 
+. histogram caseload_3m if !missing(caseload_3m) & caseload_3m <= 15, frequency discrete ///
+>     xtitle("Cases received in past 3 months") ///
+>     ytitle("Number of LC chairpersons") ///
+>     title("Distribution of 3-month LCC caseload, excluding extreme outlier", size(medsmall)) ///
+>     note("Zoomed to 0-15 cases so the main distribution is visible; see outlier table for high values.", size
+> (vsmall))
+(start=0, width=1)
+
+. graph export "`fig_dir'/fig_10b_caseload_3m_zoom.png", width(2600) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_10b_caseload_3m_zoom.png saved as PNG format
+
+. graph export "`fig_dir'/fig_10b_caseload_3m_zoom.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_10b_caseload_3m_zoom.pdf saved as PDF format
+
+. 
+. preserve
+
+.     keep if !missing(caseload_3m) & caseload_3m > 15
+(132 observations deleted)
+
+.     keep survey_record_id submission_key interview_date enum district_scto subcounty_scto parish_scto village
+> _scto ///
+>         actual_village duration_min caseload_30d caseload_3m pending_cases flag_pending_gt_3m flag_any_data_q
+> uality_issue
+
+.     gsort -caseload_3m district_scto subcounty_scto parish_scto village_scto
+
+.     export excel using "`excel_exec'", sheet("caseload_outliers", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. local case_type_vars ///
+>     m3_q04_1 m3_q04_2 m3_q04_3 m3_q04_4 m3_q04_5 ///
+>     m3_q04_6 m3_q04_7 m3_q04_8 m3_q04_9 m3_q04_10
+
+. 
+. aju_mean_table `case_type_vars', sheet("case_types_3m") module("Case types received in past 3 months") ///
+>     graph("fig_11_case_types_3m") ///
+>     title("Types of cases received in past 3 months")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_11_case_types_3m.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_11_case_types_3m.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 7. Legal mandate, classification, and vignette performance
+. *------------------------------------------------------------------------------*
+. 
+. local legal_vars ///
+>     m4_q01_local_scope_score ///
+>     m4_q02_referral_scope_score ///
+>     m4_q04_correct_refer ///
+>     m4_q05_documentation_score ///
+>     m4_q06_procedure_score ///
+>     m4_q07_correct_adr_scope ///
+>     m4_q08_authority_score ///
+>     classification_confidence_score ///
+>     idx_vignette_classification ///
+>     idx_safeguard_classif_know ///
+>     idx_legal_classif_knowledge
+
+. 
+. aju_mean_table `legal_vars', sheet("legal_knowledge") module("Legal mandate and classification knowledge") //
+> /
+>     graph("fig_12_legal_knowledge") ///
+>     title("Legal mandate, referral, and procedural knowledge")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_12_legal_knowledge.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_12_legal_knowledge.pdf saved as PDF format
+
+. 
+. local vignette_vars ///
+>     v01_boundary_q1_correct ///
+>     v01_boundary_q2_correct ///
+>     v01_boundary_q3_correct ///
+>     v02_family_q1_correct ///
+>     v02_family_q2_correct ///
+>     v02_family_q3_correct ///
+>     v05_child_q1_correct ///
+>     v05_child_q2_correct ///
+>     v05_child_q3_correct ///
+>     v06_sgbv_q1_correct ///
+>     v06_sgbv_q2_correct ///
+>     v06_sgbv_q3_correct
+
+. 
+. aju_mean_table `vignette_vars', sheet("vignette_performance") module("Case-vignette performance") ///
+>     graph("fig_13_vignette_performance") ///
+>     title("Performance on case-classification vignettes")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_13_vignette_performance.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_13_vignette_performance.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 8. ADR and mediation practice
+. *------------------------------------------------------------------------------*
+. 
+. local adr_vars ///
+>     m5_q01_score ///
+>     m5_q02_score ///
+>     m5_q03_score ///
+>     m5_q06_score ///
+>     m5_q07_score ///
+>     adr_confidence_score ///
+>     deescalation_confidence_score ///
+>     n_adr_methods ///
+>     adr_methods_score ///
+>     n_adr_barriers ///
+>     noncomp_response_app ///
+>     m5_q14_score ///
+>     m5_q16_score ///
+>     idx_adr_mediation_practice
+
+. 
+. aju_mean_table `adr_vars', sheet("adr_mediation") module("ADR and mediation practice") ///
+>     graph("fig_14_adr_mediation") ///
+>     title("ADR and mediation practice")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_14_adr_mediation.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_14_adr_mediation.pdf saved as PDF format
+
+. 
+. local adr_barrier_vars ///
+>     m5_q11_1 m5_q11_2 m5_q11_3 m5_q11_4 m5_q11_5 ///
+>     m5_q11_6 m5_q11_7 m5_q11_8 m5_q11_9
+
+. 
+. aju_mean_table `adr_barrier_vars', sheet("adr_barriers") module("ADR barriers") ///
+>     graph("fig_15_adr_barriers") ///
+>     title("Reported barriers to local mediation/ADR")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_15_adr_barriers.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_15_adr_barriers.pdf saved as PDF format
+
+. 
+. local adr_method_vars ///
+>     m5_q13_1 m5_q13_2 m5_q13_3 m5_q13_4 ///
+>     m5_q13_5 m5_q13_6 m5_q13_7 m5_q13_8
+
+. 
+. aju_mean_table `adr_method_vars', sheet("adr_methods") module("ADR/local resolution methods") ///
+>     graph("fig_16_adr_methods") ///
+>     title("ADR/local resolution methods used")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_16_adr_methods.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_16_adr_methods.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 9. Referral practice and coordination
+. *------------------------------------------------------------------------------*
+. 
+. local referral_vars ///
+>     referral_frequency_score ///
+>     referral_documentation_score ///
+>     referral_feedback_score ///
+>     police_coordination_score ///
+>     court_coordination_score ///
+>     referral_path_conf_score ///
+>     referral_explain_conf_score ///
+>     verified_referral_record_score ///
+>     verified_ref_dest_score ///
+>     n_referral_reasons ///
+>     n_referral_barriers ///
+>     no_major_referral_barriers ///
+>     idx_referral_practice
+
+. 
+. aju_mean_table `referral_vars', sheet("referral_practice") module("Referral practice and coordination") ///
+>     graph("fig_17_referral_practice") ///
+>     title("Referral practice, coordination, and documentation")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_17_referral_practice.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_17_referral_practice.pdf saved as PDF format
+
+. 
+. local referral_reason_vars ///
+>     m6_q04_1 m6_q04_2 m6_q04_3 m6_q04_4 ///
+>     m6_q04_5 m6_q04_6 m6_q04_7 m6_q04_8
+
+. 
+. aju_mean_table `referral_reason_vars', sheet("referral_reasons") module("Reasons for referral") ///
+>     graph("fig_18_referral_reasons") ///
+>     title("Reasons LC chairpersons refer cases onward")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_18_referral_reasons.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_18_referral_reasons.pdf saved as PDF format
+
+. 
+. local referral_barrier_vars ///
+>     m6_q12_1 m6_q12_2 m6_q12_3 m6_q12_4 m6_q12_5 ///
+>     m6_q12_6 m6_q12_7 m6_q12_8 m6_q12_9 m6_q12_10 m6_q12_11
+
+. 
+. aju_mean_table `referral_barrier_vars', sheet("referral_barriers") module("Referral barriers") ///
+>     graph("fig_19_referral_barriers") ///
+>     title("Reported barriers to referral")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_19_referral_barriers.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_19_referral_barriers.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 10. Record-keeping and case management
+. *------------------------------------------------------------------------------*
+. 
+. local record_vars ///
+>     case_register_score ///
+>     record_type_breadth_score ///
+>     record_uptodate_score ///
+>     most_recent_entry_score ///
+>     record_fields_score ///
+>     outcome_recorded_score ///
+>     record_retrieval_score ///
+>     secure_storage_score ///
+>     records_access_open_to_community ///
+>     n_record_challenges ///
+>     no_major_record_challenges ///
+>     verified_case_register_score ///
+>     verified_proceedings_score ///
+>     verified_storage_score ///
+>     verified_record_usability_score ///
+>     idx_record_quality
+
+. 
+. aju_mean_table `record_vars', sheet("record_quality") module("Record-keeping and case management") ///
+>     graph("fig_20_record_quality") ///
+>     title("Record-keeping and case-management quality")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_20_record_quality.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_20_record_quality.pdf saved as PDF format
+
+. 
+. local record_challenge_vars ///
+>     m7_q15_1 m7_q15_2 m7_q15_3 m7_q15_4 ///
+>     m7_q15_5 m7_q15_6 m7_q15_7 m7_q15_8 m7_q15_9
+
+. 
+. aju_mean_table `record_challenge_vars', sheet("record_challenges") module("Record-keeping challenges") ///
+>     graph("fig_21_record_challenges") ///
+>     title("Reported record-keeping challenges")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_21_record_challenges.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_21_record_challenges.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 11. Committee functioning and collective decision-making
+. *------------------------------------------------------------------------------*
+. 
+. local committee_vars ///
+>     collective_handling_score ///
+>     active_member_part_score ///
+>     collective_discussion_score ///
+>     women_participation_score ///
+>     women_perspective_mechanism ///
+>     record_validation_score ///
+>     case_review_score ///
+>     decision_process_score ///
+>     similar_case_consistency_score ///
+>     procedure_confidence_score ///
+>     n_committee_challenges ///
+>     no_major_committee_challenges ///
+>     verified_member_part_score ///
+>     verified_multimember_val_score ///
+>     idx_committee_functioning
+
+. 
+. aju_mean_table `committee_vars', sheet("committee_function") module("Committee functioning and collective dec
+> ision-making") ///
+>     graph("fig_22_committee_functioning") ///
+>     title("Committee functioning and collective decision-making")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_22_committee_functioning.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_22_committee_functioning.pdf saved as PDF format
+
+. 
+. local committee_challenge_vars ///
+>     m8_q15_1 m8_q15_2 m8_q15_3 m8_q15_4 m8_q15_5 ///
+>     m8_q15_6 m8_q15_7 m8_q15_8 m8_q15_9 m8_q15_10
+
+. 
+. aju_mean_table `committee_challenge_vars', sheet("committee_challenges") module("Committee-functioning challe
+> nges") ///
+>     graph("fig_23_committee_challenges") ///
+>     title("Reported committee-functioning challenges")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_23_committee_challenges.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_23_committee_challenges.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 12. Procedural fairness, perceived legitimacy, and bypassing
+. *------------------------------------------------------------------------------*
+. 
+. local legitimacy_vars ///
+>     perceived_lcc_fairness_score ///
+>     perc_willing_use_lcc_score ///
+>     bypass_frequency_score ///
+>     low_bypass_score ///
+>     perc_favor_influence_score ///
+>     low_favoritism_influence_score ///
+>     conf_trust_when_referring ///
+>     conf_fair_respect_score ///
+>     bypass_due_distrust ///
+>     bypass_due_bias ///
+>     bypass_due_enforcement ///
+>     bypass_due_mandate_uncertainty ///
+>     bypass_due_serious_case ///
+>     eligible_cases_rarely_bypass ///
+>     idx_perceived_legitimacy
+
+. 
+. aju_mean_table `legitimacy_vars', sheet("legitimacy_bypass") module("Legitimacy and bypassing") ///
+>     graph("fig_24_legitimacy_bypass") ///
+>     title("Perceived legitimacy, bypassing, and fairness risks")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_24_legitimacy_bypass.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_24_legitimacy_bypass.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 13. Safeguards and serious/sensitive-case handling
+. *------------------------------------------------------------------------------*
+. 
+. local safeguards_vars ///
+>     vulnerable_need_sh ///
+>     idx_safeguard_classif_know ///
+>     v05_child_q1_correct ///
+>     v05_child_q2_correct ///
+>     v05_child_q3_correct ///
+>     v06_sgbv_q1_correct ///
+>     v06_sgbv_q2_correct ///
+>     v06_sgbv_q3_correct ///
+>     idx_safeguards
+
+. 
+. aju_mean_table `safeguards_vars', sheet("safeguards") module("Safeguards and serious/sensitive-case handling"
+> ) ///
+>     graph("fig_25_safeguards") ///
+>     title("Safeguards and serious/sensitive-case handling")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_25_safeguards.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_25_safeguards.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 14. Reintegration norms and support for formerly incarcerated persons
+. *------------------------------------------------------------------------------*
+. 
+. local reintegration_vars ///
+>     reintegration_importance_score ///
+>     reintegration_willingness_score ///
+>     fair_chance_reintegration_score ///
+>     low_exclusion_norm_score ///
+>     low_reoffending_stigma_score ///
+>     comm_role_reint_score ///
+>     reint_mediation_comfort ///
+>     connect_support_willing_score ///
+>     community_stigma_level_score ///
+>     n_reintegration_support_types ///
+>     reint_support_breadth_score ///
+>     no_reintegration_support_needed ///
+>     n_reintegration_barriers ///
+>     comm_accepts_ex_prisoner ///
+>     recent_reintegration_issue ///
+>     reint_tension_conf_score ///
+>     reint_referral_conf_score ///
+>     reint_comm_justice_role ///
+>     idx_reintegration_norms
+
+. 
+. aju_mean_table `reintegration_vars', sheet("reintegration_norms") module("Reintegration norms") ///
+>     graph("fig_26_reintegration_norms") ///
+>     title("Reintegration norms and support capacity")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_26_reintegration_norms.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_26_reintegration_norms.pdf saved as PDF format
+
+. 
+. local reint_support_vars ///
+>     m11_q10_1 m11_q10_2 m11_q10_3 m11_q10_4 ///
+>     m11_q10_5 m11_q10_6 m11_q10_7 m11_q10_8 m11_q10_9
+
+. 
+. aju_mean_table `reint_support_vars', sheet("reint_support_types") module("Reintegration support types") ///
+>     graph("fig_27_reintegration_support") ///
+>     title("Support types identified for successful reintegration")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_27_reintegration_support.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_27_reintegration_support.pdf saved as PDF format
+
+. 
+. local reint_barrier_vars ///
+>     m11_q12_1 m11_q12_2 m11_q12_3 m11_q12_4 ///
+>     m11_q12_5 m11_q12_6 m11_q12_7 m11_q12_8 m11_q12_9
+
+. 
+. aju_mean_table `reint_barrier_vars', sheet("reint_barriers") module("Reintegration barriers") ///
+>     graph("fig_28_reintegration_barriers") ///
+>     title("Perceived barriers to reintegration")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000f.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_28_reintegration_barriers.png saved as PNG format
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_28_reintegration_barriers.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 15. Cross-domain correlations and diagnostic relationships
+. *------------------------------------------------------------------------------*
+. 
+. * 15.1 Correlation matrix of core and composite indices
+. preserve
+
+.     keep `all_indices'
+
+.     corr `all_indices'
+(obs=133)
+
+             | i~spon~y idx_in~g idx_le~e idx_ad~e idx_re~e i~cord~y idx_co~g idx_pe~y idx_sa~s idx_re~s
+-------------+------------------------------------------------------------------------------------------
+idx_respon~y |   1.0000
+idx_instit~g |   0.2135   1.0000
+idx_legal_~e |   0.0178  -0.3093   1.0000
+idx_adr_me~e |   0.1225  -0.1433   0.4719   1.0000
+idx_referr~e |   0.2392   0.0957   0.2338   0.5842   1.0000
+idx_record~y |   0.2566   0.6675  -0.1253   0.0355   0.2085   1.0000
+idx_commit~g |   0.1396   0.0824   0.4652   0.5715   0.4669   0.1869   1.0000
+idx_percei~y |  -0.0061  -0.0274   0.3165   0.4862   0.3944   0.0855   0.5036   1.0000
+idx_safegu~s |   0.1125  -0.0511   0.3643   0.3620   0.2301   0.0831   0.2818   0.1366   1.0000
+idx_reinte~s |   0.1456  -0.0915   0.3759   0.6662   0.5274   0.1166   0.5798   0.5967   0.2104   1.0000
+idx_lcc_op~y |   0.2784   0.8275  -0.0636   0.1300   0.2986   0.9096   0.4391   0.1873   0.1100   0.2008
+idx_lcc_ca~y |   0.1703  -0.1305   0.6760   0.8267   0.6835   0.0767   0.5999   0.4444   0.7192   0.5982
+idx_lcc_le~s |   0.0684  -0.0624   0.3831   0.6325   0.5065   0.1109   0.6005   0.9176   0.1892   0.8665
+idx_p1_bas~y |   0.5515   0.3408   0.3872   0.6519   0.6596   0.5341   0.6829   0.5781   0.4405   0.6798
+
+             | i~oper~y i~case~y idx_lc~s idx_p1~y
+-------------+------------------------------------
+idx_lcc_op~y |   1.0000
+idx_lcc_ca~y |   0.1675   1.0000
+idx_lcc_le~s |   0.2159   0.5728   1.0000
+idx_p1_bas~y |   0.6526   0.7326   0.6964   1.0000
+
+
+.     matrix C = r(C)
+
+.     putexcel set "`excel_exec'", sheet("index_correlation_matrix", replace) modify
+
+.     putexcel A1 = matrix(C), names
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. restore
+
+. 
+. * 15.2 Pairwise correlations with mentor-readiness proxy
+. tempfile readiness_corrs
+
+. tempname rc
+
+. postfile `rc' str80 variable str160 label long n double corr_with_readiness using `readiness_corrs', replace
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000g.tmp not found)
+
+. 
+. foreach v of local core_indices {
+  2.     capture confirm numeric variable `v'
+  3.     if !_rc {
+  4.         quietly count if !missing(idx_p1_base_mentor_ready_proxy, `v')
+  5.         local n = r(N)
+  6.         if `n' > 2 {
+  7.             quietly corr idx_p1_base_mentor_ready_proxy `v'
+  8.             matrix R = r(C)
+  9.             local rho = R[1,2]
+ 10.         }
+ 11.         else {
+ 12.             local rho = .
+ 13.         }
+ 14.         local vl : variable label `v'
+ 15.         if `"`vl'"' == "" local vl "`v'"
+ 16.         post `rc' (`"`v'"') (`"`vl'"') (`n') (`rho')
+ 17.     }
+ 18. }
+
+. postclose `rc'
+
+. 
+. preserve
+
+.     use `readiness_corrs', clear
+
+.     gsort -corr_with_readiness
+
+.     export excel using "`excel_exec'", sheet("readiness_correlations", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_executive_results.xlsx saved
+
+. 
+.     graph hbar corr_with_readiness, over(label, sort(corr_with_readiness) label(labsize(vsmall))) ///
+>         blabel(bar, format(%4.2f) size(vsmall)) ///
+>         ytitle("Correlation with mentor-readiness proxy") ///
+>         title("Which baseline domains move with mentor readiness?", size(medsmall)) ///
+>         note("Diagnostic only: the readiness proxy is mechanically constructed from several component domains
+> .", size(vsmall))
+
+.     graph export "`fig_dir'/fig_29_readiness_correlations.png", width(2600) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_29_readiness_correlations.png saved as PNG format
+
+.     graph export "`fig_dir'/fig_29_readiness_correlations.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_29_readiness_correlations.pdf saved as PDF format
+
+. restore
+
+. 
+. * 15.3 Scatterplots for selected diagnostic relationships
+. twoway ///
+>     (scatter idx_p1_base_mentor_ready_proxy idx_lcc_case_handling_quality, msize(small)) ///
+>     (lfit idx_p1_base_mentor_ready_proxy idx_lcc_case_handling_quality), ///
+>     xtitle("Case-handling quality") ///
+>     ytitle("Mentor-readiness proxy") ///
+>     title("Mentor readiness and case-handling quality", size(medsmall)) ///
+>     legend(off)
+
+. graph export "`fig_dir'/fig_30_readiness_vs_case_handling.png", width(2400) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_30_readiness_vs_case_handling.png saved as PNG format
+
+. graph export "`fig_dir'/fig_30_readiness_vs_case_handling.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_30_readiness_vs_case_handling.pdf saved as PDF format
+
+. 
+. twoway ///
+>     (scatter idx_p1_base_mentor_ready_proxy idx_lcc_legitimacy_and_norms, msize(small)) ///
+>     (lfit idx_p1_base_mentor_ready_proxy idx_lcc_legitimacy_and_norms), ///
+>     xtitle("Legitimacy and reintegration norms") ///
+>     ytitle("Mentor-readiness proxy") ///
+>     title("Mentor readiness and legitimacy/norms", size(medsmall)) ///
+>     legend(off)
+
+. graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.png", width(2400) replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_31_readiness_vs_legitimacy_norms.png saved as PNG format
+
+. graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.pdf", replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Executive/figures/fig_31_readiness_vs_legitimacy_norms.pdf saved as PDF format
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 16. Complete all-item tabulations for internal evaluation team
+. *------------------------------------------------------------------------------*
+. * This workbook is intentionally broader than the executive presentation. It gives
+. * Ivan/CDFU and the internal team a complete reference of item-level responses.
+. 
+. putexcel set "`excel_items'", replace sheet("README")
+note: file will be replaced when the first putexcel command is issued.
+
+. putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline all-item tabulations"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel A3 = "Purpose"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel B3 = "Complete internal reference workbook: numeric summaries and categorical tabulations for Survey
+> CTO raw items and constructed analysis variables."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel A4 = "Caveat"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel B4 = "String/free-text notes are summarized for missingness only, not fully tabulated. Fully missing
+> /not-fielded numeric variables are flagged in numeric_field_status."
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel A5 = "Input"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. putexcel B5 = "`analysis_data'"
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. 
+. * Build broad numeric variable list: raw SurveyCTO items + key constructed variables.
+. local all_raw_num ""
+
+. foreach pattern in ///
+>     consent enum attend_cdfu_training rating_cdfu_training topics_trained_* ///
+>     m0_* m1_* m2_* m3_* m4_* m5_* m6_* m7_* m8_* m9_* m10_* m11_* ///
+>     respondent_* completed_secondary_or_above education_* lc_experience_* ///
+>     record_literacy_score can_record_* cannot_complete_records prior_* ///
+>     lcc_* *_score idx_* high_* flag_* n_* *_share_* *_cases* *_case* {
+  2.         capture unab tmp : `pattern'
+  3.         if !_rc local all_raw_num `all_raw_num' `tmp'
+  4. }
+
+. local all_raw_num : list uniq all_raw_num
+
+. 
+. * Keep only numeric variables for numeric summaries/tabulations
+. local all_num_existing ""
+
+. foreach v of local all_raw_num {
+  2.     capture confirm numeric variable `v'
+  3.     if !_rc local all_num_existing `all_num_existing' `v'
+  4. }
+
+. local all_num_existing : list uniq all_num_existing
+
+. 
+. * Numeric field-status sheet: distinguishes complete, partially observed, and fully missing/not-fielded varia
+> bles.
+. tempfile numeric_field_status
+
+. tempname fs
+
+. postfile `fs' str30 module str80 variable str200 label long n_nonmissing n_missing str40 status using `numeri
+> c_field_status', replace
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000i.tmp not found)
+
+. quietly count
+
+. local Ntotal_all = r(N)
+
+. foreach v of local all_num_existing {
+  2.     quietly count if !missing(`v')
+  3.     local n_nonmiss = r(N)
+  4.     local n_missing = `Ntotal_all' - `n_nonmiss'
+  5.     local status "Complete"
+  6.     if `n_nonmiss' == 0 local status "Fully missing / not fielded"
+  7.     else if `n_nonmiss' < `Ntotal_all' local status "Partially observed"
+  8. 
+.     aju_module_of_var `v'
+  9.     local module "`r(module)'"
+ 10.     local vlab : variable label `v'
+ 11.     if `"`vlab'"' == "" local vlab "`v'"
+ 12.     local vlab = substr(`"`vlab'"', 1, 200)
+ 13. 
+.     post `fs' (`"`module'"') (`"`v'"') (`"`vlab'"') (`n_nonmiss') (`n_missing') (`"`status'"')
+ 14. }
+
+. postclose `fs'
+
+. 
+. preserve
+
+.     use `numeric_field_status', clear
+
+.     sort status module variable
+
+.     export excel using "`excel_items'", sheet("numeric_field_status", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. restore
+
+. 
+. aju_tab_numeric_all `all_num_existing', sheet("numeric_summary_all")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000k.tmp not found)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. aju_tab_categorical_all `all_num_existing', sheet("categorical_counts_all") maxlevels(30)
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000k.tmp not found)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. 
+. * Select-multiple / dummy-style variables: report share selected.
+. local dummy_candidates ""
+
+. foreach v of local all_num_existing {
+  2.     quietly summarize `v', meanonly
+  3.     if r(N) > 0 & r(min) >= 0 & r(max) <= 1 {
+  4.         local dummy_candidates `dummy_candidates' `v'
+  5.     }
+  6. }
+
+. local dummy_candidates : list uniq dummy_candidates
+
+. 
+. aju_mean_table `dummy_candidates', sheet("binary_share_all") ///
+>     module("Binary/dummy variables and 0-1 scores") ///
+>     xlsx("${AJU_ITEMS_XLSX}")
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000k.tmp not found)
+(0 observations deleted)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. 
+. * String/free-text missingness and uniqueness summary
+. tempfile string_summary
+
+. tempname ss
+
+. 
+. postfile `ss' str30 module str80 variable str200 label ///
+>     long n_nonmissing n_missing n_unique using `string_summary', replace
+(file C:\Users\jzava\AppData\Local\Temp\ST_3d6c_00000k.tmp not found)
+
+. 
+. ds, has(type string)
+submission~y  actual_sub~y  m2_q15_spe~y  m4_q06        m5_q13        m7_q15        m11_q12       replacemen~s
+instance_id   actual_par~h  m2_q18        m4_q08        m5_q17        m7_q16        m11_q20       sample_dis~t
+district_s~o  actual_vil~e  m3_q04        m4_v01_q3     m6_q04        m8_q15        instanceid    sample_sub~y
+subcounty_~o  topics_tra~d  m3_q15        m4_v02_q3     m6_q12        m8_q16        key           sample_par~h
+parish_scto   m1_q10        m3_q18        m4_v05_q3     m6_q18        m9_q16        district_s~y  sample_vil~e
+village_scto  m1_q14        m4_q01        m4_v06_q3     m7_q03        m9_q20        subcounty_~y  sample_role
+survey_v~uid  m1_q14_spe~y  m4_q02        m4_q12        m7_q06        m10_q15       parish_sct~y
+actual_dis~t  m2_q15        m4_q05        m5_q11        m7_q14        m11_q10       village_sc~y
+
+. local string_vars `r(varlist)'
+
+. 
+. foreach v of local string_vars {
+  2. 
+.     quietly count
+  3.     local Ntotal = r(N)
+  4. 
+.     quietly count if !missing(`v') & itrim(strtrim(`v')) != ""
+  5.     local n_nonmiss = r(N)
+  6.     local n_missing = `Ntotal' - `n_nonmiss'
+  7. 
+.     if `n_nonmiss' == 0 {
+  8.         local n_unique = 0
+  9.     }
+ 10.     else {
+ 11.         preserve
+ 12.             keep `v'
+ 13.             keep if !missing(`v') & itrim(strtrim(`v')) != ""
+ 14.             quietly duplicates drop
+ 15.             quietly count
+ 16.             local n_unique = r(N)
+ 17.         restore
+ 18.     }
+ 19. 
+.     local module "String/free text"
+ 20.     if regexm("`v'","^m0_")  local module "M0 Geography/metadata"
+ 21.     if regexm("`v'","^m1_")  local module "M1 Respondent profile"
+ 22.     if regexm("`v'","^m2_")  local module "M2 Institutional setup"
+ 23.     if regexm("`v'","^m3_")  local module "M3 Caseload"
+ 24.     if regexm("`v'","^m4_")  local module "M4 Legal knowledge"
+ 25.     if regexm("`v'","^m5_")  local module "M5 ADR/mediation"
+ 26.     if regexm("`v'","^m6_")  local module "M6 Referrals"
+ 27.     if regexm("`v'","^m7_")  local module "M7 Records"
+ 28.     if regexm("`v'","^m8_")  local module "M8 Committee"
+ 29.     if regexm("`v'","^m9_")  local module "M9 Legitimacy"
+ 30.     if regexm("`v'","^m10_") local module "M10 Safeguards"
+ 31.     if regexm("`v'","^m11_") local module "M11 Reintegration"
+ 32. 
+.     local vlab : variable label `v'
+ 33.     if `"`vlab'"' == "" local vlab "`v'"
+ 34.     local vlab = substr(`"`vlab'"', 1, 200)
+ 35. 
+.     post `ss' (`"`module'"') (`"`v'"') (`"`vlab'"') ///
+>         (`n_nonmiss') (`n_missing') (`n_unique')
+ 36. }
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(92 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(132 observations deleted)
+(61 observations deleted)
+(132 observations deleted)
+(32 observations deleted)
+(37 observations deleted)
+(121 observations deleted)
+(3 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(6 observations deleted)
+(1 observation deleted)
+(0 observations deleted)
+(7 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(2 observations deleted)
+(0 observations deleted)
+(10 observations deleted)
+(10 observations deleted)
+(0 observations deleted)
+(5 observations deleted)
+(3 observations deleted)
+(5 observations deleted)
+(0 observations deleted)
+(5 observations deleted)
+(4 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(2 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+
+. 
+. postclose `ss'
+
+. 
+. preserve
+
+.     use `string_summary', clear
+
+.     export excel using "`excel_items'", ///
+>         sheet("string_missingness", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/tables/phas
+> e1_baseline_all_item_tabulations.xlsx saved
+
+. restore
+
+. 
+. 
+. *------------------------------------------------------------------------------*
+. **# 17. Final notes and close
+. *------------------------------------------------------------------------------*
+. 
+. display as result "Executive analysis complete."
+Executive analysis complete.
+
+. display as result "Executive workbook: `excel_exec'"
+Executive workbook: C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Execut
+> ive/tables/phase1_baseline_executive_results.xlsx
+
+. display as result "All-item workbook: `excel_items'"
+All-item workbook: C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executi
+> ve/tables/phase1_baseline_all_item_tabulations.xlsx
+
+. display as result "Figures folder: `fig_dir'"
+Figures folder: C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/
+> figures
+
+. display as result "Log file: `log_dir'/phase1_baseline_executive_analysis.log"
+Log file: C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/logs/p
+> hase1_baseline_executive_analysis.log
+
+. 
+. log close
+      name:  <unnamed>
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Baseline_Executive/log
+> s/phase1_baseline_executive_analysis.log
+  log type:  text
+ closed on:  13 Jun 2026, 20:35:14
+---------------------------------------------------------------------------------------------------------------
