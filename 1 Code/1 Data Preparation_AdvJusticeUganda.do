@@ -2279,6 +2279,321 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	note: Replacement village corrections require a future record-level mapping from SurveyCTO submission key to actual replacement village visited.
 	note: Module 9 and Module 10 were shortened in the fielded Runyankore instrument; indices use only fielded items.
 
+*------------------------------------------------------------------------------*
+**# X. Administrative Phase 1 origin: new vs previously contacted villages
+*------------------------------------------------------------------------------*
+* Source of truth:
+*   Final Village List.xlsx
+*
+* Definition:
+*   Previously contacted / added villages are those marked as:
+*       Last_CDFU_phase == 1 OR Ineherited_FHRI == 1
+*
+* Important:
+*   This block DOES NOT use the self-reported survey question on prior CDFU/FHRI
+*   training. It hard-codes the administrative classification using the matched
+*   SurveyCTO submission_key for each of the 28 admin-added villages.
+*
+* Resulting variables:
+*   p1_admin_last_cdfu              = 1 if village was part of the last CDFU phase
+*   p1_admin_inherited_fhri         = 1 if village was inherited from FHRI
+*   p1_admin_previously_contacted   = 1 if either of the two above is true
+*   p1_admin_new                    = 1 if not previously contacted/admin-added
+*   p1_admin_origin                 = categorical version for graphs/tables
+*------------------------------------------------------------------------------*
+
+capture confirm variable submission_key
+if _rc {
+    display as error "submission_key not found. Run this block after SurveyCTO metadata cleaning."
+    exit 111
+}
+
+capture drop p1_admin_last_cdfu
+capture drop p1_admin_inherited_fhri
+capture drop p1_admin_previously_contacted
+capture drop p1_admin_new
+capture drop p1_admin_origin
+capture drop p1_admin_origin_detail
+capture drop p1_admin_match_note
+
+gen byte p1_admin_last_cdfu = 0
+gen byte p1_admin_inherited_fhri = 0
+gen byte p1_admin_previously_contacted = 0
+gen byte p1_admin_new = .
+gen byte p1_admin_origin = 0
+gen str35 p1_admin_origin_detail = "New / randomly selected"
+gen strL p1_admin_match_note = ""
+
+label var p1_admin_last_cdfu ///
+    "Admin list: village belongs to last CDFU phase"
+
+label var p1_admin_inherited_fhri ///
+    "Admin list: village inherited from FHRI"
+
+label var p1_admin_previously_contacted ///
+    "Admin list: previously contacted/added village"
+
+label var p1_admin_new ///
+    "Admin list: new/randomly selected Phase 1 village"
+
+label var p1_admin_origin ///
+    "Admin list Phase 1 origin group"
+
+label var p1_admin_origin_detail ///
+    "Text label for admin Phase 1 origin group"
+
+label var p1_admin_match_note ///
+    "Audit note: admin village matched to SurveyCTO submission"
+
+*-------------------------------*
+* 1. Last CDFU phase villages   *
+*-------------------------------*
+* 20 records marked Last_CDFU_phase == 1 in the admin list.
+
+* 1. Bushenyi / Kakanju / Katunga / Kakuto A
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2f6ce7c1-25ca-4f25-b5bc-32d4514ea791"
+replace p1_admin_match_note = "Last CDFU: Bushenyi / Kakanju / Katunga / Kakuto A" ///
+    if submission_key == "uuid:2f6ce7c1-25ca-4f25-b5bc-32d4514ea791"
+
+* 2. Bushenyi / Kizinda Town Council / Nyabubare / Nyakinengo
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2190d328-1a42-4f7b-874d-a670dda437fe"
+replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Nyabubare / Nyakinengo" ///
+    if submission_key == "uuid:2190d328-1a42-4f7b-874d-a670dda437fe"
+
+* 3. Bushenyi / Kizinda Town Council / Nyabubare / Masya
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:e82dde24-05b4-42f0-b13d-f6a2feae07c8"
+replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Nyabubare / Masya" ///
+    if submission_key == "uuid:e82dde24-05b4-42f0-b13d-f6a2feae07c8"
+
+* 4. Bushenyi / Kizinda Town Council / Kizinda ward / Kitooma
+* SurveyCTO parish appears as Kizinda.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:e4eba94b-b137-4abe-b8b2-115029c6562d"
+replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Kizinda ward / Kitooma; SurveyCTO parish=Kizinda" ///
+    if submission_key == "uuid:e4eba94b-b137-4abe-b8b2-115029c6562d"
+
+* 5. Bushenyi / Kyamuhunga / Butaare / Nyambugye
+* Matched to SurveyCTO: Kyamuhunga Town / Butare / Nyampungye.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b137e053-2461-47a4-acc5-71b556a9d5c6"
+replace p1_admin_match_note = "Last CDFU: Bushenyi / Kyamuhunga / Butaare / Nyambugye; matched to SurveyCTO Kyamuhunga Town / Butare / Nyampungye" ///
+    if submission_key == "uuid:b137e053-2461-47a4-acc5-71b556a9d5c6"
+
+* 6. Rubirizi / Kirugu / Kikumbo / Omukabare B
+* SurveyCTO records this as Omukabare. There are duplicate Omukabare records;
+* this submission key is the admin-added Omukabare B match.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:eb7cfbf9-785f-4af3-9d19-0fbcb8028a1e"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kikumbo / Omukabare B; matched to duplicate SurveyCTO Omukabare record by submission key" ///
+    if submission_key == "uuid:eb7cfbf9-785f-4af3-9d19-0fbcb8028a1e"
+
+* 7. Rubirizi / Kirugu / Kirugu / Kirugu 2 B
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:8a21f548-2b3c-47f0-ae07-34354de0b0f5"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kirugu / Kirugu 2 B" ///
+    if submission_key == "uuid:8a21f548-2b3c-47f0-ae07-34354de0b0f5"
+
+* 8. Rubirizi / Ryeru / Ndekye / Ryeru
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:d2517598-b6eb-4885-9e14-c67dcfca649b"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Ryeru / Ndekye / Ryeru" ///
+    if submission_key == "uuid:d2517598-b6eb-4885-9e14-c67dcfca649b"
+
+* 9. Rubirizi / Kicwamba / Kicwamba / Kyesama
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b8cecd9f-74bb-4ed8-b18c-bd0cda597f51"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Kicwamba / Kicwamba / Kyesama" ///
+    if submission_key == "uuid:b8cecd9f-74bb-4ed8-b18c-bd0cda597f51"
+
+* 10. Rubirizi / Rubirizi Town / Nyakasharu / Kyakabunda
+* SurveyCTO subcounty appears as Katerera Town council.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:fb35c3d3-798e-416a-b9a8-369376d34615"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Rubirizi Town / Nyakasharu / Kyakabunda; SurveyCTO subcounty=Katerera Town council" ///
+    if submission_key == "uuid:fb35c3d3-798e-416a-b9a8-369376d34615"
+
+* 11. Rubirizi / Kirugu / Kirugu / Mirarikye
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:4dee5693-f48a-40c7-824b-4d3c8d139419"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kirugu / Mirarikye" ///
+    if submission_key == "uuid:4dee5693-f48a-40c7-824b-4d3c8d139419"
+
+* 12. Sheema / Masheruka sub county / Nyakambu / Nyakambu
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:351c6894-28fb-4dab-8acb-b2113d20e1d1"
+replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Nyakambu / Nyakambu" ///
+    if submission_key == "uuid:351c6894-28fb-4dab-8acb-b2113d20e1d1"
+
+* 13. Sheema / Masheruka sub county / Nyakambu / Migera
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:6fc4e7f6-3f62-45b5-9d68-5125574a73fa"
+replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Nyakambu / Migera" ///
+    if submission_key == "uuid:6fc4e7f6-3f62-45b5-9d68-5125574a73fa"
+
+* 14. Sheema / Masheruka sub county / Mabare / Rwichumu
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b1999bec-89d4-477b-b49e-15838313a589"
+replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Mabare / Rwichumu" ///
+    if submission_key == "uuid:b1999bec-89d4-477b-b49e-15838313a589"
+
+* 15. Sheema / Masheruka sub county / Mabare / Nyakanoni
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:53f4f023-bebc-4bc6-abc3-ccb212d97b7d"
+replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Mabare / Nyakanoni" ///
+    if submission_key == "uuid:53f4f023-bebc-4bc6-abc3-ccb212d97b7d"
+
+* 16. Sheema / Masheruka sub county / Buringo / Mukono 1
+* SurveyCTO subcounty appears as Masheruka TC.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:d722a4c7-2bfb-49ab-8858-646fb94e9475"
+replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Buringo / Mukono 1; SurveyCTO subcounty=Masheruka TC" ///
+    if submission_key == "uuid:d722a4c7-2bfb-49ab-8858-646fb94e9475"
+
+* 17. Sheema / Kabwohe Division / Kabwohe / Market cell
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:adb21efa-2e1c-48b5-9caa-f6875cdfefa0"
+replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Kabwohe / Market cell" ///
+    if submission_key == "uuid:adb21efa-2e1c-48b5-9caa-f6875cdfefa0"
+
+* 18. Sheema / Kabwohe Division / Rutoma / Kabwohe A
+* SurveyCTO parish appears as Kabwohe.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b445a616-8864-4508-a15c-f8f3deccabb3"
+replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Rutoma / Kabwohe A; SurveyCTO parish=Kabwohe" ///
+    if submission_key == "uuid:b445a616-8864-4508-a15c-f8f3deccabb3"
+
+* 19. Sheema / Kabwohe Division / Nyanga ward / Mabaga Cell
+* SurveyCTO parish appears as Nyanga.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:175fe80a-15d4-4f74-92b5-619f94854830"
+replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Nyanga ward / Mabaga Cell; SurveyCTO parish=Nyanga" ///
+    if submission_key == "uuid:175fe80a-15d4-4f74-92b5-619f94854830"
+
+* 20. Sheema / Kabwohe Division / Kabwohe / Kabwohe central
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:9bf5edc8-e555-40e1-8e3f-589f03b4a8ce"
+replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Kabwohe / Kabwohe central" ///
+    if submission_key == "uuid:9bf5edc8-e555-40e1-8e3f-589f03b4a8ce"
+
+* 21. Rubirizi / Katerera Town council / Katerera / Kikonjo
+* SurveyCTO records this as Bushenyi / Katerera Town council / Katerera ward / Kikonjo.
+replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2b9d305d-d058-42db-a4d8-b98643c9570c"
+replace p1_admin_match_note = "Last CDFU: Rubirizi / Katerera Town council / Katerera / Kikonjo; SurveyCTO records district as Bushenyi and parish as Katerera ward" ///
+    if submission_key == "uuid:2b9d305d-d058-42db-a4d8-b98643c9570c"
+
+*-------------------------------*
+* 2. Inherited FHRI villages    *
+*-------------------------------*
+* 8 records marked Ineherited_FHRI == 1 in the admin list.
+
+* 22. Rubirizi / Katerera Town council / Katerera / KIZIRA CELL
+* SurveyCTO parish appears as Katerera ward.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:330d6791-29c9-4ce9-9f0c-e5a516a88665"
+replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / KIZIRA CELL; SurveyCTO parish=Katerera ward" ///
+    if submission_key == "uuid:330d6791-29c9-4ce9-9f0c-e5a516a88665"
+
+* 23. Rubirizi / Katerera Town council / Katerera / KACU CELL
+* SurveyCTO subcounty appears as Kizinda Town Council and parish as Katerera ward.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:2c4d99f2-3f5f-4e44-93e4-337b40b98c7f"
+replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / KACU CELL; SurveyCTO subcounty=Kizinda Town Council, parish=Katerera ward" ///
+    if submission_key == "uuid:2c4d99f2-3f5f-4e44-93e4-337b40b98c7f"
+
+* 24. Rubirizi / Katerera Town council / Katerera / RWENTOSHO I
+* SurveyCTO subcounty appears as Kizinda Town Council and parish as Katerera ward.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:db45a481-5312-4553-a9fc-85343aa34e88"
+replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / RWENTOSHO I; SurveyCTO subcounty=Kizinda Town Council, parish=Katerera ward" ///
+    if submission_key == "uuid:db45a481-5312-4553-a9fc-85343aa34e88"
+
+* 25. Bushenyi / Kyamuhunga sub county / Nsumi / NYAMPUGYE
+* SurveyCTO village spelling appears as Nyampungye.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:694df33a-02e6-4c3c-a2cd-112001068039"
+replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Nsumi / NYAMPUGYE; SurveyCTO village=Nyampungye" ///
+    if submission_key == "uuid:694df33a-02e6-4c3c-a2cd-112001068039"
+
+* 26. Bushenyi / Kyamuhunga sub county / Mashonga / KYAMABARE
+* SurveyCTO subcounty appears as Kyamuhunga Town.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:19a8b7cb-3020-4b6a-9334-8082aa9e84e2"
+replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Mashonga / KYAMABARE; SurveyCTO subcounty=Kyamuhunga Town" ///
+    if submission_key == "uuid:19a8b7cb-3020-4b6a-9334-8082aa9e84e2"
+
+* 27. Bushenyi / Kyamuhunga sub county / Kibazi / NYAKAZINGA
+* SurveyCTO parish appears as Mashonga.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:e797533b-8e6d-44fd-9acb-730d417beac9"
+replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Kibazi / NYAKAZINGA; SurveyCTO subcounty=Kyamuhunga Town, parish=Mashonga" ///
+    if submission_key == "uuid:e797533b-8e6d-44fd-9acb-730d417beac9"
+
+* 28. Bushenyi / Kyamuhunga sub county / Mashonga / Nyamabare
+* SurveyCTO subcounty appears as Kyamuhunga Town.
+replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:1b6b6511-7ad1-4574-8313-ff38b799c6fd"
+replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Mashonga / Nyamabare; SurveyCTO subcounty=Kyamuhunga Town" ///
+    if submission_key == "uuid:1b6b6511-7ad1-4574-8313-ff38b799c6fd"
+
+*-------------------------------*
+* 3. Final grouped variables    *
+*-------------------------------*
+
+replace p1_admin_previously_contacted = ///
+    (p1_admin_last_cdfu == 1 | p1_admin_inherited_fhri == 1)
+
+replace p1_admin_new = 1 - p1_admin_previously_contacted
+
+replace p1_admin_origin = 1 if p1_admin_last_cdfu == 1
+replace p1_admin_origin = 2 if p1_admin_inherited_fhri == 1
+
+replace p1_admin_origin_detail = "Last CDFU phase" ///
+    if p1_admin_last_cdfu == 1
+
+replace p1_admin_origin_detail = "Inherited FHRI" ///
+    if p1_admin_inherited_fhri == 1
+
+capture label drop p1_admin_origin_lbl
+label define p1_admin_origin_lbl ///
+    0 "New / randomly selected" ///
+    1 "Last CDFU phase" ///
+    2 "Inherited FHRI"
+
+label values p1_admin_origin p1_admin_origin_lbl
+
+capture label define yesno 0 "No" 1 "Yes", replace
+label values p1_admin_last_cdfu yesno
+label values p1_admin_inherited_fhri yesno
+label values p1_admin_previously_contacted yesno
+label values p1_admin_new yesno
+
+*-------------------------------*
+* 4. Validation checks          *
+*-------------------------------*
+
+display as text "------------------------------------------------------------"
+display as text "Administrative Phase 1 origin classification checks"
+display as text "------------------------------------------------------------"
+
+count if p1_admin_last_cdfu == 1
+display as result "Last CDFU phase records flagged: " r(N)
+if r(N) != 21 {
+    display as error "WARNING: Expected 21 Last CDFU phase records based on admin list."
+}
+
+count if p1_admin_inherited_fhri == 1
+display as result "Inherited FHRI records flagged: " r(N)
+if r(N) != 7 {
+    display as error "WARNING: Expected 7 inherited FHRI records based on admin list."
+}
+
+count if p1_admin_previously_contacted == 1
+display as result "Total previously contacted/admin-added records flagged: " r(N)
+if r(N) != 28 {
+    display as error "WARNING: Expected 28 previously contacted/admin-added records."
+}
+
+count if p1_admin_last_cdfu == 1 & p1_admin_inherited_fhri == 1
+display as result "Records flagged as both Last CDFU and inherited FHRI: " r(N)
+if r(N) > 0 {
+    display as error "WARNING: Some records are flagged as both Last CDFU and inherited FHRI."
+}
+
+tab p1_admin_origin, missing
+tab district_scto p1_admin_origin, row missing
+
+* Optional comparison against the self-reported survey item.
+* This is diagnostic only; it is NOT used to create the admin dummy.
+capture confirm variable prior_cdfu_fhri_training
+if !_rc {
+    tab p1_admin_previously_contacted prior_cdfu_fhri_training, row missing
+}
+
+* List records for audit
+list district_scto subcounty_scto parish_scto village_scto ///
+     p1_admin_origin_detail p1_admin_match_note ///
+     if p1_admin_previously_contacted == 1, sepby(district_scto) noobs abbreviate(24)
+
+display as text "Administrative Phase 1 origin classification completed."
+display as text "Use p1_admin_previously_contacted or p1_admin_origin for baseline comparisons."
+display as text "------------------------------------------------------------"
+	
 	*-------------------------------*
 	**# 20. Save outputs and QA     *
 	*-------------------------------*
@@ -2407,6 +2722,8 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	dis as result "Phase 1 baseline cleaning complete. Corrected outputs saved in 2 Working and 3 Coded."
 
+	
+		
 *------------------------------------------------------------------------------*
 **# End Phase 1 baseline cleaning block
 *------------------------------------------------------------------------------*

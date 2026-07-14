@@ -26,7 +26,7 @@ clear all
 *-------------------------------*
 **#		Baseline analysis		*
 *-------------------------------*
-
+{
 *------------------------------------------------------------------------------*
 **# 0. Setup
 *------------------------------------------------------------------------------*
@@ -1401,6 +1401,1224 @@ display as result "Figures folder: `fig_dir'"
 display as result "Log file: `log_dir'/phase1_baseline_executive_analysis.log"
 
 log close
+
+
+*------------------------------------------------------------------------------*
+**# 18. Baseline comparison: new vs previously contacted villages
+*------------------------------------------------------------------------------*
+* Purpose:
+*   Compare key high-level baseline indicators between:
+*       0 = New / randomly selected villages
+*       1 = Previously contacted villages
+*
+* Grouping variable:
+*   p1_admin_previously_contacted
+*
+* Source of grouping:
+*   Administrative village list: Last_CDFU_phase == 1 OR Inherited_FHRI == 1.
+*   This is NOT based on self-reported prior training exposure.
+*
+* Interpretation:
+*   Descriptive baseline comparison only.
+*   These differences do not identify causal effects of previous exposure.
+*------------------------------------------------------------------------------*
+
+*-------------------------------*
+**# 18.0 Setup
+*-------------------------------*
+
+if `"${input_dir}"' == "" {
+    display as error "Global input_dir is not defined. Run the master code first."
+    exit 198
+}
+if `"${output_dir}"' == "" {
+    display as error "Global output_dir is not defined. Run the master code first."
+    exit 198
+}
+
+local analysis_data "${input_dir}/3 Coded/phase1_baseline_analysis.dta"
+capture confirm file "`analysis_data'"
+if _rc {
+    display as error "Analysis dataset not found: `analysis_data'"
+    exit 601
+}
+
+local exec_dir "${output_dir}/Phase1_Baseline_Executive"
+local fig_dir  "`exec_dir'/figures"
+local tab_dir  "`exec_dir'/tables"
+local log_dir  "`exec_dir'/logs"
+
+capture mkdir "`exec_dir'"
+capture mkdir "`fig_dir'"
+capture mkdir "`tab_dir'"
+capture mkdir "`log_dir'"
+
+local excel_origin "`tab_dir'/phase1_baseline_origin_comparison.xlsx"
+
+use "`analysis_data'", clear
+
+capture confirm variable p1_admin_previously_contacted
+if _rc {
+    display as error "p1_admin_previously_contacted not found."
+    display as error "Re-run the Data Preparation do-file after adding the administrative origin dummy block."
+    exit 111
+}
+
+capture label drop p1_admin_prev_lbl
+label define p1_admin_prev_lbl ///
+    0 "New / randomly selected" ///
+    1 "Previously contacted"
+label values p1_admin_previously_contacted p1_admin_prev_lbl
+
+label var p1_admin_previously_contacted ///
+    "Administrative group: previously contacted village"
+
+capture label define yesno 0 "No" 1 "Yes", replace
+
+* Basic validation
+display as text "------------------------------------------------------------"
+display as text "Phase 1 origin comparison: validation"
+display as text "------------------------------------------------------------"
+
+tab p1_admin_previously_contacted, missing
+tab district_scto p1_admin_previously_contacted, row missing
+
+count if p1_admin_previously_contacted == 1
+display as result "Previously contacted records: " r(N)
+if r(N) != 28 {
+    display as error "WARNING: Expected 28 previously contacted records."
+}
+
+count if p1_admin_previously_contacted == 0
+display as result "New/randomly selected records: " r(N)
+
+count if missing(p1_admin_previously_contacted)
+display as result "Missing origin group records: " r(N)
+if r(N) > 0 {
+    display as error "WARNING: Some records are missing p1_admin_previously_contacted."
+}
+
+*-------------------------------*
+**# 18.1 README and sample sheets
+*-------------------------------*
+
+putexcel set "`excel_origin'", replace sheet("README")
+putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline origin comparison"
+putexcel A3 = "Purpose"
+putexcel B3 = "Descriptive comparison of baseline indicators between new/randomly selected villages and previously contacted villages."
+putexcel A4 = "Grouping variable"
+putexcel B4 = "p1_admin_previously_contacted"
+putexcel A5 = "Definition"
+putexcel B5 = "1 if admin list marks village as Last_CDFU_phase == 1 or Inherited_FHRI == 1; 0 otherwise."
+putexcel A6 = "Interpretation"
+putexcel B6 = "Descriptive baseline differences only. These are not causal effects of prior exposure."
+putexcel A7 = "Recommended use"
+putexcel B7 = "Use for 3-4 presentation slides comparing key readiness, JLOS collaboration, priority gaps, and mentor-readiness flags."
+
+* Sample by group
+preserve
+    contract p1_admin_previously_contacted, freq(n)
+    egen total = total(n)
+    gen share = n / total
+    format share %9.3f
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order p1_admin_previously_contacted origin_group n share
+    export excel using "`excel_origin'", sheet("sample_by_origin", replace) firstrow(variables)
+restore
+
+* Sample by district and group
+preserve
+    contract district_scto p1_admin_previously_contacted, freq(n)
+    bysort district_scto: egen district_total = total(n)
+    gen district_share = n / district_total
+    format district_share %9.3f
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order district_scto p1_admin_previously_contacted origin_group n district_total district_share
+    export excel using "`excel_origin'", sheet("sample_by_district_origin", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.2 Candidate high-level variable list for differential analysis
+*------------------------------------------------------------------------------*
+* Short local macro names are used because Stata has strict name-length limits.
+
+local corevars ///
+    idx_lcc_operational_capacity ///
+    idx_lcc_case_handling_quality ///
+    idx_lcc_legitimacy_and_norms ///
+    idx_p1_base_mentor_ready_proxy
+
+local domainvars ///
+    idx_respondent_capacity ///
+    idx_institutional_functioning ///
+    idx_legal_classif_knowledge ///
+    idx_adr_mediation_practice ///
+    idx_referral_practice ///
+    idx_record_quality ///
+    idx_committee_functioning ///
+    idx_perceived_legitimacy ///
+    idx_safeguards ///
+    idx_reintegration_norms
+
+local jlosvars ///
+    prior_formal_coordination ///
+    police_coordination_score ///
+    court_coordination_score ///
+    referral_frequency_score ///
+    referral_documentation_score ///
+    referral_feedback_score ///
+    verified_referral_record_score ///
+    verified_ref_dest_score ///
+    referral_path_conf_score ///
+    referral_explain_conf_score ///
+    m6_q04_1 ///
+    m6_q04_2 ///
+    m6_q04_3 ///
+    m6_q04_4 ///
+    m6_q12_1 ///
+    m6_q12_2 ///
+    idx_referral_practice
+
+local recsafevars ///
+    idx_record_quality ///
+    case_register_score ///
+    record_fields_score ///
+    verified_record_usability_score ///
+    n_record_challenges ///
+    m7_q15_1 ///
+    m7_q15_2 ///
+    m7_q15_3 ///
+    idx_safeguards ///
+    vulnerable_need_sh ///
+    idx_safeguard_classif_know ///
+    v05_child_q1_correct ///
+    v05_child_q2_correct ///
+    v05_child_q3_correct ///
+    v06_sgbv_q1_correct ///
+    v06_sgbv_q2_correct ///
+    v06_sgbv_q3_correct
+
+local legreintvars ///
+    idx_perceived_legitimacy ///
+    perceived_lcc_fairness_score ///
+    perc_willing_use_lcc_score ///
+    low_bypass_score ///
+    conf_trust_when_referring ///
+    conf_fair_respect_score ///
+    bypass_due_distrust ///
+    bypass_due_bias ///
+    bypass_due_enforcement ///
+    idx_reintegration_norms ///
+    reintegration_importance_score ///
+    fair_chance_reintegration_score ///
+    low_reoffending_stigma_score ///
+    comm_accepts_ex_prisoner ///
+    recent_reintegration_issue ///
+    reint_tension_conf_score ///
+    reint_referral_conf_score
+
+local mentorvars ///
+    high_operational_capacity ///
+    high_case_handling_quality ///
+    high_legitimacy_norms ///
+    high_mentor_readiness_proxy
+
+local contextvars ///
+    lc_experience_years ///
+    completed_secondary_or_above ///
+    can_record_english ///
+    can_record_runyankore ///
+    prior_justice_training ///
+    prior_cdfu_fhri_training ///
+    lcc_sittings_12m ///
+    lcc_has_vacancy ///
+    lcc_women_share ///
+    caseload_3m ///
+    pending_cases ///
+    any_child_or_sgbv_case_3m ///
+    any_serious_or_sensitive_case_3m
+
+local candvars ///
+    `corevars' ///
+    `domainvars' ///
+    `jlosvars' ///
+    `recsafevars' ///
+    `legreintvars' ///
+    `mentorvars' ///
+    `contextvars'
+
+
+*------------------------------------------------------------------------------*
+**# 18.3 Candidate difference table
+*------------------------------------------------------------------------------*
+* Produces a broad comparison table with:
+*   - N and mean in new villages
+*   - N and mean in previously contacted villages
+*   - Difference: previously contacted minus new
+*   - Two-sided p-value from a simple t-test
+*
+* P-values are descriptive diagnostics only. No causal interpretation.
+*------------------------------------------------------------------------------*
+
+tempfile origin_diffs
+tempname memhold
+
+postfile `memhold' ///
+    str40 domain ///
+    str80 variable ///
+    str180 label ///
+    long n_new ///
+    double mean_new ///
+    long n_prev ///
+    double mean_prev ///
+    double diff_prev_minus_new ///
+    double p_value ///
+    double abs_diff ///
+    using `origin_diffs', replace
+
+foreach v of local candvars {
+
+    capture confirm numeric variable `v'
+    if !_rc {
+
+local domain "Other/context"
+if strpos(" `corevars' ", " `v' ") > 0 local domain "Core composites"
+if strpos(" `domainvars' ", " `v' ") > 0 local domain "Domain indices"
+if strpos(" `jlosvars' ", " `v' ") > 0 local domain "JLOS/referral collaboration"
+if strpos(" `recsafevars' ", " `v' ") > 0 local domain "Records and safeguards"
+if strpos(" `legreintvars' ", " `v' ") > 0 local domain "Legitimacy and reintegration"
+if strpos(" `mentorvars' ", " `v' ") > 0 local domain "Mentor-readiness flags"
+
+        quietly count if p1_admin_previously_contacted == 0 & !missing(`v')
+        local n0 = r(N)
+        quietly summarize `v' if p1_admin_previously_contacted == 0, meanonly
+        local m0 = r(mean)
+
+        quietly count if p1_admin_previously_contacted == 1 & !missing(`v')
+        local n1 = r(N)
+        quietly summarize `v' if p1_admin_previously_contacted == 1, meanonly
+        local m1 = r(mean)
+
+        local diff = .
+        if `n0' > 0 & `n1' > 0 local diff = `m1' - `m0'
+
+        local pval = .
+        if `n0' > 1 & `n1' > 1 {
+            capture quietly ttest `v', by(p1_admin_previously_contacted)
+            if !_rc local pval = r(p)
+        }
+
+        local adiff = abs(`diff')
+
+        local vlab : variable label `v'
+        if `"`vlab'"' == "" local vlab "`v'"
+        local vlab = substr(`"`vlab'"', 1, 180)
+
+        post `memhold' ///
+            (`"`domain'"') ///
+            (`"`v'"') ///
+            (`"`vlab'"') ///
+            (`n0') ///
+            (`m0') ///
+            (`n1') ///
+            (`m1') ///
+            (`diff') ///
+            (`pval') ///
+            (`adiff')
+    }
+}
+
+postclose `memhold'
+
+preserve
+    use `origin_diffs', clear
+
+    * Remove variables with no usable comparison
+    drop if missing(mean_new) & missing(mean_prev)
+
+    format mean_new mean_prev diff_prev_minus_new p_value abs_diff %9.3f
+
+    * Full diagnostic table
+    gsort domain -abs_diff
+    export excel using "`excel_origin'", sheet("candidate_diff_table", replace) firstrow(variables)
+
+    * Ranked table across all domains
+    gsort -abs_diff
+    export excel using "`excel_origin'", sheet("ranked_abs_differences", replace) firstrow(variables)
+
+    * More conservative presentation candidate table: high-level outcomes only
+    keep if inlist(domain, "Core composites", "Domain indices", "JLOS/referral collaboration", ///
+        "Records and safeguards", "Legitimacy and reintegration", "Mentor-readiness flags")
+    gsort -abs_diff
+    export excel using "`excel_origin'", sheet("presentation_candidates", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.4 Slide-ready Figure 1: Core composites by origin
+*------------------------------------------------------------------------------*
+* Suggested slide:
+*   "Previously contacted villages start from a different baseline profile"
+*------------------------------------------------------------------------------*
+
+graph bar (mean) ///
+    idx_lcc_operational_capacity ///
+    idx_lcc_case_handling_quality ///
+    idx_lcc_legitimacy_and_norms ///
+    idx_p1_base_mentor_ready_proxy, ///
+    over(p1_admin_previously_contacted, label(labsize(small))) ///
+    blabel(bar, format(%4.2f) size(vsmall)) ///
+    ylabel(0(.2)1, labsize(small)) ///
+    ytitle("Mean score, 0-1 scale") ///
+	scheme(plotplain) ///
+    title("Core baseline composites by Phase 1 origin", size(medsmall)) ///
+    legend(order(1 "Operational capacity" ///
+                 2 "Case-handling quality" ///
+                 3 "Legitimacy & reintegration" ///
+                 4 "Mentor-readiness proxy") ///
+           rows(2) size(vsmall)) ///
+    note("Descriptive baseline comparison only; not a causal effect of previous exposure.", size(vsmall))
+
+graph export "`fig_dir'/fig_32_origin_core_composites.png", width(2600) replace
+graph export "`fig_dir'/fig_32_origin_core_composites.pdf", replace
+
+preserve
+    keep p1_admin_previously_contacted ///
+        idx_lcc_operational_capacity ///
+        idx_lcc_case_handling_quality ///
+        idx_lcc_legitimacy_and_norms ///
+        idx_p1_base_mentor_ready_proxy
+
+    collapse (count) n=idx_p1_base_mentor_ready_proxy ///
+        (mean) idx_lcc_operational_capacity ///
+               idx_lcc_case_handling_quality ///
+               idx_lcc_legitimacy_and_norms ///
+               idx_p1_base_mentor_ready_proxy, ///
+        by(p1_admin_previously_contacted)
+
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order p1_admin_previously_contacted origin_group n
+    export excel using "`excel_origin'", sheet("fig32_core_composites", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.5 Slide-ready Figure 2: JLOS collaboration and referral pathway
+*------------------------------------------------------------------------------*
+* JLOS = Justice, Law and Order Sector.
+*
+* Suggested slide:
+*   "Pre-exposure differences are clearest in justice-sector collaboration"
+*------------------------------------------------------------------------------*
+
+graph bar (mean) ///
+    prior_formal_coordination ///
+    police_coordination_score ///
+    court_coordination_score ///
+    referral_path_conf_score ///
+    referral_explain_conf_score ///
+    referral_feedback_score ///
+    verified_referral_record_score, ///
+    over(p1_admin_previously_contacted, label(labsize(small))) ///
+    blabel(bar, format(%4.2f) size(vsmall)) ///
+    ylabel(0(.2)1, labsize(small)) ///
+    ytitle("Share / mean score") ///
+	scheme(plotplain) ///
+    title("JLOS collaboration and referral pathway by Phase 1 origin", size(medsmall)) ///
+    legend(order(1 "Prior formal coordination" ///
+                 2 "Police coordination" ///
+                 3 "Court/formal justice coordination" ///
+                 4 "Confidence: where to refer" ///
+                 5 "Confidence: explain referral" ///
+                 6 "Feedback after referral" ///
+                 7 "Referral cases recorded") ///
+           rows(3) size(vsmall)) ///
+    note("JLOS = Justice, Law and Order Sector. Descriptive baseline comparison only.", size(vsmall))
+
+graph export "`fig_dir'/fig_33_origin_jlos_collaboration.png", width(2800) replace
+graph export "`fig_dir'/fig_33_origin_jlos_collaboration.pdf", replace
+
+preserve
+    keep p1_admin_previously_contacted ///
+        prior_formal_coordination ///
+        police_coordination_score ///
+        court_coordination_score ///
+        referral_path_conf_score ///
+        referral_explain_conf_score ///
+        referral_feedback_score ///
+        verified_referral_record_score
+
+    collapse (count) n=prior_formal_coordination ///
+        (mean) prior_formal_coordination ///
+               police_coordination_score ///
+               court_coordination_score ///
+               referral_path_conf_score ///
+               referral_explain_conf_score ///
+               referral_feedback_score ///
+               verified_referral_record_score, ///
+        by(p1_admin_previously_contacted)
+
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order p1_admin_previously_contacted origin_group n
+    export excel using "`excel_origin'", sheet("fig33_jlos_collaboration", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.6 Slide-ready Figure 3: Priority implementation gaps by origin
+*------------------------------------------------------------------------------*
+* For 0-1 positive indices, the implementation gap is defined as:
+*   gap = 1 - mean(index)
+*
+* Suggested slide:
+*   "Both groups still need practical support, but gaps differ by origin"
+*------------------------------------------------------------------------------*
+
+capture drop gap_perceived_legitimacy
+capture drop gap_record_quality
+capture drop gap_reintegration_norms
+capture drop gap_referral_practice
+capture drop gap_safeguards
+capture drop gap_case_handling
+
+gen double gap_perceived_legitimacy = 1 - idx_perceived_legitimacy ///
+    if !missing(idx_perceived_legitimacy)
+gen double gap_record_quality = 1 - idx_record_quality ///
+    if !missing(idx_record_quality)
+gen double gap_reintegration_norms = 1 - idx_reintegration_norms ///
+    if !missing(idx_reintegration_norms)
+gen double gap_referral_practice = 1 - idx_referral_practice ///
+    if !missing(idx_referral_practice)
+gen double gap_safeguards = 1 - idx_safeguards ///
+    if !missing(idx_safeguards)
+gen double gap_case_handling = 1 - idx_lcc_case_handling_quality ///
+    if !missing(idx_lcc_case_handling_quality)
+
+label var gap_perceived_legitimacy "Legitimacy gap"
+label var gap_record_quality "Record-quality gap"
+label var gap_reintegration_norms "Reintegration-norms gap"
+label var gap_referral_practice "Referral-practice gap"
+label var gap_safeguards "Safeguards gap"
+label var gap_case_handling "Case-handling quality gap"
+
+graph bar (mean) ///
+    gap_perceived_legitimacy ///
+    gap_record_quality ///
+    gap_reintegration_norms ///
+    gap_referral_practice ///
+    gap_safeguards ///
+    gap_case_handling, ///
+    over(p1_admin_previously_contacted, label(labsize(small))) ///
+    blabel(bar, format(%4.2f) size(vsmall)) ///
+    ylabel(0(.2)1, labsize(small)) ///
+    ytitle("Gap to full score, 1 - index mean") ///
+	scheme(plotplain) ///
+    title("Priority implementation gaps by Phase 1 origin", size(medsmall)) ///
+    legend(order(1 "Legitimacy" ///
+                 2 "Records" ///
+                 3 "Reintegration" ///
+                 4 "Referrals" ///
+                 5 "Safeguards" ///
+                 6 "Case handling") ///
+           rows(2) size(vsmall)) ///
+    note("Higher values indicate larger baseline gaps. Descriptive comparison only.", size(vsmall))
+
+graph export "`fig_dir'/fig_34_origin_priority_gaps.png", width(2800) replace
+graph export "`fig_dir'/fig_34_origin_priority_gaps.pdf", replace
+
+preserve
+    keep p1_admin_previously_contacted ///
+        gap_perceived_legitimacy ///
+        gap_record_quality ///
+        gap_reintegration_norms ///
+        gap_referral_practice ///
+        gap_safeguards ///
+        gap_case_handling
+
+    collapse (count) n=gap_case_handling ///
+        (mean) gap_perceived_legitimacy ///
+               gap_record_quality ///
+               gap_reintegration_norms ///
+               gap_referral_practice ///
+               gap_safeguards ///
+               gap_case_handling, ///
+        by(p1_admin_previously_contacted)
+
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order p1_admin_previously_contacted origin_group n
+    export excel using "`excel_origin'", sheet("fig34_priority_gaps", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.7 Slide-ready Figure 4: High-capacity / mentor-readiness flags by origin
+*------------------------------------------------------------------------------*
+* Suggested slide:
+*   "Prior contact does not automatically imply mentor readiness"
+*------------------------------------------------------------------------------*
+
+graph bar (mean) ///
+    high_operational_capacity ///
+    high_case_handling_quality ///
+    high_legitimacy_norms ///
+    high_mentor_readiness_proxy, ///
+    over(p1_admin_previously_contacted, label(labsize(small))) ///
+    blabel(bar, format(%4.2f) size(vsmall)) ///
+    ylabel(0(.2)1, labsize(small)) ///
+    ytitle("Share of chairpersons") ///
+	scheme(plotplain) ///
+    title("High-capacity and mentor-readiness flags by Phase 1 origin", size(medsmall)) ///
+    legend(order(1 "High operational capacity" ///
+                 2 "High case-handling quality" ///
+                 3 "High legitimacy/norms" ///
+                 4 "High mentor-readiness proxy") ///
+           rows(2) size(vsmall)) ///
+    note("High = score >= 0.75. Mentor-readiness proxy is diagnostic, not final eligibility.", size(vsmall))
+
+graph export "`fig_dir'/fig_35_origin_high_readiness_flags.png", width(2600) replace
+graph export "`fig_dir'/fig_35_origin_high_readiness_flags.pdf", replace
+
+preserve
+    keep p1_admin_previously_contacted ///
+        high_operational_capacity ///
+        high_case_handling_quality ///
+        high_legitimacy_norms ///
+        high_mentor_readiness_proxy
+
+    collapse (count) n=high_mentor_readiness_proxy ///
+        (mean) high_operational_capacity ///
+               high_case_handling_quality ///
+               high_legitimacy_norms ///
+               high_mentor_readiness_proxy, ///
+        by(p1_admin_previously_contacted)
+
+    decode p1_admin_previously_contacted, gen(origin_group)
+    order p1_admin_previously_contacted origin_group n
+    export excel using "`excel_origin'", sheet("fig35_high_readiness_flags", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.8 Optional additional diagnostic: district-adjusted descriptive regressions
+*------------------------------------------------------------------------------*
+* These are not causal models. They simply check whether origin differences remain
+* after absorbing district-level average differences.
+*------------------------------------------------------------------------------*
+
+tempfile origin_regressions
+tempname regpost
+
+postfile `regpost' ///
+    str80 outcome ///
+    str160 label ///
+    long n ///
+    double coef_prev_contacted ///
+    double se ///
+    double p_value ///
+    double mean_new ///
+    double mean_prev ///
+    using `origin_regressions', replace
+
+local regression_outcomes ///
+    idx_lcc_operational_capacity ///
+    idx_lcc_case_handling_quality ///
+    idx_lcc_legitimacy_and_norms ///
+    idx_p1_base_mentor_ready_proxy ///
+    idx_referral_practice ///
+    idx_record_quality ///
+    idx_perceived_legitimacy ///
+    idx_safeguards ///
+    idx_reintegration_norms ///
+    prior_formal_coordination ///
+    police_coordination_score ///
+    court_coordination_score ///
+    referral_feedback_score ///
+    verified_referral_record_score ///
+    high_mentor_readiness_proxy
+
+foreach y of local regression_outcomes {
+    capture confirm numeric variable `y'
+    if !_rc {
+        quietly count if !missing(`y', p1_admin_previously_contacted, district_scto)
+        local n = r(N)
+
+        quietly summarize `y' if p1_admin_previously_contacted == 0, meanonly
+        local mean0 = r(mean)
+
+        quietly summarize `y' if p1_admin_previously_contacted == 1, meanonly
+        local mean1 = r(mean)
+
+        local b = .
+        local se = .
+        local p = .
+
+        if `n' > 5 {
+            capture quietly regress `y' i.p1_admin_previously_contacted i.district_scto, vce(robust)
+            if !_rc {
+                local b = _b[1.p1_admin_previously_contacted]
+                local se = _se[1.p1_admin_previously_contacted]
+                local p = 2 * ttail(e(df_r), abs(`b' / `se'))
+            }
+        }
+
+        local ylab : variable label `y'
+        if `"`ylab'"' == "" local ylab "`y'"
+        local ylab = substr(`"`ylab'"', 1, 160)
+
+        post `regpost' ///
+            (`"`y'"') ///
+            (`"`ylab'"') ///
+            (`n') ///
+            (`b') ///
+            (`se') ///
+            (`p') ///
+            (`mean0') ///
+            (`mean1')
+    }
+}
+
+postclose `regpost'
+
+preserve
+    use `origin_regressions', clear
+    gen raw_diff_prev_minus_new = mean_prev - mean_new
+    format coef_prev_contacted se p_value mean_new mean_prev raw_diff_prev_minus_new %9.3f
+    order outcome label n mean_new mean_prev raw_diff_prev_minus_new coef_prev_contacted se p_value
+    export excel using "`excel_origin'", sheet("district_adjusted_diagnostics", replace) firstrow(variables)
+restore
+
+
+*------------------------------------------------------------------------------*
+**# 18.9 Console summary for presentation notes
+*------------------------------------------------------------------------------*
+
+display as text "------------------------------------------------------------"
+display as text "Origin comparison outputs created:"
+display as text "Excel workbook:"
+display as result "`excel_origin'"
+display as text "Figures:"
+display as result "`fig_dir'/fig_32_origin_core_composites.png"
+display as result "`fig_dir'/fig_33_origin_jlos_collaboration.png"
+display as result "`fig_dir'/fig_34_origin_priority_gaps.png"
+display as result "`fig_dir'/fig_35_origin_high_readiness_flags.png"
+display as text "------------------------------------------------------------"
+
+display as text "Recommended presentation use:"
+display as text "1. One slide on core baseline profile differences."
+display as text "2. One slide on JLOS collaboration and referral pathways."
+display as text "3. One slide on priority implementation gaps."
+display as text "4. One slide on mentor-readiness / high-capacity flags."
+display as text "------------------------------------------------------------"
+
+
+
+*------------------------------------------------------------------------------*
+**# 19. Annex analysis: expanded JLOS collaboration and referral pathways
+*------------------------------------------------------------------------------*
+* Purpose:
+*   Produce 4 slide-ready figures expanding the analysis of collaboration with
+*   JLOS actors for the full Phase 1 baseline sample.
+*
+* JLOS:
+*   Justice, Law and Order Sector. In this analysis, this mainly refers to
+*   formal justice and protection actors such as police, courts, probation /
+*   child protection, and related justice-sector authorities.
+*
+* Interpretation:
+*   Descriptive baseline analysis only.
+*------------------------------------------------------------------------------*
+
+*-------------------------------*
+**# 19.0 Setup
+*-------------------------------*
+
+if `"${input_dir}"' == "" {
+    display as error "Global input_dir is not defined. Run the master code first."
+    exit 198
+}
+if `"${output_dir}"' == "" {
+    display as error "Global output_dir is not defined. Run the master code first."
+    exit 198
+}
+
+local analysis_data "${input_dir}/3 Coded/phase1_baseline_analysis.dta"
+capture confirm file "`analysis_data'"
+if _rc {
+    display as error "Analysis dataset not found: `analysis_data'"
+    exit 601
+}
+
+local exec_dir "${output_dir}/Phase1_Baseline_Executive"
+local fig_dir  "`exec_dir'/figures"
+local tab_dir  "`exec_dir'/tables"
+
+capture mkdir "`exec_dir'"
+capture mkdir "`fig_dir'"
+capture mkdir "`tab_dir'"
+
+local excel_jlos "`tab_dir'/phase1_baseline_jlos_expanded_analysis.xlsx"
+
+use "`analysis_data'", clear
+
+*-------------------------------*
+**# 19.1 Clean labels
+*-------------------------------*
+
+capture label var m4_q02_referral_scope_score "Knows which cases require referral"
+capture label var prior_formal_coordination "Prior coordination with JLOS actors"
+capture label var police_coordination_score "Coordination with police"
+capture label var court_coordination_score "Coordination with courts/formal justice"
+capture label var referral_frequency_score "Referral regularity"
+capture label var referral_documentation_score "Referral documentation"
+capture label var referral_feedback_score "Feedback after referral"
+capture label var referral_path_conf_score "Confidence knowing where to refer"
+capture label var referral_explain_conf_score "Confidence explaining referral"
+capture label var verified_referral_record_score "Verified referred cases are recorded"
+capture label var verified_ref_dest_score "Verified referral destination recorded"
+capture label var idx_referral_practice "Referral practice index"
+
+capture label var m6_q04_1 "Outside LCC mandate"
+capture label var m6_q04_2 "Serious violence/threat to life"
+capture label var m6_q04_3 "Sexual violence or SGBV"
+capture label var m6_q04_4 "Child protection concern"
+capture label var m6_q04_5 "Parties refused local mediation"
+capture label var m6_q04_6 "Local agreement not followed"
+capture label var m6_q04_7 "Facts/evidence too complex"
+capture label var m6_q04_8 "LCC lacked quorum/capacity"
+
+capture label var m6_q12_1 "Authority too far away"
+capture label var m6_q12_2 "Transport cost/lack of transport"
+capture label var m6_q12_3 "Parties do not want referral"
+capture label var m6_q12_4 "Fear costs/delay/consequences"
+capture label var m6_q12_5 "Receiving authority slow"
+capture label var m6_q12_6 "Unclear receiving authority"
+capture label var m6_q12_7 "Lack referral-procedure knowledge"
+capture label var m6_q12_8 "Lack forms/documentation tools"
+capture label var m6_q12_9 "Pressure to keep case local"
+capture label var m6_q12_10 "Fear retaliation/worse conflict"
+capture label var m6_q12_11 "No major referral barriers"
+
+*-------------------------------*
+**# 19.2 README
+*-------------------------------*
+
+putexcel set "`excel_jlos'", replace sheet("README")
+putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline expanded JLOS analysis"
+putexcel A3 = "Purpose"
+putexcel B3 = "Expanded descriptive analysis of LC chairperson collaboration with JLOS actors and referral pathways."
+putexcel A4 = "Sample"
+putexcel B4 = "Full Phase 1 baseline analysis sample."
+putexcel A5 = "JLOS definition"
+putexcel B5 = "Justice, Law and Order Sector: police, courts, probation/child protection, and related justice-sector authorities."
+putexcel A6 = "Interpretation"
+putexcel B6 = "Descriptive baseline analysis only. These figures do not estimate program impact."
+
+*------------------------------------------------------------------------------*
+**# 19.3 Figure 36: JLOS collaboration and referral practice snapshot
+*------------------------------------------------------------------------------*
+* Recommended slide:
+*   "Collaboration with JLOS actors is already widespread, but referral closure is weaker"
+*------------------------------------------------------------------------------*
+
+preserve
+    tempfile jlos_snapshot
+    tempname mem
+
+    postfile `mem' byte order str70 indicator long n double value using `jlos_snapshot', replace
+
+    local v1  prior_formal_coordination
+    local l1  "Prior formal coordination"
+    local v2  m4_q02_referral_scope_score
+    local l2  "Knows cases requiring referral"
+    local v3  police_coordination_score
+    local l3  "Coordination with police"
+    local v4  court_coordination_score
+    local l4  "Coordination with courts"
+    local v5  referral_frequency_score
+    local l5  "Referral regularity"
+    local v6  referral_path_conf_score
+    local l6  "Knows where to refer"
+    local v7  referral_explain_conf_score
+    local l7  "Can explain referral"
+    local v8  referral_documentation_score
+    local l8  "Referral documentation"
+    local v9  referral_feedback_score
+    local l9  "Feedback after referral"
+
+    forvalues i = 1/9 {
+        local v "`v`i''"
+        local lab "`l`i''"
+
+        quietly summarize `v' if !missing(`v'), meanonly
+        local n = r(N)
+        local val = 100 * r(mean)
+
+        post `mem' (`i') (`"`lab'"') (`n') (`val')
+    }
+
+    postclose `mem'
+
+    use `jlos_snapshot', clear
+    format value %9.1f
+
+    gen item_id = order
+    label define jlos_snap_lbl ///
+        1 "Prior formal coordination" ///
+        2 "Knows cases requiring referral" ///
+        3 "Coordination with police" ///
+        4 "Coordination with courts" ///
+        5 "Referral regularity" ///
+        6 "Knows where to refer" ///
+        7 "Can explain referral" ///
+        8 "Referral documentation" ///
+        9 "Feedback after referral", replace
+    label values item_id jlos_snap_lbl
+
+    export excel using "`excel_jlos'", sheet("fig36_jlos_snapshot", replace) firstrow(variables)
+
+graph hbar (asis) value, ///
+    over(item_id, label(labsize(vsmall))) ///
+    blabel(bar, format(%4.1f) size(vsmall)) ///
+    ylabel(0(20)100, labsize(small)) ///
+    ytitle("") ///
+	scheme(plotplain) ///
+    title("JLOS collaboration and referral practice", size(medsmall)) ///
+    subtitle("Full Phase 1 baseline sample", size(small)) ///
+    note("Values are percentages or 0-1 scores converted to 0-100. JLOS = Justice, Law and Order Sector.", size(vsmall))
+
+graph export "`fig_dir'/fig_36_jlos_snapshot.png", width(2800) replace
+graph export "`fig_dir'/fig_36_jlos_snapshot.pdf", replace
+restore
+
+*------------------------------------------------------------------------------*
+**# 19.4 Figure 37: Why chairpersons refer cases onward
+*------------------------------------------------------------------------------*
+* Recommended slide:
+*   "Referral triggers broadly align with mandate and protection risks"
+*------------------------------------------------------------------------------*
+
+preserve
+    tempfile jlos_reasons
+    tempname mem
+
+    postfile `mem' byte order str70 reason long n double value using `jlos_reasons', replace
+
+    local v1  m6_q04_1
+    local l1  "Outside LCC mandate"
+    local v2  m6_q04_2
+    local l2  "Serious violence/threat to life"
+    local v3  m6_q04_3
+    local l3  "Sexual violence or SGBV"
+    local v4  m6_q04_4
+    local l4  "Child protection concern"
+    local v5  m6_q04_5
+    local l5  "Parties refused local mediation"
+    local v6  m6_q04_6
+    local l6  "Local agreement not followed"
+    local v7  m6_q04_7
+    local l7  "Facts/evidence too complex"
+    local v8  m6_q04_8
+    local l8  "LCC lacked quorum/capacity"
+
+    forvalues i = 1/8 {
+        local v "`v`i''"
+        local lab "`l`i''"
+
+        quietly summarize `v' if !missing(`v'), meanonly
+        local n = r(N)
+        local val = 100 * r(mean)
+
+        post `mem' (`i') (`"`lab'"') (`n') (`val')
+    }
+
+    postclose `mem'
+
+    use `jlos_reasons', clear
+    format value %9.1f
+
+    gen item_id = order
+    label define jlos_reason_lbl ///
+        1 "Outside LCC mandate" ///
+        2 "Serious violence/threat" ///
+        3 "Sexual violence/SGBV" ///
+        4 "Child protection" ///
+        5 "Parties refused mediation" ///
+        6 "Agreement not followed" ///
+        7 "Facts too complex" ///
+        8 "LCC lacked capacity", replace
+    label values item_id jlos_reason_lbl
+
+    export excel using "`excel_jlos'", sheet("fig37_referral_reasons", replace) firstrow(variables)
+
+graph hbar (asis) value, ///
+    over(item_id, sort(value) descending label(labsize(vsmall))) ///
+    blabel(bar, format(%4.1f) size(vsmall)) ///
+    ylabel(0(20)100, labsize(small)) ///
+    ytitle("") ///
+	scheme(plotplain) ///
+    title("Reasons for referring cases onward", size(medsmall)) ///
+    subtitle("Share of chairpersons selecting each reason", size(small)) ///
+    note("Multiple responses allowed. Full Phase 1 baseline sample.", size(vsmall))
+
+graph export "`fig_dir'/fig_37_jlos_referral_reasons.png", width(2800) replace
+graph export "`fig_dir'/fig_37_jlos_referral_reasons.pdf", replace
+restore
+
+*------------------------------------------------------------------------------*
+**# 19.5 Figure 38: Barriers to referral
+*------------------------------------------------------------------------------*
+* Recommended slide:
+*   "Referral is constrained by distance, transport, and party resistance"
+*------------------------------------------------------------------------------*
+
+preserve
+    tempfile jlos_barriers
+    tempname mem
+
+    postfile `mem' byte order str75 barrier long n double value using `jlos_barriers', replace
+
+    local v1  m6_q12_1
+    local l1  "Authority too far away"
+    local v2  m6_q12_2
+    local l2  "Transport cost/lack of transport"
+    local v3  m6_q12_3
+    local l3  "Parties do not want referral"
+    local v4  m6_q12_4
+    local l4  "Fear costs/delay/consequences"
+    local v5  m6_q12_8
+    local l5  "Lack forms/documentation tools"
+    local v6  m6_q12_10
+    local l6  "Fear retaliation/worse conflict"
+    local v7  m6_q12_5
+    local l7  "Receiving authority slow"
+    local v8  m6_q12_7
+    local l8  "Lack referral-procedure knowledge"
+    local v9  m6_q12_6
+    local l9  "Unclear receiving authority"
+    local v10 m6_q12_9
+    local l10 "Pressure to keep case local"
+    local v11 m6_q12_11
+    local l11 "No major referral barriers"
+
+    forvalues i = 1/11 {
+        local v "`v`i''"
+        local lab "`l`i''"
+
+        quietly summarize `v' if !missing(`v'), meanonly
+        local n = r(N)
+        local val = 100 * r(mean)
+
+        post `mem' (`i') (`"`lab'"') (`n') (`val')
+    }
+
+    postclose `mem'
+
+    use `jlos_barriers', clear
+    format value %9.1f
+
+    gen item_id = order
+    label define jlos_barrier_lbl ///
+        1 "Authority too far away" ///
+        2 "Transport cost/lack transport" ///
+        3 "Parties do not want referral" ///
+        4 "Fear costs/delay/consequences" ///
+        5 "Lack forms/documentation tools" ///
+        6 "Fear retaliation/worse conflict" ///
+        7 "Receiving authority slow" ///
+        8 "Lack referral-procedure knowledge" ///
+        9 "Unclear receiving authority" ///
+        10 "Pressure to keep case local" ///
+        11 "No major referral barriers", replace
+    label values item_id jlos_barrier_lbl
+
+    export excel using "`excel_jlos'", sheet("fig38_referral_barriers", replace) firstrow(variables)
+
+graph hbar (asis) value, ///
+    over(item_id, sort(value) descending label(labsize(vsmall))) ///
+    blabel(bar, format(%4.1f) size(vsmall)) ///
+    ylabel(0(20)100, labsize(small)) ///
+    ytitle("") ///
+	scheme(plotplain) ///
+    title("Reported barriers to referral", size(medsmall)) ///
+    subtitle("Share of chairpersons selecting each barrier", size(small)) ///
+    note("Multiple responses allowed. Full Phase 1 baseline sample.", size(vsmall))
+
+graph export "`fig_dir'/fig_38_jlos_referral_barriers.png", width(2800) replace
+graph export "`fig_dir'/fig_38_jlos_referral_barriers.pdf", replace
+restore
+
+*------------------------------------------------------------------------------*
+**# 19.6 Figure 39: Referral pathway bottleneck
+*------------------------------------------------------------------------------*
+* Recommended slide:
+*   "The referral loop narrows after initial coordination"
+*------------------------------------------------------------------------------*
+
+capture drop jlos_coordination_avg
+capture drop jlos_pathway_conf_avg
+capture drop jlos_closure_avg
+capture drop jlos_verified_record_avg
+
+egen jlos_coordination_avg = rowmean(police_coordination_score court_coordination_score)
+label var jlos_coordination_avg "Average police/court coordination score"
+
+egen jlos_pathway_conf_avg = rowmean(referral_path_conf_score referral_explain_conf_score)
+label var jlos_pathway_conf_avg "Average confidence in referral pathway"
+
+egen jlos_closure_avg = rowmean(referral_documentation_score referral_feedback_score)
+label var jlos_closure_avg "Average documentation/feedback closure score"
+
+egen jlos_verified_record_avg = rowmean(verified_referral_record_score verified_ref_dest_score)
+label var jlos_verified_record_avg "Average verified referral-record score"
+
+preserve
+    tempfile jlos_pathway
+    tempname mem
+
+    postfile `mem' byte order str70 stage long n double value using `jlos_pathway', replace
+
+    local v1  prior_formal_coordination
+    local l1  "Prior formal coordination"
+    local v2  m4_q02_referral_scope_score
+    local l2  "Knows cases requiring referral"
+    local v3  jlos_coordination_avg
+    local l3  "Police/court coordination"
+    local v4  referral_frequency_score
+    local l4  "Referral regularity"
+    local v5  jlos_pathway_conf_avg
+    local l5  "Knows/explains referral pathway"
+    local v6  jlos_closure_avg
+    local l6  "Documentation and feedback"
+    local v7  jlos_verified_record_avg
+    local l7  "Verified referral record"
+
+    forvalues i = 1/7 {
+        local v "`v`i''"
+        local lab "`l`i''"
+
+        quietly summarize `v' if !missing(`v'), meanonly
+        local n = r(N)
+        local val = 100 * r(mean)
+
+        post `mem' (`i') (`"`lab'"') (`n') (`val')
+    }
+
+    postclose `mem'
+
+    use `jlos_pathway', clear
+    format value %9.1f
+
+    gen item_id = order
+    label define jlos_path_lbl ///
+        1 "Prior formal coordination" ///
+        2 "Knows cases requiring referral" ///
+        3 "Police/court coordination" ///
+        4 "Referral regularity" ///
+        5 "Knows/explains pathway" ///
+        6 "Documentation and feedback" ///
+        7 "Verified referral record", replace
+    label values item_id jlos_path_lbl
+
+    export excel using "`excel_jlos'", sheet("fig39_referral_loop", replace) firstrow(variables)
+
+graph hbar (asis) value, ///
+    over(item_id, label(labsize(vsmall))) ///
+    blabel(bar, format(%4.1f) size(vsmall)) ///
+    ylabel(0(20)100, labsize(small)) ///
+    ytitle("") ///
+	scheme(plotplain) ///
+    title("Referral pathway: strong entry, weaker closure", size(medsmall)) ///
+    subtitle("Referral loop indicators, 0-100 scale", size(small)) ///
+    note("Documentation/feedback combines referral documentation and feedback after referral.", size(vsmall))
+
+graph export "`fig_dir'/fig_39_jlos_referral_loop.png", width(2800) replace
+graph export "`fig_dir'/fig_39_jlos_referral_loop.pdf", replace
+restore
+
+*------------------------------------------------------------------------------*
+**# 19.7 Optional diagnostic table: JLOS indicators by district
+*------------------------------------------------------------------------------*
+
+preserve
+    keep district_scto ///
+        prior_formal_coordination ///
+        m4_q02_referral_scope_score ///
+        police_coordination_score ///
+        court_coordination_score ///
+        referral_path_conf_score ///
+        referral_explain_conf_score ///
+        referral_documentation_score ///
+        referral_feedback_score ///
+        verified_referral_record_score ///
+        verified_ref_dest_score ///
+        idx_referral_practice ///
+        n_referral_reasons ///
+        n_referral_barriers ///
+        no_major_referral_barriers
+
+    collapse ///
+        (count) n=idx_referral_practice ///
+        (mean) prior_formal_coordination ///
+               m4_q02_referral_scope_score ///
+               police_coordination_score ///
+               court_coordination_score ///
+               referral_path_conf_score ///
+               referral_explain_conf_score ///
+               referral_documentation_score ///
+               referral_feedback_score ///
+               verified_referral_record_score ///
+               verified_ref_dest_score ///
+               idx_referral_practice ///
+               n_referral_reasons ///
+               n_referral_barriers ///
+               no_major_referral_barriers, ///
+        by(district_scto)
+
+    export excel using "`excel_jlos'", sheet("district_jlos_diagnostic", replace) firstrow(variables)
+restore
+
+*------------------------------------------------------------------------------*
+**# 19.8 Console summary
+*------------------------------------------------------------------------------*
+
+display as text "------------------------------------------------------------"
+display as text "Expanded JLOS collaboration outputs created:"
+display as result "`excel_jlos'"
+display as result "`fig_dir'/fig_36_jlos_snapshot.png"
+display as result "`fig_dir'/fig_37_jlos_referral_reasons.png"
+display as result "`fig_dir'/fig_38_jlos_referral_barriers.png"
+display as result "`fig_dir'/fig_39_jlos_referral_loop.png"
+display as text "Recommended placement: Referrals and Coordination section, immediately after the current Referral Practice and Coordination slide."
+display as text "------------------------------------------------------------"
+
+
+
+
+
+
+
 /*******************************************************************************
 End of file
 *******************************************************************************/	
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
