@@ -32,7 +32,7 @@
 *-----------------------------------*
 
 * check what your username is in Stata by typing "di c(username)"
-else if "`c(username)'" == "jzava" { // Jorge's personal laptop
+if "`c(username)'" == "jzava" { // Jorge's personal laptop
     global dropbox 	"C:\Users\jzava\Dropbox (Personal)\Research & Consulting\1 Research\Legatum Uganda Advancing Justice"
 	global git 		"C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC"
 	local os        "windows"
@@ -70,6 +70,4 @@ else if "`c(username)'" == "jzava" { // Jorge's personal laptop
 	* Switch to 0/1 to not-run/run do-files 
 	if (0) do "${code_dir}/1 Data Preparation_AdvJusticeUganda.do"
 	if (0) do "${code_dir}/2 Data Analysis_AdvJusticeUganda.do"
-	
-
-	
+	if (0) do "${code_dir}/3 Baseline Data Quality_AdvJusticeUganda.do"
