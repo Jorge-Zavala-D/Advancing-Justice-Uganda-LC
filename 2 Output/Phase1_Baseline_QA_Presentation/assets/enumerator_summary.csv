@@ -1,0 +1,9 @@
+qa_enumerator,records,records_with_error,records_with_warning,total_errors,total_warnings,median_duration,enumerator_order,enumerator_id,error_record_pct
+,5,5,5,9,7,71.68333333333334,1,Enumerator 1,100
+Akankwasa Ronals,27,25,24,34,38,41.53333333333333,2,Enumerator 2,92.5925925925926
+Ashabe Gina,18,16,18,20,29,44.59166666666667,3,Enumerator 3,88.88888888888889
+Atukwase Shallon,17,2,16,3,27,60.41666666666666,4,Enumerator 4,11.76470588235294
+Kagoro Meliza,6,6,1,6,1,36.20833333333334,5,Enumerator 5,100
+Natuhwera Sylivia,18,13,7,14,8,45.84166666666667,6,Enumerator 6,72.22222222222221
+Natukunda Britah,17,14,14,18,21,32.93333333333333,7,Enumerator 7,82.35294117647058
+Nayebare Christine,25,24,25,30,44,40.98333333333333,8,Enumerator 8,96

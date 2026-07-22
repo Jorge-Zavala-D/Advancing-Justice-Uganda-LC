@@ -1,0 +1,4 @@
+severity,issue_rows,severity_order
+ERROR,134,1
+WARNING,175,2
+INFO,133,3

@@ -60,7 +60,8 @@ if "`c(username)'" == "jzava" { // Jorge's personal laptop
 	foreach command of local user_commands {
 	   capture which `command'
 	   if _rc == 111 {
-		   ssc install `command'
+		   capture noisily ssc install `command'
+		   if _rc display as error "Warning: could not install `command'; continuing with available commands."
 	   }
 	}
 	* Install plotplain scheme for graphs formatting
@@ -71,3 +72,6 @@ if "`c(username)'" == "jzava" { // Jorge's personal laptop
 	if (0) do "${code_dir}/1 Data Preparation_AdvJusticeUganda.do"
 	if (0) do "${code_dir}/2 Data Analysis_AdvJusticeUganda.do"
 	if (0) do "${code_dir}/3 Baseline Data Quality_AdvJusticeUganda.do"
+	if (0) do "${code_dir}/4 Key Baseline Regressions_AdvJusticeUganda.do"
+	if (0) do "${code_dir}/5 QA Presentation Assets_AdvJusticeUganda.do"
+	if (0) do "${code_dir}/6 Quick Alternative Outcome Regression_AdvJusticeUganda.do"

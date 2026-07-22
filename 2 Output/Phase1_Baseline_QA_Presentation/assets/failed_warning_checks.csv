@@ -1,0 +1,11 @@
+check_id,severity,domain,module,variable,issue,n_tested,n_issues,issue_rate,status,display_label,warning_order
+M2_Q15_OTHER_MISS,WARNING,skip_logic,M2,m2_q15_specify,Other was selected but the specify field is empty,2,1,.5,REVIEW,Materials Other not specified,Materials Other not specified
+M11_STRAIGHTLINE,WARNING,response_pattern,M11,m11 scales,Eight reintegration scale items have exactly the same normalized response,130,2,.0153846153846154,REVIEW,Reintegration straightlining screen,Reintegration straightlining screen
+M1_Q14_OTHER_MISS,WARNING,skip_logic,M1,m1_q14_specify,Other was selected but the specify field is empty,3,2,.6666666666666666,REVIEW,Case type Other not specified,Case type Other not specified
+LONG_DURATION,WARNING,paradata,metadata,duration_min,Interview duration is above the configured maximum,133,3,.0225563909774436,REVIEW,Interview longer than 120 minutes,Interview longer than 120 minutes
+M2_RECORD_UPTODATE_STRAY,WARNING,skip_logic,M2,m2_q13,Record-up-to-date response is present although no records are kept,3,3,1,REVIEW,Record recency answered without records,Record recency answered without records
+M5_STRAIGHTLINE,WARNING,response_pattern,M5,m5 scales,At least eight ADR scale items have exactly the same normalized response,133,5,.037593984962406,REVIEW,ADR straightlining screen,ADR straightlining screen
+SHORT_DURATION,WARNING,paradata,metadata,duration_min,Interview duration is below the configured minimum,133,7,.0526315789473684,REVIEW,Interview shorter than 20 minutes,Interview shorter than 20 minutes
+TRAINING_RATING_STRAY,WARNING,skip_logic,training,rating_cdfu_training,Training rating is present although prior training was not reported,91,24,.2637362637362637,REVIEW,Training rating present after No,Training rating present after No
+DURATION_TIMESTAMP_MISMATCH,WARNING,paradata,metadata,duration_min,Recorded duration differs from start-to-end elapsed time by more than five minutes,133,46,.3458646616541353,REVIEW,Duration differs from timestamps,Duration differs from timestamps
+M11_RESPONSE_MISSING,WARNING,skip_logic,M11,m11_q15,Recent reintegration issue reported but LCC response is missing,82,82,1,REVIEW,Recent reintegration response missing,Recent reintegration response missing

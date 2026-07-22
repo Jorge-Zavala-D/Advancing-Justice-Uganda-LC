@@ -1,0 +1,4 @@
+qa_district,records,records_with_error,records_with_warning,total_errors,total_warnings,mean_duration,error_record_pct,warning_record_pct
+Bushenyi,55,44,48,55,79,62.88848484848486,80,87.27272727272727
+Rubirizi,42,33,38,47,63,48.97976190476191,78.57142857142857,90.47619047619048
+Sheema,36,28,24,32,33,35.95925925925926,77.77777777777779,66.66666666666666

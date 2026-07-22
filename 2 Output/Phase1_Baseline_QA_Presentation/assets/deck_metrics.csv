@@ -1,0 +1,2 @@
+release_status,submissions,planned_villages,unique_village_keys,extra_submissions,duplicate_village_keys,duplicate_records,failed_error_checks,failed_warning_checks,error_issue_rows,warning_issue_rows,info_issue_rows,records_with_errors,records_with_warnings,lineage_checks,lineage_failures
+BLOCKED,133,128,128,5,5,10,11,10,134,175,133,105,110,20,0

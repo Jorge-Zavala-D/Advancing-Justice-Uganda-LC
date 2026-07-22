@@ -1,0 +1,12 @@
+check_id,severity,domain,module,variable,issue,n_tested,n_issues,issue_rate,status,display_label,check_order
+EXPECTED_RECORD_COUNT,ERROR,sample,sample,_N,Record count equals the planned Phase 1 baseline sample,1,1,1,FAIL,Record count exceeds plan,Record count exceeds plan
+M2_VERIFICATION_STRAY,ERROR,skip_logic,M2,m2_q17,Record quality was verified although the enumerator saw no record,10,2,.2,FAIL,Record verification without record,Record verification without record
+M5_Q11_EXCLUSIVE,ERROR,select_multiple,M5,m5_q11_10,No ADR barrier is selected with a substantive barrier,133,2,.0150375939849624,FAIL,ADR barrier contradiction,ADR barrier contradiction
+M8_Q15_EXCLUSIVE,ERROR,select_multiple,M8,m8_q15_10,No committee challenge is selected with a substantive challenge,133,2,.0150375939849624,FAIL,Committee challenge contradiction,Committee challenge contradiction
+M9_Q16_EXCLUSIVE,ERROR,select_multiple,M9,m9_q16_11,Rarely bypass is selected with a substantive bypass reason,133,2,.0150375939849624,FAIL,Bypass reason contradiction,Bypass reason contradiction
+M6_Q12_EXCLUSIVE,ERROR,select_multiple,M6,m6_q12_11,No referral barrier is selected with a substantive barrier,133,4,.0300751879699248,FAIL,Referral barrier contradiction,Referral barrier contradiction
+VALUE_LABEL_enum,ERROR,range,metadata,enum,Observed code has no definition in its attached value label,133,5,.037593984962406,FAIL,Unlabelled enumerator code,Unlabelled enumerator code
+m3_q08_GT_CASELOAD,ERROR,consistency,M3,m3_q08,Case component exceeds the reported three-month caseload,133,6,.0451127819548872,FAIL,Pending cases exceed 3-month caseload,Pending cases exceed 3-month caseload
+DUPLICATE_SURVEY_VILLAGE,ERROR,sample,geography,survey_village_uid,More than one submission uses the same SurveyCTO village key,133,10,.075187969924812,FAIL,Duplicate SurveyCTO village,Duplicate SurveyCTO village
+ENUMERATOR_OVERLAP,ERROR,paradata,metadata,starttime_dt,Interview starts before the same enumerator's previous interview ended,133,10,.075187969924812,FAIL,Overlapping enumerator interviews,Overlapping enumerator interviews
+VACANCY_COUNT_MISSING,ERROR,skip_logic,M2,m2_q04,Vacancies reported but the number of vacancies is missing or zero,91,91,1,FAIL,Vacancy count missing,Vacancy count missing

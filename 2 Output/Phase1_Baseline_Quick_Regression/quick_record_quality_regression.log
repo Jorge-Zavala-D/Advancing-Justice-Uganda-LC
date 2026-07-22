@@ -1,0 +1,208 @@
+-------------------------------------------------------------------------------
+      name:  quick_alt_reg
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Outp
+> ut/Phase1_Baseline_Quick_Regression/quick_record_quality_regression.log
+  log type:  text
+ opened on:  22 Jul 2026, 17:43:44
+
+. 
+. use `"`analysis_data'"', clear
+(Advancing Justice Uganda - Phase 1 baseline, cleaned analysis file)
+
+. 
+. foreach v in idx_record_quality p1_admin_previously_contacted     district_sc
+> to survey_village_id {
+  2.     capture confirm variable `v'
+  3.     if _rc {
+  4.         display as error "Required regression variable missing: `v'"
+  5.         log close quick_alt_reg
+  6.         exit 111
+  7.     }
+  8. }
+
+. 
+. capture drop regression_district_id
+
+. encode district_scto, gen(regression_district_id)
+
+. 
+. quietly summarize idx_record_quality if p1_admin_previously_contacted == 0, m
+> eanonly
+
+. local mean_new = r(mean)
+
+. quietly summarize idx_record_quality if p1_admin_previously_contacted == 1, m
+> eanonly
+
+. local mean_previous = r(mean)
+
+. 
+. display as text "============================================================
+> "
+============================================================
+
+. display as text "QUICK ALTERNATIVE-OUTCOME REGRESSION"
+QUICK ALTERNATIVE-OUTCOME REGRESSION
+
+. display as text "Outcome: record-quality index (0-1)"
+Outcome: record-quality index (0-1)
+
+. display as text "Comparison: previously contacted vs new/random villages"
+Comparison: previously contacted vs new/random villages
+
+. display as text "District fixed effects; SEs clustered by village"
+District fixed effects; SEs clustered by village
+
+. display as text "Descriptive baseline association; not a causal effect"
+Descriptive baseline association; not a causal effect
+
+. display as text "============================================================
+> "
+============================================================
+
+. display as result "Mean, new/random villages:       " %7.4f `mean_new'
+Mean, new/random villages:        0.5700
+
+. display as result "Mean, previously contacted:      " %7.4f `mean_previous'
+Mean, previously contacted:       0.7067
+
+. display as result "Unadjusted mean difference:      " %7.4f (`mean_previous' 
+> - `mean_new')
+Unadjusted mean difference:       0.1367
+
+. 
+. noisily regress idx_record_quality i.p1_admin_previously_contacted     i.regr
+> ession_district_id, vce(cluster survey_village_id)
+
+Linear regression                               Number of obs     =        133
+                                                F(3, 127)         =       5.07
+                                                Prob > F          =     0.0024
+                                                R-squared         =     0.0808
+                                                Root MSE          =     .20779
+
+                    (Std. err. adjusted for 128 clusters in survey_village_id)
+------------------------------------------------------------------------------
+             |               Robust
+idx_record~y | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+p1_admin_p~d |
+        Yes  |   .1368589    .039662     3.45   0.001     .0583749    .2153429
+             |
+regression~d |
+   Rubirizi  |  -.0498742   .0451874    -1.10   0.272    -.1392919    .0395435
+     Sheema  |   .0037009   .0401173     0.09   0.927    -.0756841    .0830859
+             |
+       _cons |   .5847263   .0267959    21.82   0.000     .5317021    .6377505
+------------------------------------------------------------------------------
+
+. 
+. local b = _b[1.p1_admin_previously_contacted]
+
+. local se = _se[1.p1_admin_previously_contacted]
+
+. local p = 2 * ttail(e(df_r), abs(`b' / `se'))
+
+. local crit = invttail(e(df_r), .025)
+
+. local lo = `b' - `crit' * `se'
+
+. local hi = `b' + `crit' * `se'
+
+. local n = e(N)
+
+. local clusters = e(N_clust)
+
+. local r2 = e(r2)
+
+. 
+. display as text _newline "FOCAL RESULT"
+
+FOCAL RESULT
+
+. display as result "Adjusted difference: " %7.4f `b'     " (" %6.2f (100 * `b'
+> ) " percentage points)"
+Adjusted difference:  0.1369 ( 13.69 percentage points)
+
+. display as result "Clustered SE:        " %7.4f `se'
+Clustered SE:         0.0397
+
+. display as result "p-value:             " %7.4f `p'
+p-value:              0.0008
+
+. display as result "95% CI:              [" %7.4f `lo' ", " %7.4f `hi' "]"
+95% CI:              [ 0.0584,  0.2153]
+
+. display as result "N / village clusters: " %5.0f `n' " / " %5.0f `clusters'
+N / village clusters:   133 /   128
+
+. 
+. preserve
+
+. clear
+
+. set obs 1
+Number of observations (_N) was 0, now 1.
+
+. gen str40 outcome = "idx_record_quality"
+
+. gen str80 outcome_label = "Record-quality index"
+
+. gen double mean_new = `mean_new'
+
+. gen double mean_previously_contacted = `mean_previous'
+
+. gen double adjusted_difference = `b'
+
+. gen double adjusted_difference_pp = 100 * adjusted_difference
+
+. gen double clustered_se = `se'
+
+. gen double p_value = `p'
+
+. gen double ci_low = `lo'
+
+. gen double ci_high = `hi'
+
+. gen long n = `n'
+
+. gen long n_clusters = `clusters'
+
+. gen double r_squared = `r2'
+
+. export delimited using `"`quick_dir'/quick_record_quality_regression.csv"', r
+> eplace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase
+> 1_Baseline_Quick_Regression/quick_record_quality_regression.csv saved
+
+. export excel using `"`quick_dir'/quick_record_quality_regression.xlsx"',     
+> sheet("result", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase
+> 1_Baseline_Quick_Regression/quick_record_quality_regression.xlsx saved
+
+. restore
+
+. 
+. display as text _newline "Outputs written to:"
+
+Outputs written to:
+
+. display as result `"`quick_dir'/quick_record_quality_regression.log"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Quick_Regression/quick_record_quality_regression.log
+
+. display as result `"`quick_dir'/quick_record_quality_regression.csv"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Quick_Regression/quick_record_quality_regression.csv
+
+. display as result `"`quick_dir'/quick_record_quality_regression.xlsx"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Quick_Regression/quick_record_quality_regression.xlsx
+
+. 
+. log close quick_alt_reg
+      name:  quick_alt_reg
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Outp
+> ut/Phase1_Baseline_Quick_Regression/quick_record_quality_regression.log
+  log type:  text
+ closed on:  22 Jul 2026, 17:43:46
+-------------------------------------------------------------------------------

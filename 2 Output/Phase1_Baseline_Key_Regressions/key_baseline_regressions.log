@@ -1,0 +1,425 @@
+-------------------------------------------------------------------------------
+      name:  key_baseline_reg
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Outp
+> ut/Phase1_Baseline_Key_Regressions/key_baseline_regressions.log
+  log type:  text
+ opened on:  16 Jul 2026, 11:36:34
+
+. 
+. use `"`analysis_data'"', clear
+(Advancing Justice Uganda - Phase 1 baseline, cleaned analysis file)
+
+. 
+. foreach v in p1_admin_previously_contacted district_scto survey_village_id {
+  2.     capture confirm variable `v'
+  3.     if _rc {
+  4.         display as error "Required regression variable missing: `v'"
+  5.         log close key_baseline_reg
+  6.         exit 111
+  7.     }
+  8. }
+
+. 
+. capture drop regression_district_id
+
+. encode district_scto, gen(regression_district_id)
+
+. label var regression_district_id "District fixed-effect identifier"
+
+. 
+. local outcomes ///
+>     idx_lcc_operational_capacity ///
+>     idx_lcc_case_handling_quality ///
+>     idx_lcc_legitimacy_and_norms ///
+>     idx_p1_base_mentor_ready_proxy
+
+. 
+. foreach y of local outcomes {
+  2.     capture confirm numeric variable `y'
+  3.     if _rc {
+  4.         display as error "Required outcome missing or nonnumeric: `y'"
+  5.         log close key_baseline_reg
+  6.         exit 111
+  7.     }
+  8. }
+
+. 
+. tempfile regression_results
+
+. tempname regpost
+
+. postfile `regpost' byte order str40 outcome str80 outcome_label long n long n
+> _clusters ///
+>     double mean_new mean_previously_contacted raw_difference adjusted_differe
+> nce ///
+>     se p_value ci_low ci_high r_squared using `regression_results', replace
+(file C:\Users\jzava\AppData\Local\Temp\ST_896c_000001.tmp not found)
+
+. 
+. local label1 "Operational capacity"
+
+. local label2 "Case-handling quality"
+
+. local label3 "Legitimacy and reintegration"
+
+. local label4 "Mentor-readiness proxy"
+
+. 
+. display as text "============================================================
+> "
+============================================================
+
+. display as text "KEY PHASE 1 BASELINE REGRESSIONS"
+KEY PHASE 1 BASELINE REGRESSIONS
+
+. display as text "Previously contacted vs new/randomly selected villages"
+Previously contacted vs new/randomly selected villages
+
+. display as text "District fixed effects; standard errors clustered by village
+> "
+District fixed effects; standard errors clustered by village
+
+. display as text "These are descriptive baseline associations, not causal effe
+> cts."
+These are descriptive baseline associations, not causal effects.
+
+. display as text "============================================================
+> "
+============================================================
+
+. 
+. local order = 0
+
+. foreach y of local outcomes {
+  2.     local ++order
+  3.     local ylab `"`label`order''"'
+  4. 
+.     quietly summarize `y' if p1_admin_previously_contacted == 0, meanonly
+  5.     local mean0 = r(mean)
+  6.     quietly summarize `y' if p1_admin_previously_contacted == 1, meanonly
+  7.     local mean1 = r(mean)
+  8.     local rawdiff = `mean1' - `mean0'
+  9. 
+.     display as text _newline "Outcome `order': `ylab'"
+ 10.     noisily regress `y' i.p1_admin_previously_contacted i.regression_distr
+> ict_id, ///
+>         vce(cluster survey_village_id)
+ 11. 
+.     local b = _b[1.p1_admin_previously_contacted]
+ 12.     local se = _se[1.p1_admin_previously_contacted]
+ 13.     local p = 2 * ttail(e(df_r), abs(`b' / `se'))
+ 14.     local crit = invttail(e(df_r), .025)
+ 15.     local lo = `b' - `crit' * `se'
+ 16.     local hi = `b' + `crit' * `se'
+ 17.     local n = e(N)
+ 18.     local clusters = e(N_clust)
+ 19.     local r2 = e(r2)
+ 20. 
+.     display as result "Previously contacted coefficient: " %7.3f `b' ///
+>         " (SE " %7.3f `se' ", p=" %6.3f `p' ")"
+ 21.     display as result "95% CI: [" %7.3f `lo' ", " %7.3f `hi' "]"
+ 22. 
+.     post `regpost' (`order') (`"`y'"') (`"`ylab'"') (`n') (`clusters') ///
+>         (`mean0') (`mean1') (`rawdiff') (`b') (`se') (`p') (`lo') (`hi') (`r2
+> ')
+ 23. }
+
+Outcome 1: Operational capacity
+
+Linear regression                               Number of obs     =        133
+                                                F(3, 127)         =      10.58
+                                                Prob > F          =     0.0000
+                                                R-squared         =     0.1304
+                                                Root MSE          =     .11744
+
+                    (Std. err. adjusted for 128 clusters in survey_village_id)
+------------------------------------------------------------------------------
+             |               Robust
+idx_lcc_op~y | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+p1_admin_p~d |
+        Yes  |   .1047759   .0195303     5.36   0.000     .0661291    .1434228
+             |
+regression~d |
+   Rubirizi  |  -.0015949   .0247199    -0.06   0.949    -.0505112    .0473214
+     Sheema  |   .0245858   .0236312     1.04   0.300    -.0221762    .0713477
+             |
+       _cons |   .6905071   .0190905    36.17   0.000     .6527304    .7282839
+------------------------------------------------------------------------------
+Previously contacted coefficient:   0.105 (SE   0.020, p= 0.000)
+95% CI: [  0.066,   0.143]
+
+Outcome 2: Case-handling quality
+
+Linear regression                               Number of obs     =        133
+                                                F(3, 127)         =       3.09
+                                                Prob > F          =     0.0295
+                                                R-squared         =     0.0840
+                                                Root MSE          =     .11745
+
+                    (Std. err. adjusted for 128 clusters in survey_village_id)
+------------------------------------------------------------------------------
+             |               Robust
+idx_lcc_ca~y | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+p1_admin_p~d |
+        Yes  |   .0856595   .0284086     3.02   0.003      .029444     .141875
+             |
+regression~d |
+   Rubirizi  |  -.0101048   .0210401    -0.48   0.632    -.0517393    .0315298
+     Sheema  |  -.0044347   .0277581    -0.16   0.873    -.0593629    .0504935
+             |
+       _cons |   .6483861   .0150089    43.20   0.000     .6186862    .6780859
+------------------------------------------------------------------------------
+Previously contacted coefficient:   0.086 (SE   0.028, p= 0.003)
+95% CI: [  0.029,   0.142]
+
+Outcome 3: Legitimacy and reintegration
+
+Linear regression                               Number of obs     =        133
+                                                F(3, 127)         =       3.16
+                                                Prob > F          =     0.0270
+                                                R-squared         =     0.0550
+                                                Root MSE          =      .1046
+
+                    (Std. err. adjusted for 128 clusters in survey_village_id)
+------------------------------------------------------------------------------
+             |               Robust
+idx_lcc_le~s | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+p1_admin_p~d |
+        Yes  |   .0379141    .020637     1.84   0.069    -.0029227    .0787509
+             |
+regression~d |
+   Rubirizi  |    .041455   .0168143     2.47   0.015     .0081825    .0747275
+     Sheema  |   .0323407   .0256989     1.26   0.211    -.0185128    .0831941
+             |
+       _cons |   .5710938   .0152018    37.57   0.000     .5410123    .6011753
+------------------------------------------------------------------------------
+Previously contacted coefficient:   0.038 (SE   0.021, p= 0.069)
+95% CI: [ -0.003,   0.079]
+
+Outcome 4: Mentor-readiness proxy
+
+Linear regression                               Number of obs     =        133
+                                                F(3, 127)         =       7.32
+                                                Prob > F          =     0.0001
+                                                R-squared         =     0.1605
+                                                Root MSE          =     .06982
+
+                    (Std. err. adjusted for 128 clusters in survey_village_id)
+------------------------------------------------------------------------------
+             |               Robust
+idx_p1_bas~y | Coefficient  std. err.      t    P>|t|     [95% conf. interval]
+-------------+----------------------------------------------------------------
+p1_admin_p~d |
+        Yes  |   .0702677   .0154053     4.56   0.000     .0397834    .1007521
+             |
+regression~d |
+   Rubirizi  |    .012651   .0123197     1.03   0.306    -.0117276    .0370295
+     Sheema  |   .0171723   .0160063     1.07   0.285    -.0145014    .0488459
+             |
+       _cons |   .6324704   .0101576    62.27   0.000     .6123705    .6525704
+------------------------------------------------------------------------------
+Previously contacted coefficient:   0.070 (SE   0.015, p= 0.000)
+95% CI: [  0.040,   0.101]
+
+. postclose `regpost'
+
+. 
+. use `regression_results', clear
+
+. 
+. gen double adjusted_difference_pp = 100 * adjusted_difference
+
+. gen double ci_low_pp = 100 * ci_low
+
+. gen double ci_high_pp = 100 * ci_high
+
+. gen str3 significance = ""
+(4 missing values generated)
+
+. replace significance = "***" if p_value < .01
+(3 real changes made)
+
+. replace significance = "**" if p_value >= .01 & p_value < .05
+(0 real changes made)
+
+. replace significance = "*" if p_value >= .05 & p_value < .10
+(1 real change made)
+
+. 
+. format mean_new mean_previously_contacted raw_difference adjusted_difference 
+> se ///
+>     ci_low ci_high r_squared %9.3f
+
+. format p_value %9.4f
+
+. format adjusted_difference_pp ci_low_pp ci_high_pp %9.1f
+
+. 
+. order order outcome outcome_label n n_clusters mean_new mean_previously_conta
+> cted ///
+>     raw_difference adjusted_difference se p_value ci_low ci_high ///
+>     adjusted_difference_pp ci_low_pp ci_high_pp significance r_squared
+
+. sort order
+
+. 
+. save `"`reg_dir'/key_baseline_regression_results.dta"', replace
+(file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_results.dt
+    > a not found)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_results.dt
+    > a saved
+
+. export delimited using `"`reg_dir'/key_baseline_regression_results.csv"', rep
+> lace
+(file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_results.cs
+    > v not found)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase
+> 1_Baseline_Key_Regressions/key_baseline_regression_results.csv saved
+
+. export excel using `"`reg_dir'/key_baseline_regression_results.xlsx"', ///
+>     sheet("regression_results", replace) firstrow(variables)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase
+> 1_Baseline_Key_Regressions/key_baseline_regression_results.xlsx saved
+
+. 
+. display as text _newline "===================================================
+> ========="
+
+============================================================
+
+. display as text "FOCAL COEFFICIENT SUMMARY"
+FOCAL COEFFICIENT SUMMARY
+
+. display as text "Coefficients are previously contacted minus new/randomly sel
+> ected."
+Coefficients are previously contacted minus new/randomly selected.
+
+. display as text "============================================================
+> "
+============================================================
+
+. list outcome_label n n_clusters mean_new mean_previously_contacted ///
+>     adjusted_difference se p_value ci_low ci_high significance, ///
+>     noobs abbreviate(32) separator(0)
+
+  +-------------------------------------------------------------------+
+  |                outcome_label  |    n  |  n_clusters  |  mean_new  |
+  |         Operational capacity  |  133  |         128  |     0.696  |
+  |-------------------------------------------------------------------|
+  | mean_previously_contacted | adjusted_difference |    se | p_value |
+  |                     0.803 |               0.105 | 0.020 |  0.0000 |
+  |-------------------------------------------------------------------|
+  |      ci_low       |      ci_high       |       significance       |
+  |       0.066       |        0.143       |                ***       |
+  +-------------------------------------------------------------------+
+
+  +-------------------------------------------------------------------+
+  |                outcome_label  |    n  |  n_clusters  |  mean_new  |
+  |        Case-handling quality  |  133  |         128  |     0.644  |
+  |-------------------------------------------------------------------|
+  | mean_previously_contacted | adjusted_difference |    se | p_value |
+  |                     0.729 |               0.086 | 0.028 |  0.0031 |
+  |-------------------------------------------------------------------|
+  |      ci_low       |      ci_high       |       significance       |
+  |       0.029       |        0.142       |                ***       |
+  +-------------------------------------------------------------------+
+
+  +-------------------------------------------------------------------+
+  |                outcome_label  |    n  |  n_clusters  |  mean_new  |
+  | Legitimacy and reintegration  |  133  |         128  |     0.592  |
+  |-------------------------------------------------------------------|
+  | mean_previously_contacted | adjusted_difference |    se | p_value |
+  |                     0.633 |               0.038 | 0.021 |  0.0685 |
+  |-------------------------------------------------------------------|
+  |      ci_low       |      ci_high       |       significance       |
+  |      -0.003       |        0.079       |                  *       |
+  +-------------------------------------------------------------------+
+
+  +-------------------------------------------------------------------+
+  |                outcome_label  |    n  |  n_clusters  |  mean_new  |
+  |       Mentor-readiness proxy  |  133  |         128  |     0.641  |
+  |-------------------------------------------------------------------|
+  | mean_previously_contacted | adjusted_difference |    se | p_value |
+  |                     0.712 |               0.070 | 0.015 |  0.0000 |
+  |-------------------------------------------------------------------|
+  |      ci_low       |      ci_high       |       significance       |
+  |       0.040       |        0.101       |                ***       |
+  +-------------------------------------------------------------------+
+
+. 
+. twoway ///
+>     (rcap ci_low_pp ci_high_pp order, horizontal lcolor(navy) lwidth(medthick
+> )) ///
+>     (scatter order adjusted_difference_pp, msymbol(D) mcolor(maroon) msize(me
+> dium)), ///
+>     yscale(reverse) ///
+>     ylabel(1 "Operational capacity" ///
+>            2 "Case-handling quality" ///
+>            3 "Legitimacy and reintegration" ///
+>            4 "Mentor-readiness proxy", angle(horizontal) labsize(small)) ///
+>     xline(0, lcolor(gs8) lpattern(dash)) ///
+>     xlabel(-15(5)15, labsize(small)) ///
+>     xtitle("Adjusted difference (percentage points)", size(small)) ///
+>     ytitle("") ///
+>     title("Baseline differences by prior administrative contact", size(medsma
+> ll)) ///
+>     subtitle("Previously contacted minus new/randomly selected villages", siz
+> e(small)) ///
+>     note("District fixed effects; 95% CIs; SEs clustered by village. Descript
+> ive, not causal.", size(vsmall)) ///
+>     legend(off) ///
+>     graphregion(color(white)) plotregion(color(white)) scheme(s2color)
+
+. 
+. graph export `"`reg_dir'/key_baseline_regression_coefficients.png"', width(28
+> 00) replace
+(file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_coefficien
+    > ts.png not found)
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_coefficien
+    > ts.png saved as PNG format
+
+. graph export `"`reg_dir'/key_baseline_regression_coefficients.pdf"', replace
+file C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2
+    Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_coefficien
+    > ts.pdf saved as PDF format
+
+. 
+. display as text "------------------------------------------------------------
+> "
+------------------------------------------------------------
+
+. display as result "Regression outputs created:"
+Regression outputs created:
+
+. display as result `"`reg_dir'/key_baseline_regression_results.xlsx"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Key_Regressions/key_baseline_regression_results.xlsx
+
+. display as result `"`reg_dir'/key_baseline_regression_coefficients.png"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Key_Regressions/key_baseline_regression_coefficients.png
+
+. display as result `"`reg_dir'/key_baseline_regressions.log"'
+C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Output/Phase1_Bas
+> eline_Key_Regressions/key_baseline_regressions.log
+
+. display as text "------------------------------------------------------------
+> "
+------------------------------------------------------------
+
+. 
+. log close key_baseline_reg
+      name:  key_baseline_reg
+       log:  C:\Users\jzava\Documents\GitHub\Advancing-Justice-Uganda-LC/2 Outp
+> ut/Phase1_Baseline_Key_Regressions/key_baseline_regressions.log
+  log type:  text
+ closed on:  16 Jul 2026, 11:36:47
+-------------------------------------------------------------------------------

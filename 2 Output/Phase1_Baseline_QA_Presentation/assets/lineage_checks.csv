@@ -1,0 +1,21 @@
+check_id,severity,domain,module,variable,issue,n_tested,n_issues,issue_rate,status
+RAW_CLEAN_RECORD_COUNT,ERROR,lineage,metadata,_N,Raw and cleaned baseline files contain the same number of records,133,0,0,PASS
+RAW_TYPE_consent,ERROR,lineage,metadata,consent,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_consent,ERROR,lineage,metadata,consent,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_duration,ERROR,lineage,metadata,duration,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_duration,ERROR,lineage,metadata,duration,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_enum,ERROR,lineage,metadata,enum,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_enum,ERROR,lineage,metadata,enum,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_m0_q04,ERROR,lineage,metadata,m0_q04,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_m0_q04,ERROR,lineage,metadata,m0_q04,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_m0_q05,ERROR,lineage,metadata,m0_q05,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_m0_q05,ERROR,lineage,metadata,m0_q05,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_m0_q06,ERROR,lineage,metadata,m0_q06,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_m0_q06,ERROR,lineage,metadata,m0_q06,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+RAW_TYPE_m0_q07,ERROR,lineage,metadata,m0_q07,Raw and cleaned lineage fields have compatible storage types,1,0,0,PASS
+RAW_VALUE_m0_q07,ERROR,lineage,metadata,m0_q07,Cleaned lineage field differs from its raw SurveyCTO value,133,0,0,PASS
+CLEAN_KEY_NOT_IN_RAW,ERROR,lineage,metadata,submission_key,Cleaned record submission key does not exist in the raw SurveyCTO export,133,0,0,PASS
+RAW_DUPLICATE_KEYS,ERROR,lineage,metadata,submission_key,Raw SurveyCTO submission keys are unique,133,0,0,PASS
+RAW_KEY_NOT_IN_CLEAN,ERROR,lineage,metadata,submission_key,Every raw SurveyCTO submission key is retained in the cleaned file,133,0,0,PASS
+RAW_MISSING_KEYS,ERROR,lineage,metadata,submission_key,Raw SurveyCTO submission keys are nonmissing,133,0,0,PASS
+RAW_INPUT_AVAILABLE,WARNING,lineage,metadata,raw SurveyCTO export,Raw SurveyCTO workbook is available and contains a submission key,1,0,0,PASS

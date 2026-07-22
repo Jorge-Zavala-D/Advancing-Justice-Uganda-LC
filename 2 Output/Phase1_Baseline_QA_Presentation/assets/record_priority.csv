@@ -1,0 +1,5 @@
+qa_review_priority,records,priority_order
+ERROR,105,1
+HIGH,3,2
+REVIEW,17,3
+PASS,8,4
