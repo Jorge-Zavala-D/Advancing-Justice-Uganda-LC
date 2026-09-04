@@ -1,16 +1,16 @@
 # Graph Report - Advancing-Justice-Uganda-LC  (2026-09-04)
 
 ## Corpus Check
-- 43 files · ~1,502,551 words
+- 45 files · ~1,299,785 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 554 nodes · 512 edges · 66 communities (42 shown, 24 thin omitted)
+- 565 nodes · 521 edges · 68 communities (43 shown, 25 thin omitted)
 - Extraction: 84% EXTRACTED · 16% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `2b0eaa02`
+- Built from commit: `760e3fb8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -81,6 +81,8 @@
 - AGENTS.md
 - key_baseline_regression_results_f6664379.md
 - quick_record_quality_regression_d287a073.md
+- phase1_baseline_regression_results_5ad58d99.md
+- phase1_baseline_indicator_table_aff55d23.md
 
 ## God Nodes (most connected - your core abstractions)
 1. `Dropbox corpus snapshot 31 August 2026` - 115 edges
@@ -124,7 +126,7 @@
 - **Phase 1 Baseline Survey Variants** — converted_phase_1_baseline_bf189e82_lcc_baseline_measurement_modules, converted_phase_1_baseline_version_2_a201723a_lcc_baseline_measurement_modules, converted_phase_1_baseline_version_runyankore_edited_1_20ce2e11_runyankore_localization, converted_phase_1_baseline_version_runyankore_edited_74c9ad4c_updated_runyankore_localization [INFERRED 0.95]
 - **Reintegration Support and Acceptance System** — 2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_reintegration_norms_and_support_capacity, 2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_support_types_for_successful_reintegration, 2_output_phase1_baseline_executive_figures_fig_28_reintegration_barriers_perceived_barriers_to_reintegration [INFERRED 0.95]
 
-## Communities (66 total, 24 thin omitted)
+## Communities (68 total, 25 thin omitted)
 
 ### Community 1 - "Advancing Justice Uganda Inception Report"
 Cohesion: 0.08
@@ -275,8 +277,8 @@ Cohesion: 0.67
 Nodes (3): LCC Caseload Is Concentrated at Zero to Three Cases with a Sparse Right Tail, Distribution of Three-Month LCC Caseload Excluding the Extreme Outlier, Zoom to Zero Through Fifteen Cases Makes the Main Distribution Visible While High Values Remain in the Outlier Table
 
 ### Community 58 - "phase1_baseline_executive_results_159667b6.md"
-Cohesion: 0.05
-Nodes (40): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+32 more)
+Cohesion: 0.04
+Nodes (44): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+36 more)
 
 ### Community 59 - "build_dropbox_corpus_snapshot.py"
 Cohesion: 0.32
@@ -284,7 +286,7 @@ Nodes (11): basic_profile(), dbf_profile(), legacy_xls_profile(), main(), Build 
 
 ### Community 60 - "phase1_baseline_origin_comparison_1bd5bc75.md"
 Cohesion: 0.17
-Nodes (11): Sheet: candidate_diff_table, Sheet: district_adjusted_diagnostics, Sheet: fig32_core_composites, Sheet: fig33_jlos_collaboration, Sheet: fig34_priority_gaps, Sheet: fig35_high_readiness_flags, Sheet: presentation_candidates, Sheet: ranked_abs_differences (+3 more)
+Nodes (11): Sheet: district_adjusted_diagnostics, Sheet: fig32_core_composites, Sheet: fig33_jlos_collaboration, Sheet: fig34_priority_gaps, Sheet: fig35_high_readiness_flags, Sheet: final_diff_table, Sheet: ranked_abs_differences, Sheet: README (+3 more)
 
 ### Community 61 - "phase1_baseline_all_item_tabulations_6599e640.md"
 Cohesion: 0.29
@@ -294,6 +296,10 @@ Nodes (6): Sheet: binary_share_all, Sheet: categorical_counts_all, Sheet: numeri
 Cohesion: 0.29
 Nodes (6): Sheet: district_jlos_diagnostic, Sheet: fig36_jlos_snapshot, Sheet: fig37_referral_reasons, Sheet: fig38_referral_barriers, Sheet: fig39_referral_loop, Sheet: README
 
+### Community 66 - "phase1_baseline_regression_results_5ad58d99.md"
+Cohesion: 0.50
+Nodes (3): Sheet: multivariable_diagnostics, Sheet: origin_adjusted, Sheet: README
+
 ## Ambiguous Edges - Review These
 - `The Power of Community Mediation: Government and Formation of Self-Identity` → `Restorative justice conferences`  [AMBIGUOUS]
   C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Pavlich - 1996 - The Power of Community Mediation Government and Formation of Self-Identity.pdf · relation: conceptually_related_to
@@ -301,9 +307,9 @@ Nodes (6): Sheet: district_jlos_diagnostic, Sheet: fig36_jlos_snapshot, Sheet: f
   C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/McCart et al. - 2022 - Randomized trial of a diversion program for property offenders with drug use.pdf · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **306 isolated node(s):** `graphify`, `Sheet: regression_results`, `Sheet: README`, `Sheet: numeric_field_status`, `Sheet: numeric_summary_all` (+301 more)
+- **315 isolated node(s):** `graphify`, `Sheet: regression_results`, `Sheet: README`, `Sheet: numeric_field_status`, `Sheet: numeric_summary_all` (+310 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **25 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -313,11 +319,11 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `Randomized trial of a diversion program for property offenders with drug use` and `Restorative justice conferences`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `Dropbox corpus snapshot 31 August 2026` connect `Dropbox corpus snapshot 31 August 2026` to `Procedural justice and decision acceptance`?**
-  _High betweenness centrality (0.047) - this node is a cross-community bridge._
+  _High betweenness centrality (0.045) - this node is a cross-community bridge._
 - **Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Procedural justice and decision acceptance` to `Dropbox corpus snapshot 31 August 2026`?**
   _High betweenness centrality (0.004) - this node is a cross-community bridge._
 - **What connects `graphify`, `Sheet: regression_results`, `Sheet: README` to the rest of the system?**
-  _306 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _315 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Dropbox corpus snapshot 31 August 2026` be split into smaller, more focused modules?**
   _Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected._
 - **Should `Advancing Justice Uganda Inception Report` be split into smaller, more focused modules?**
