@@ -382,9 +382,87 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 *---------------------------*	
 {
 		
-	clear all	
-	import excel using "${input_dir}\1 Raw\Primary data\Phase 1 Baseline_Runyankore_WIDE.xlsx", sheet("data") firstrow clear
+	clear all
+
+	* Import the two SurveyCTO waves independently. Raw source fields are retained
+	* before the small number of structural type conflicts are harmonized.
+	local baseline_original "${input_dir}/1 Raw/Primary data/Phase 1 Baseline_Runyankore_WIDE.xlsx"
+	local baseline_august   "${input_dir}/1 Raw/Primary data/Phase 1 Baseline_Runyankore_WIDE (new submissions).csv"
+
+	import excel using "`baseline_original'", sheet("data") firstrow clear
 	rename *, lower
+	gen byte baseline_wave = 1
+	gen str80 baseline_source_file = "Phase 1 Baseline_Runyankore_WIDE.xlsx"
+	gen long baseline_source_row = _n + 1
+	gen byte post_election_collection = 0
+	gen double m0_q05_original_code = m0_q05
+	gen double m0_q06_original_code = m0_q06
+	gen double m0_q07_original_code = m0_q07
+	gen strL m0_q05_august_raw = ""
+	gen strL m0_q06_august_raw = ""
+	gen strL m0_q07_august_raw = ""
+	foreach v in submissiondate starttime endtime {
+		gen double `v'_raw_numeric = `v'
+		gen str40 `v'_raw_text = ""
+	}
+	tempfile baseline_wave1
+	save `baseline_wave1'
+
+	* import delimited is unavailable in the local Stata installation because its
+	* Java runtime is not configured. insheet reads the same CSV without changing
+	* the 474-column source schema.
+	insheet using "`baseline_august'", comma names clear
+	rename *, lower
+	gen byte baseline_wave = 2
+	gen str80 baseline_source_file = "Phase 1 Baseline_Runyankore_WIDE (new submissions).csv"
+	gen long baseline_source_row = _n + 1
+	gen byte post_election_collection = 1
+
+	* Preserve the free-text August geography, then create missing numeric shells
+	* for the legacy coded fields so the append is explicit and lossless.
+	clonevar m0_q05_august_raw = m0_q05
+	clonevar m0_q06_august_raw = m0_q06
+	clonevar m0_q07_august_raw = m0_q07
+	drop m0_q05 m0_q06 m0_q07
+	gen double m0_q05 = .
+	gen double m0_q06 = .
+	gen double m0_q07 = .
+	gen double m0_q05_original_code = .
+	gen double m0_q06_original_code = .
+	gen double m0_q07_original_code = .
+
+	* Preserve timestamp strings and convert them to Stata datetimes before append.
+	foreach v in submissiondate starttime endtime {
+		clonevar `v'_raw_text = `v'
+		gen double `v'_raw_numeric = .
+		gen double `v'_numeric = clock(`v'_raw_text, "MDYhms")
+		assert !missing(`v'_numeric) if !missing(`v'_raw_text)
+		drop `v'
+		rename `v'_numeric `v'
+	}
+
+	* Empty select-multiple parent fields arrived as numeric in the CSV. Convert
+	* only those verified conflicts to strings; no append, force is used.
+	foreach v in topics_trained m1_q14_specify m2_q15_specify m3_q15 m4_v01_q3 m4_v02_q3 {
+		capture confirm numeric variable `v'
+		if !_rc {
+			gen str40 `v'_text = cond(missing(`v'), "", string(`v', "%20.0g"))
+			drop `v'
+			rename `v'_text `v'
+		}
+	}
+
+	append using `baseline_wave1'
+	label define baseline_wave_lbl 1 "Original May/June baseline" 2 "August 2026 mop-up/re-baseline", replace
+	label values baseline_wave baseline_wave_lbl
+	gen str32 baseline_wave_label = cond(baseline_wave == 1, "Original May/June baseline", "August 2026 mop-up/re-baseline")
+	label var baseline_wave "Baseline collection wave"
+	label var baseline_wave_label "Baseline collection wave label"
+	label var baseline_source_file "Raw source file"
+	label var baseline_source_row "Row in raw source file, including header"
+	label var post_election_collection "Collected after the July 2026 LC1 election"
+	assert _N == 167
+	isid key
 	
 
 
@@ -1164,10 +1242,12 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	replace flag_no_consent = 1 if missing(consent)
 	label var flag_no_consent "Respondent did not consent or consent is missing"
 
-	gen byte analysis_sample = (consent == 1 & !missing(submission_key))
+	gen byte consented_baseline_record = (consent == 1 & !missing(submission_key))
+	gen byte analysis_sample = 0
 	label define yesno 0 "No" 1 "Yes", replace
-	label values flag_no_consent analysis_sample yesno
-	label var analysis_sample "Record belongs to consented Phase 1 baseline analysis sample"
+	label values flag_no_consent consented_baseline_record analysis_sample yesno
+	label var consented_baseline_record "Consented baseline record with nonmissing submission key"
+	label var analysis_sample "Definitive released analysis record with verified pre-treatment timing"
 
 	* Clean obvious string variables: trim spaces and convert literal missing strings to blank
 	ds, has(type string)
@@ -1237,10 +1317,15 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	capture confirm variable interview_date
 	if !_rc {
-		gen byte flag_date_outside_fieldwork = ///
-			(interview_date < td(18may2026) | interview_date > td(05jun2026)) if !missing(interview_date)
-		label var flag_date_outside_fieldwork "Interview date outside expected Phase 1 baseline fieldwork window"
-		label values flag_date_outside_fieldwork yesno
+		gen byte flag_date_outside_expected_wave = .
+		replace flag_date_outside_expected_wave = ///
+			(interview_date < td(18may2026) | interview_date > td(05jun2026)) if baseline_wave == 1 & !missing(interview_date)
+		replace flag_date_outside_expected_wave = ///
+			(interview_date < td(21aug2026) | interview_date > td(30aug2026)) if baseline_wave == 2 & !missing(interview_date)
+		clonevar flag_date_outside_fieldwork = flag_date_outside_expected_wave
+		label var flag_date_outside_expected_wave "Interview date outside expected window for its source wave"
+		label var flag_date_outside_fieldwork "Alias: interview date outside expected window for its source wave"
+		label values flag_date_outside_expected_wave flag_date_outside_fieldwork yesno
 	}
 
 
@@ -1294,6 +1379,10 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace `out'_scto = "" if trim(`out'_scto) == "."
 		label var `out'_scto "SurveyCTO selected `out' label"
 	}
+	* The August form stores subcounty, parish, and village as free text.
+	replace subcounty_scto = m0_q05_august_raw if baseline_wave == 2
+	replace parish_scto    = m0_q06_august_raw if baseline_wave == 2
+	replace village_scto   = m0_q07_august_raw if baseline_wave == 2
 
 	foreach v in district_scto subcounty_scto parish_scto village_scto {
 		capture confirm variable `v'
@@ -1336,149 +1425,288 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	label var flag_duplicate_scto_village "SurveyCTO-selected village appears in multiple submissions"
 	capture label values flag_duplicate_scto_village yesno
 
-	* Placeholder fields for the replacement correction file that Sharon/Ivan will complete.
-	capture drop actual_district actual_subcounty actual_parish actual_village is_replacement_village replacement_notes
-	gen strL actual_district   = district_scto
-	gen strL actual_subcounty = subcounty_scto
-	gen strL actual_parish    = parish_scto
-	gen strL actual_village   = village_scto
-	gen byte is_replacement_village = .
-	gen strL replacement_notes = ""
-	label var actual_district "Actual district visited; updated after record-level replacement mapping"
-	label var actual_subcounty "Actual subcounty/division visited; updated after record-level replacement mapping"
-	label var actual_parish "Actual parish/ward visited; updated after record-level replacement mapping"
-	label var actual_village "Actual village visited; updated after record-level replacement mapping"
-	label var is_replacement_village "Actual record corresponds to a replacement village"
-
-	* Optional future merge: completed record-level replacement file.
-	* Sharon/Ivan will complete this file later. Until then, actual_* variables
-	* remain equal to the SurveyCTO-selected geography. The merge is record-level,
-	* by submission_key, because several replacement villages were not programmed
-	* in SurveyCTO and enumerators selected the original village instead.
-	local repl_xlsx "${input_dir}/1 Raw/Primary data/phase1_baseline_replacement_verification_file_completed.xlsx"
-	capture confirm file "`repl_xlsx'"
-	if !_rc {
-		preserve
-			import excel using "`repl_xlsx'", sheet("Survey_records_to_complete") firstrow clear
-			rename *, lower
-
-			capture confirm variable submission_key
-			if _rc {
-				dis as error "Replacement file found but submission_key variable is missing. Merge skipped."
-				clear
-				set obs 0
-				gen str80 submission_key = ""
-			}
-
-			capture rename actual_village_visited actual_village_completed
-			capture rename replacement_village_name replacement_village_completed
-			capture rename is_replacement_village is_replacement_village_completed
-			capture rename replacement_notes replacement_notes_completed
-
-			foreach v in actual_village_completed replacement_village_completed replacement_notes_completed {
-				capture confirm variable `v'
-				if _rc gen strL `v' = ""
-			}
-			capture confirm variable is_replacement_village_completed
-			if _rc gen str20 is_replacement_village_completed = ""
-
-			gen byte is_replacement_village_completed_num = .
-			capture confirm numeric variable is_replacement_village_completed
-			if !_rc {
-				replace is_replacement_village_completed_num = is_replacement_village_completed if inlist(is_replacement_village_completed,0,1)
-			}
-			else {
-				replace is_replacement_village_completed = lower(itrim(strtrim(is_replacement_village_completed)))
-				replace is_replacement_village_completed_num = 1 if inlist(is_replacement_village_completed,"yes","y","1","replacement")
-				replace is_replacement_village_completed_num = 0 if inlist(is_replacement_village_completed,"no","n","0","original")
-			}
-
-			keep submission_key actual_village_completed replacement_village_completed ///
-				is_replacement_village_completed_num replacement_notes_completed
-			drop if missing(submission_key)
-			duplicates drop submission_key, force
-
-			tempfile replmap
-			save `replmap'
-		restore
-
-		capture drop merge_replacement_map
-		merge 1:1 submission_key using `replmap', gen(merge_replacement_map) keep(master match)
-		label var merge_replacement_map "Merge status with completed record-level replacement map"
-
-		replace actual_village = actual_village_completed if !missing(actual_village_completed)
-		replace actual_village = replacement_village_completed if is_replacement_village_completed_num == 1 & !missing(replacement_village_completed)
-		replace is_replacement_village = is_replacement_village_completed_num if !missing(is_replacement_village_completed_num)
-		replace replacement_notes = replacement_notes_completed if !missing(replacement_notes_completed)
-	}
+	* Save the lossless combined archive before canonical adjudication or scoring.
+	save "${input_dir}/2 Working/phase1_baseline_all_submissions_raw.dta", replace
 
 	*-------------------------------*
-	**# 4. Merge sampling metadata  *
+	**# 4. Canonical reconciliation *
 	*-------------------------------*
-	* Merge original randomized sampling-frame metadata when possible.
-	* Important: keep only master SurveyCTO records so the baseline dataset is not
-	* expanded by using-only observations from the sampling frame. As of the first
-	* Phase 1 baseline cleaning, this merge is expected to have limited/no matches
-	* until the record-level replacement-village correction file is completed.
+	* Parse the current election workbook and assert the independently observed
+	* administrative total. The row marker is searched across the relevant text
+	* fields because its storage location differs by district.
+	preserve
+		import excel using "${input_dir}/1 Raw/Secondary data/List of LCs mapped.xlsx", ///
+			sheet("Bushenyi") cellrange(B3:N56) firstrow clear
+		rename *, lower
+		capture tostring contact, replace force
+		gen strL election_row_text = upper(name + " " + contact + " " + comment)
+		keep if strpos(election_row_text, "VOTED OUT")
+		keep district subcounty parish village
+		gen str12 election_sheet = "Bushenyi"
+		tempfile election_bushenyi
+		save `election_bushenyi'
 
-	capture confirm file "${input_dir}/2 Working/phase1_sampling_frame_full.dta"
-	if !_rc {
-		preserve
-			use "${input_dir}/2 Working/phase1_sampling_frame_full.dta", clear
+		import excel using "${input_dir}/1 Raw/Secondary data/List of LCs mapped.xlsx", ///
+			sheet("Sheema ") cellrange(A3:H91) firstrow clear
+		rename *, lower
+		capture tostring contact, replace force
+		gen strL election_row_text = upper(name + " " + contact + " " + comment)
+		keep if strpos(election_row_text, "VOTED OUT")
+		keep district subcounty parish village
+		gen str12 election_sheet = "Sheema"
+		append using `election_bushenyi'
+		tempfile election_bs
+		save `election_bs'
 
-			keep district subcounty parish village village_uid number_of_cases ///
-				case_rank_district case_share_district hotspot_p75_district hotspot_p90_district ///
-				phase1_selected phase1_replacement sample_role replacement_rank_stratum district_fallback_rank
+		import excel using "${input_dir}/1 Raw/Secondary data/List of LCs mapped.xlsx", ///
+			sheet("Rubirizi") cellrange(A3:H441) firstrow clear
+		rename *, lower
+		capture tostring contact, replace force
+		gen strL election_row_text = upper(name + " " + contact + " " + comment)
+		keep if strpos(election_row_text, "VOTED OUT")
+		keep district subcounty parish village
+		gen str12 election_sheet = "Rubirizi"
+		append using `election_bs'
+		assert _N == 13
+		gen str80 successor_submission_key = ""
+		replace successor_submission_key = "uuid:c4821b67-0d41-4e3d-acb7-ab3e5f487909" if lower(village) == "kyamamari"
+		replace successor_submission_key = "uuid:6564513b-8e04-47cc-a589-fcb8e709b2f0" if lower(village) == "tandara"
+		replace successor_submission_key = "uuid:b62ecd12-050c-477e-82e8-9fd10a5014d7" if lower(village) == "kibaare a"
+		replace successor_submission_key = "uuid:34f34fc1-5172-4ccb-b52a-63e88bbf8e60" if lower(village) == "karugorora"
+		replace successor_submission_key = "uuid:7f3ae232-2a91-4d14-a71b-8c07ef7a055e" if lower(village) == "kashanjure"
+		replace successor_submission_key = "uuid:285defca-5a99-47bd-ae6f-f8011bcea20e" if lower(village) == "masyooro"
+		replace successor_submission_key = "uuid:278058a2-0845-4463-a6c3-e07dd437c8d3" if lower(village) == "kyamatongo"
+		replace successor_submission_key = "uuid:87bbcec0-9d03-4c83-9e6a-7746e187d0e2" if lower(village) == "rwenkurigo"
+		gen str40 disposition = cond(missing(successor_submission_key), ///
+			"unresolved_no_authoritative_successor", "linked_august_rebaseline")
+		tempfile election_cases
+		save `election_cases'
+	restore
 
-			rename district sample_district
-			rename subcounty sample_subcounty
-			rename parish sample_parish
-			rename village sample_village
-			rename village_uid survey_village_uid
-			rename number_of_cases sample_number_of_cases
-			rename case_rank_district sample_case_rank_district
-			rename case_share_district sample_case_share_district
-			rename hotspot_p75_district sample_hotspot_p75
-			rename hotspot_p90_district sample_hotspot_p90
-
-			* Stata cannot merge on strL keys. Force fixed-length string key.
-			capture confirm strL variable survey_village_uid
-			if !_rc {
-				gen str244 survey_village_uid_tmp = substr(survey_village_uid, 1, 244)
-				drop survey_village_uid
-				rename survey_village_uid_tmp survey_village_uid
-			}
-			else {
-				capture confirm string variable survey_village_uid
-				if _rc tostring survey_village_uid, replace force
-				gen str244 survey_village_uid_tmp = substr(survey_village_uid, 1, 244)
-				drop survey_village_uid
-				rename survey_village_uid_tmp survey_village_uid
-			}
-
-			duplicates drop survey_village_uid, force
-
-			tempfile sampleframe
-			save `sampleframe'
-		restore
-
-		capture drop merge_sampling_frame
-		foreach v in sample_district sample_subcounty sample_parish sample_village ///
-			sample_number_of_cases sample_case_rank_district sample_case_share_district ///
-			sample_hotspot_p75 sample_hotspot_p90 phase1_selected phase1_replacement ///
-			sample_role replacement_rank_stratum district_fallback_rank {
-			capture drop `v'
+	* Build the original administrative-origin lookup from Final Village List.
+	preserve
+		import excel using "${input_dir}/1 Raw/Primary data/Final Village List.xlsx", firstrow clear
+		rename *, lower
+		rename (district subcounty parish village) (fvl_district fvl_subcounty fvl_parish fvl_village)
+		replace fvl_district = subinstr(fvl_district, " District", "", .)
+		foreach v in district village {
+			gen str80 origin_`v'_key = lower(itrim(strtrim(fvl_`v')))
+			replace origin_`v'_key = ustrregexra(origin_`v'_key, "[^a-z0-9]+", "_")
+			replace origin_`v'_key = ustrregexra(origin_`v'_key, "^_+|_+$", "")
 		}
+		isid origin_district_key origin_village_key
+		tempfile final_village_list
+		save `final_village_list'
+	restore
 
-		merge m:1 survey_village_uid using `sampleframe', ///
-			gen(merge_sampling_frame) keep(master match)
+	gen str80 origin_district_key = district_scto_key
+	gen str80 origin_village_key = village_scto_key
+	* Source-supported aliases/corrections. These affect canonical matching only;
+	* the raw and common SurveyCTO geography remain unchanged.
+	replace origin_village_key = "kibaare_i" if district_scto_key == "bushenyi" & ///
+		subcounty_scto_key == "nyakabirizi" & inlist(village_scto_key, "kibaare_a", "kibaare_i")
+	replace origin_village_key = "rwenkurigo" if village_scto_key == "rwenkuringo"
+	replace origin_village_key = "bumbaire_ii" if village_scto_key == "bubaire_2"
+	replace origin_village_key = "kigarama" if village_scto_key == "kagarama"
+	replace origin_village_key = "nyangorogo_ii" if village_scto_key == "nyangorongo2"
+	replace origin_village_key = "kafuro_ib" if village_scto_key == "kafuro_1b"
+	replace origin_village_key = "kisharu_i" if village_scto_key == "kisharu_1"
+	replace origin_village_key = "mikonabire" if village_scto_key == "mikonobire"
+	replace origin_village_key = "kyabuyongo" if village_scto_key == "kyabiyongo"
+	replace origin_village_key = "runyinya_ii" if village_scto_key == "runyinya"
+	replace origin_district_key = "rubirizi" if village_scto_key == "kikonjo"
+	replace origin_district_key = "rubirizi" if village_scto_key == "katerera_ii"
 
-		label var merge_sampling_frame "Merge status with original randomized sampling frame"
+	merge m:1 origin_district_key origin_village_key using `final_village_list', ///
+		gen(merge_final_village_list) keep(master match)
 
-		* After this merge, the dataset must still contain only SurveyCTO submissions.
-		assert !missing(survey_record_id)
-		tab merge_sampling_frame, missing
+	gen str40 canonical_district = district_scto
+	gen str60 canonical_subcounty = subcounty_scto
+	gen str60 canonical_parish = parish_scto
+	gen str60 canonical_village = village_scto
+	replace canonical_district = fvl_district if merge_final_village_list == 3
+	replace canonical_subcounty = fvl_subcounty if merge_final_village_list == 3
+	replace canonical_parish = fvl_parish if merge_final_village_list == 3
+	replace canonical_village = fvl_village if merge_final_village_list == 3
+	* Current election nomenclature treats Kibaare A as the successor to the old
+	* programmed Kibaare I entry; the FVL origin is inherited from that same slot.
+	replace canonical_village = "Kibaare A" if district_scto_key == "bushenyi" & ///
+		subcounty_scto_key == "nyakabirizi" & inlist(village_scto_key, "kibaare_a", "kibaare_i")
+
+	foreach v in district subcounty parish village {
+		gen str80 canonical_`v'_key = lower(itrim(strtrim(canonical_`v')))
+		replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "[^a-z0-9]+", "_")
+		replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "^_+|_+$", "")
 	}
+	gen str244 canonical_village_uid = substr(canonical_district_key + "_" + canonical_subcounty_key + "_" + ///
+		canonical_parish_key + "_" + canonical_village_key, 1, 244)
+	egen canonical_village_id = group(canonical_village_uid), label
+
+	gen byte p1_admin_last_cdfu = cond(merge_final_village_list == 3, last_cdfu_phase, .)
+	gen byte p1_admin_inherited_fhri = cond(merge_final_village_list == 3, ineherited_fhri, .)
+	gen byte p1_admin_previously_contacted = max(p1_admin_last_cdfu, p1_admin_inherited_fhri)
+	gen byte p1_admin_new = cond(merge_final_village_list == 3, 1 - p1_admin_previously_contacted, .)
+	gen byte p1_admin_origin = cond(p1_admin_last_cdfu == 1, 1, cond(p1_admin_inherited_fhri == 1, 2, ///
+		cond(merge_final_village_list == 3, 0, .)))
+	label define p1_admin_origin_lbl 0 "New / randomly selected" 1 "Last CDFU phase" 2 "Inherited FHRI", replace
+	label values p1_admin_origin p1_admin_origin_lbl
+	label values p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new yesno
+
+	* Record-level respondent succession. The eight linked cases have explicit
+	* successor keys; the remaining five administrative cases stay unresolved.
+	gen byte election_voted_out = 0
+	replace election_voted_out = 1 if district_scto_key == "bushenyi" & subcounty_scto_key == "bitooma" & village_scto_key == "kyamamari"
+	replace election_voted_out = 1 if district_scto_key == "bushenyi" & subcounty_scto_key == "ibaare" & village_scto_key == "tandara"
+	replace election_voted_out = 1 if district_scto_key == "bushenyi" & subcounty_scto_key == "nyakabirizi" & inlist(village_scto_key, "kibaare_i", "kibaare_a")
+	replace election_voted_out = 1 if district_scto_key == "bushenyi" & village_scto_key == "nyarutuntu"
+	replace election_voted_out = 1 if district_scto_key == "sheema" & subcounty_scto_key == "kasana_sub_county" & village_scto_key == "karugorora"
+	replace election_voted_out = 1 if district_scto_key == "sheema" & subcounty_scto_key == "kyangyenyi" & village_scto_key == "kashanjure"
+	replace election_voted_out = 1 if district_scto_key == "sheema" & subcounty_scto_key == "kyangyenyi" & village_scto_key == "masyooro"
+	replace election_voted_out = 1 if district_scto_key == "sheema" & village_scto_key == "kyamatongo"
+	replace election_voted_out = 1 if district_scto_key == "sheema" & parish_scto_key == "kyamurari" & inlist(village_scto_key, "rwenkurigo", "rwenkuringo")
+	replace election_voted_out = 1 if village_scto_key == "kacu_cell"
+	replace election_voted_out = 1 if district_scto_key == "rubirizi" & inlist(village_scto_key, "kirugu_2_a", "kirugu_2_b", "kyesama")
+
+	gen byte obvious_august_rebaseline = inlist(submission_key, ///
+		"uuid:c4821b67-0d41-4e3d-acb7-ab3e5f487909", "uuid:6564513b-8e04-47cc-a589-fcb8e709b2f0", ///
+		"uuid:b62ecd12-050c-477e-82e8-9fd10a5014d7", "uuid:34f34fc1-5172-4ccb-b52a-63e88bbf8e60", ///
+		"uuid:7f3ae232-2a91-4d14-a71b-8c07ef7a055e", "uuid:285defca-5a99-47bd-ae6f-f8011bcea20e", ///
+		"uuid:278058a2-0845-4463-a6c3-e07dd437c8d3", "uuid:87bbcec0-9d03-4c83-9e6a-7746e187d0e2")
+	gen byte originally_not_visited = inlist(submission_key, ///
+		"uuid:ac0f7abc-a9ae-404a-9dba-1f32345df8df", "uuid:72201486-b0ac-471a-89ed-2b801c83d7dc", ///
+		"uuid:75c46b4c-35cd-442a-a12e-42d9f4a0fb87", "uuid:857278d8-4016-4022-9ec9-680e1dc25d9d", ///
+		"uuid:bcfb80ae-6587-4ce5-b4ca-b067a295a588", "uuid:8f448401-c998-4222-9291-a4c1cd4e8927", ///
+		"uuid:2b3b8f7b-7b5e-4501-90bb-65449468d30c", "uuid:85519780-7e7e-4158-a9bc-447a3c373185")
+	gen byte late_baseline_completion = baseline_wave == 2
+	gen byte replacement_village = 0
+	gen byte operational_exclusion = lower(village_scto) == "rushoroza"
+	gen byte chairperson_deceased = district_scto_key == "rubirizi" & village_scto_key == "ryeru"
+	gen byte invalid_geographic_unit = inlist(lower(village_scto), "mubanda", "karagara", "kiziba", "kihunda")
+	gen byte unresolved_identity = baseline_wave == 2 & !obvious_august_rebaseline & !originally_not_visited
+	replace unresolved_identity = 1 if baseline_wave == 1 & district_scto_key == "sheema" & ///
+		parish_scto_key == "kagongi" & village_scto_key == "rwenkurigo"
+
+	* The eight source-documented missed/geographically problematic units are true
+	* mop-up completions. When an earlier record maps to the same canonical unit,
+	* the August completion supersedes it instead of being treated as a duplicate.
+	bysort canonical_village_uid: egen has_documented_mopup_completion = max(originally_not_visited)
+	bysort canonical_village_uid (originally_not_visited): gen str80 documented_mopup_successor_key = ///
+		submission_key[_N] if originally_not_visited[_N] == 1
+
+	gen byte respondent_still_relevant = !(baseline_wave == 1 & ///
+		(election_voted_out == 1 | has_documented_mopup_completion == 1))
+	gen byte superseded_record = baseline_wave == 1 & ///
+		(election_voted_out == 1 | has_documented_mopup_completion == 1)
+	gen str80 superseded_by_submission_key = ""
+	replace superseded_by_submission_key = "uuid:c4821b67-0d41-4e3d-acb7-ab3e5f487909" if submission_key == "uuid:8e344c68-c753-419f-ad61-acdc57e20989"
+	replace superseded_by_submission_key = "uuid:6564513b-8e04-47cc-a589-fcb8e709b2f0" if submission_key == "uuid:503ec58a-67ec-4dde-ae84-d2aab1a12767"
+	replace superseded_by_submission_key = "uuid:b62ecd12-050c-477e-82e8-9fd10a5014d7" if submission_key == "uuid:d1fcaec8-9bc6-4100-a81c-8649c52e99af"
+	replace superseded_by_submission_key = "uuid:34f34fc1-5172-4ccb-b52a-63e88bbf8e60" if submission_key == "uuid:a0e54d95-462a-4ca7-bd6e-690f32651880"
+	replace superseded_by_submission_key = "uuid:7f3ae232-2a91-4d14-a71b-8c07ef7a055e" if submission_key == "uuid:e0b54bf6-b9b5-4a1c-b223-2ee1f182036b"
+	replace superseded_by_submission_key = "uuid:285defca-5a99-47bd-ae6f-f8011bcea20e" if submission_key == "uuid:ff031e71-5a42-4fa3-93f8-ef295c630f00"
+	replace superseded_by_submission_key = "uuid:278058a2-0845-4463-a6c3-e07dd437c8d3" if submission_key == "uuid:bb4497b7-a4d1-48ad-b75c-edc9dfedd36b"
+	replace superseded_by_submission_key = "uuid:87bbcec0-9d03-4c83-9e6a-7746e187d0e2" if submission_key == "uuid:bbf19eca-3224-43ef-af4a-72cf65fbe86e"
+	replace superseded_by_submission_key = documented_mopup_successor_key if baseline_wave == 1 & ///
+		has_documented_mopup_completion == 1
+	gen str50 supersession_reason = ""
+	replace supersession_reason = "chairperson_voted_out_after_original_survey" if baseline_wave == 1 & election_voted_out == 1
+	replace supersession_reason = "documented_missed_or_geographic_mopup" if baseline_wave == 1 & has_documented_mopup_completion == 1
+
+	gen str40 reconciliation_status = "resolved_original"
+	gen strL reconciliation_note = "Original survey retained unless a documented supersession or exclusion applies."
+	replace reconciliation_status = "candidate_august_rebaseline" if obvious_august_rebaseline
+	replace reconciliation_note = "August survey linked to the new chairperson for an explicitly VOTED OUT LC." if obvious_august_rebaseline
+	replace reconciliation_status = "candidate_missed_village_completion" if originally_not_visited
+	replace reconciliation_note = "August survey corresponds to a village documented as missed or geographically problematic." if originally_not_visited
+	replace reconciliation_status = "unresolved_mopup_role" if unresolved_identity
+	replace reconciliation_note = "August record role cannot be fixed without the final implementation/replacement roster." if baseline_wave == 2 & unresolved_identity
+	replace reconciliation_status = "superseded_election" if baseline_wave == 1 & election_voted_out == 1
+	replace reconciliation_note = "Pre-election respondent no longer holds the relevant chairperson role." if baseline_wave == 1 & election_voted_out == 1
+	replace reconciliation_status = "superseded_by_documented_mopup" if baseline_wave == 1 & has_documented_mopup_completion == 1
+	replace reconciliation_note = "Earlier record replaced by the August completion for a documented missed/geographically problematic LC." if baseline_wave == 1 & has_documented_mopup_completion == 1
+	replace reconciliation_status = "operational_exclusion" if operational_exclusion
+	replace reconciliation_note = "Rushoroza was explicitly requested for drop/replacement on operational grounds." if operational_exclusion
+	replace reconciliation_status = "chairperson_deceased" if chairperson_deceased
+	replace reconciliation_note = "Prior Ryeru chairperson was reported deceased; replacement remains unverified." if chairperson_deceased
+	replace reconciliation_status = "invalid_geographic_unit" if invalid_geographic_unit
+	replace reconciliation_note = "Village was documented as nonexistent or as a parish rather than an LC village." if invalid_geographic_unit
+	replace reconciliation_status = "unresolved_geographic_duplicate" if baseline_wave == 1 & unresolved_identity
+	replace reconciliation_note = "Duplicate Rwenkurigo label has a conflicting parish and is not auto-matched." if baseline_wave == 1 & unresolved_identity
+
+	gen byte candidate_eligible = consented_baseline_record == 1 & respondent_still_relevant == 1 & ///
+		operational_exclusion == 0 & chairperson_deceased == 0 & invalid_geographic_unit == 0 & unresolved_identity == 0
+	bysort canonical_village_uid: egen n_candidate_eligible = total(candidate_eligible)
+	bysort canonical_village_uid: egen n_candidate_wave1 = total(candidate_eligible & baseline_wave == 1)
+	gen byte final_baseline_record = 0
+	replace final_baseline_record = 1 if candidate_eligible & obvious_august_rebaseline
+	replace final_baseline_record = 1 if candidate_eligible & n_candidate_eligible == 1
+	replace final_baseline_record = 1 if candidate_eligible & baseline_wave == 1 & ///
+		n_candidate_wave1 == 1 & n_candidate_eligible > 1 & !obvious_august_rebaseline
+	bysort canonical_village_uid: egen n_final_per_lc = total(final_baseline_record)
+	replace final_baseline_record = 0 if n_final_per_lc > 1 & !obvious_august_rebaseline
+	bysort canonical_village_uid: egen n_final_per_lc_check = total(final_baseline_record)
+	assert n_final_per_lc_check <= 1
+
+	gen str24 training_timing_status = cond(final_baseline_record == 1, "unknown", "not_selected")
+	replace analysis_sample = final_baseline_record == 1 & training_timing_status == "verified_pre_treatment"
+	gen str80 final_exclusion_reason = ""
+	replace final_exclusion_reason = reconciliation_status if final_baseline_record == 0
+	label values election_voted_out respondent_still_relevant superseded_record obvious_august_rebaseline ///
+		originally_not_visited late_baseline_completion replacement_village operational_exclusion ///
+		chairperson_deceased invalid_geographic_unit unresolved_identity final_baseline_record analysis_sample yesno
+
+	* Village crosswalk: retain all 128 original administrative units and append
+	* any observed amended/mop-up unit not represented in that historical list.
+	preserve
+		bysort canonical_village_uid: egen n_survey_submissions = count(submission_key)
+		bysort canonical_village_uid: egen has_original_submission = max(baseline_wave == 1)
+		bysort canonical_village_uid: egen has_august_submission = max(baseline_wave == 2)
+		bysort canonical_village_uid: egen has_final_candidate = max(final_baseline_record)
+		bysort canonical_village_uid: keep if _n == 1
+		keep canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
+			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
+			district_scto subcounty_scto parish_scto village_scto n_survey_submissions ///
+			has_original_submission has_august_submission has_final_candidate
+		gen byte observed_in_survey = 1
+		tempfile observed_crosswalk
+		save `observed_crosswalk'
+
+		use `final_village_list', clear
+		gen str40 canonical_district = fvl_district
+		gen str60 canonical_subcounty = fvl_subcounty
+		gen str60 canonical_parish = fvl_parish
+		gen str60 canonical_village = fvl_village
+		foreach v in district subcounty parish village {
+			gen str80 canonical_`v'_key = lower(itrim(strtrim(canonical_`v')))
+			replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "[^a-z0-9]+", "_")
+			replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "^_+|_+$", "")
+		}
+		gen str244 canonical_village_uid = substr(canonical_district_key + "_" + canonical_subcounty_key + "_" + ///
+			canonical_parish_key + "_" + canonical_village_key, 1, 244)
+		gen byte p1_admin_last_cdfu = last_cdfu_phase
+		gen byte p1_admin_inherited_fhri = ineherited_fhri
+		gen byte p1_admin_previously_contacted = max(p1_admin_last_cdfu, p1_admin_inherited_fhri)
+		gen byte p1_admin_new = 1 - p1_admin_previously_contacted
+		gen byte p1_admin_origin = cond(p1_admin_last_cdfu == 1, 1, cond(p1_admin_inherited_fhri == 1, 2, 0))
+		gen str40 district_scto = ""
+		gen str60 subcounty_scto = ""
+		gen str60 parish_scto = ""
+		gen str60 village_scto = ""
+		gen long n_survey_submissions = 0
+		gen byte has_original_submission = 0
+		gen byte has_august_submission = 0
+		gen byte has_final_candidate = 0
+		gen byte observed_in_survey = 0
+		keep canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
+			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
+			district_scto subcounty_scto parish_scto village_scto n_survey_submissions ///
+			has_original_submission has_august_submission has_final_candidate observed_in_survey
+		append using `observed_crosswalk'
+		gsort canonical_village_uid observed_in_survey
+		by canonical_village_uid: keep if _n == _N
+		isid canonical_village_uid
+		save "${input_dir}/2 Working/phase1_village_crosswalk.dta", replace
+	restore
 
 	*-------------------------------*
 	**# 5. Correct simple skips     *
@@ -2262,10 +2490,16 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	*-------------------------------*
 	**# 19. Order and notes         *
 	*-------------------------------*
-	order survey_record_id submission_key instance_id analysis_sample submissiondate_dt starttime_dt endtime_dt ///
+	order survey_record_id submission_key instance_id baseline_wave baseline_wave_label baseline_source_file baseline_source_row ///
+		post_election_collection consented_baseline_record final_baseline_record analysis_sample ///
+		submissiondate_dt starttime_dt endtime_dt ///
 		interview_date interview_hour duration duration_min enum consent ///
 		district_scto subcounty_scto parish_scto village_scto survey_village_uid survey_village_id ///
-		actual_district actual_subcounty actual_parish actual_village is_replacement_village ///
+		canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid canonical_village_id ///
+		election_voted_out respondent_still_relevant superseded_record superseded_by_submission_key supersession_reason ///
+		originally_not_visited replacement_village operational_exclusion invalid_geographic_unit ///
+		training_timing_status reconciliation_status reconciliation_note final_exclusion_reason ///
+		p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
 		prior_cdfu_fhri_training n_prior_training_topics rating_cdfu_training_clean ///
 		idx_respondent_capacity idx_institutional_functioning idx_legal_classif_knowledge ///
 		idx_adr_mediation_practice idx_referral_practice idx_record_quality idx_committee_functioning ///
@@ -2276,453 +2510,257 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	note: Phase 1 baseline is a pre-training/direct-training and mentor-readiness survey, not the causal RCT stage.
 	note: Original SurveyCTO variables are preserved; cleaned analysis variables and indices are added by this data-preparation block.
-	note: Replacement village corrections require a future record-level mapping from SurveyCTO submission key to actual replacement village visited.
+	note: Candidate final records are evidence-based reconciliation results, but the definitive release remains blocked until treatment timing and the final implementation roster are verified.
 	note: Module 9 and Module 10 were shortened in the fielded Runyankore instrument; indices use only fielded items.
 
 *------------------------------------------------------------------------------*
-**# X. Administrative Phase 1 origin: new vs previously contacted villages
 *------------------------------------------------------------------------------*
-* Source of truth:
-*   Final Village List.xlsx
-*
-* Definition:
-*   Previously contacted / added villages are those marked as:
-*       Last_CDFU_phase == 1 OR Ineherited_FHRI == 1
-*
-* Important:
-*   This block DOES NOT use the self-reported survey question on prior CDFU/FHRI
-*   training. It hard-codes the administrative classification using the matched
-*   SurveyCTO submission_key for each of the 28 admin-added villages.
-*
-* Resulting variables:
-*   p1_admin_last_cdfu              = 1 if village was part of the last CDFU phase
-*   p1_admin_inherited_fhri         = 1 if village was inherited from FHRI
-*   p1_admin_previously_contacted   = 1 if either of the two above is true
-*   p1_admin_new                    = 1 if not previously contacted/admin-added
-*   p1_admin_origin                 = categorical version for graphs/tables
+**# X. Reconciled Phase 1 administrative origin and respondent lineage
 *------------------------------------------------------------------------------*
-
-capture confirm variable submission_key
-if _rc {
-    display as error "submission_key not found. Run this block after SurveyCTO metadata cleaning."
-    exit 111
-}
-
-capture drop p1_admin_last_cdfu
-capture drop p1_admin_inherited_fhri
-capture drop p1_admin_previously_contacted
-capture drop p1_admin_new
-capture drop p1_admin_origin
-capture drop p1_admin_origin_detail
-capture drop p1_admin_match_note
-
-gen byte p1_admin_last_cdfu = 0
-gen byte p1_admin_inherited_fhri = 0
-gen byte p1_admin_previously_contacted = 0
-gen byte p1_admin_new = .
-gen byte p1_admin_origin = 0
-gen str35 p1_admin_origin_detail = "New / randomly selected"
-gen strL p1_admin_match_note = ""
-
-label var p1_admin_last_cdfu ///
-    "Admin list: village belongs to last CDFU phase"
-
-label var p1_admin_inherited_fhri ///
-    "Admin list: village inherited from FHRI"
-
-label var p1_admin_previously_contacted ///
-    "Admin list: previously contacted/added village"
-
-label var p1_admin_new ///
-    "Admin list: new/randomly selected Phase 1 village"
-
-label var p1_admin_origin ///
-    "Admin list Phase 1 origin group"
-
-label var p1_admin_origin_detail ///
-    "Text label for admin Phase 1 origin group"
-
-label var p1_admin_match_note ///
-    "Audit note: admin village matched to SurveyCTO submission"
-
-*-------------------------------*
-* 1. Last CDFU phase villages   *
-*-------------------------------*
-* 20 records marked Last_CDFU_phase == 1 in the admin list.
-
-* 1. Bushenyi / Kakanju / Katunga / Kakuto A
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2f6ce7c1-25ca-4f25-b5bc-32d4514ea791"
-replace p1_admin_match_note = "Last CDFU: Bushenyi / Kakanju / Katunga / Kakuto A" ///
-    if submission_key == "uuid:2f6ce7c1-25ca-4f25-b5bc-32d4514ea791"
-
-* 2. Bushenyi / Kizinda Town Council / Nyabubare / Nyakinengo
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2190d328-1a42-4f7b-874d-a670dda437fe"
-replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Nyabubare / Nyakinengo" ///
-    if submission_key == "uuid:2190d328-1a42-4f7b-874d-a670dda437fe"
-
-* 3. Bushenyi / Kizinda Town Council / Nyabubare / Masya
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:e82dde24-05b4-42f0-b13d-f6a2feae07c8"
-replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Nyabubare / Masya" ///
-    if submission_key == "uuid:e82dde24-05b4-42f0-b13d-f6a2feae07c8"
-
-* 4. Bushenyi / Kizinda Town Council / Kizinda ward / Kitooma
-* SurveyCTO parish appears as Kizinda.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:e4eba94b-b137-4abe-b8b2-115029c6562d"
-replace p1_admin_match_note = "Last CDFU: Bushenyi / Kizinda Town Council / Kizinda ward / Kitooma; SurveyCTO parish=Kizinda" ///
-    if submission_key == "uuid:e4eba94b-b137-4abe-b8b2-115029c6562d"
-
-* 5. Bushenyi / Kyamuhunga / Butaare / Nyambugye
-* Matched to SurveyCTO: Kyamuhunga Town / Butare / Nyampungye.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b137e053-2461-47a4-acc5-71b556a9d5c6"
-replace p1_admin_match_note = "Last CDFU: Bushenyi / Kyamuhunga / Butaare / Nyambugye; matched to SurveyCTO Kyamuhunga Town / Butare / Nyampungye" ///
-    if submission_key == "uuid:b137e053-2461-47a4-acc5-71b556a9d5c6"
-
-* 6. Rubirizi / Kirugu / Kikumbo / Omukabare B
-* SurveyCTO records this as Omukabare. There are duplicate Omukabare records;
-* this submission key is the admin-added Omukabare B match.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:eb7cfbf9-785f-4af3-9d19-0fbcb8028a1e"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kikumbo / Omukabare B; matched to duplicate SurveyCTO Omukabare record by submission key" ///
-    if submission_key == "uuid:eb7cfbf9-785f-4af3-9d19-0fbcb8028a1e"
-
-* 7. Rubirizi / Kirugu / Kirugu / Kirugu 2 B
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:8a21f548-2b3c-47f0-ae07-34354de0b0f5"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kirugu / Kirugu 2 B" ///
-    if submission_key == "uuid:8a21f548-2b3c-47f0-ae07-34354de0b0f5"
-
-* 8. Rubirizi / Ryeru / Ndekye / Ryeru
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:d2517598-b6eb-4885-9e14-c67dcfca649b"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Ryeru / Ndekye / Ryeru" ///
-    if submission_key == "uuid:d2517598-b6eb-4885-9e14-c67dcfca649b"
-
-* 9. Rubirizi / Kicwamba / Kicwamba / Kyesama
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b8cecd9f-74bb-4ed8-b18c-bd0cda597f51"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Kicwamba / Kicwamba / Kyesama" ///
-    if submission_key == "uuid:b8cecd9f-74bb-4ed8-b18c-bd0cda597f51"
-
-* 10. Rubirizi / Rubirizi Town / Nyakasharu / Kyakabunda
-* SurveyCTO subcounty appears as Katerera Town council.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:fb35c3d3-798e-416a-b9a8-369376d34615"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Rubirizi Town / Nyakasharu / Kyakabunda; SurveyCTO subcounty=Katerera Town council" ///
-    if submission_key == "uuid:fb35c3d3-798e-416a-b9a8-369376d34615"
-
-* 11. Rubirizi / Kirugu / Kirugu / Mirarikye
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:4dee5693-f48a-40c7-824b-4d3c8d139419"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Kirugu / Kirugu / Mirarikye" ///
-    if submission_key == "uuid:4dee5693-f48a-40c7-824b-4d3c8d139419"
-
-* 12. Sheema / Masheruka sub county / Nyakambu / Nyakambu
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:351c6894-28fb-4dab-8acb-b2113d20e1d1"
-replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Nyakambu / Nyakambu" ///
-    if submission_key == "uuid:351c6894-28fb-4dab-8acb-b2113d20e1d1"
-
-* 13. Sheema / Masheruka sub county / Nyakambu / Migera
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:6fc4e7f6-3f62-45b5-9d68-5125574a73fa"
-replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Nyakambu / Migera" ///
-    if submission_key == "uuid:6fc4e7f6-3f62-45b5-9d68-5125574a73fa"
-
-* 14. Sheema / Masheruka sub county / Mabare / Rwichumu
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b1999bec-89d4-477b-b49e-15838313a589"
-replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Mabare / Rwichumu" ///
-    if submission_key == "uuid:b1999bec-89d4-477b-b49e-15838313a589"
-
-* 15. Sheema / Masheruka sub county / Mabare / Nyakanoni
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:53f4f023-bebc-4bc6-abc3-ccb212d97b7d"
-replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Mabare / Nyakanoni" ///
-    if submission_key == "uuid:53f4f023-bebc-4bc6-abc3-ccb212d97b7d"
-
-* 16. Sheema / Masheruka sub county / Buringo / Mukono 1
-* SurveyCTO subcounty appears as Masheruka TC.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:d722a4c7-2bfb-49ab-8858-646fb94e9475"
-replace p1_admin_match_note = "Last CDFU: Sheema / Masheruka sub county / Buringo / Mukono 1; SurveyCTO subcounty=Masheruka TC" ///
-    if submission_key == "uuid:d722a4c7-2bfb-49ab-8858-646fb94e9475"
-
-* 17. Sheema / Kabwohe Division / Kabwohe / Market cell
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:adb21efa-2e1c-48b5-9caa-f6875cdfefa0"
-replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Kabwohe / Market cell" ///
-    if submission_key == "uuid:adb21efa-2e1c-48b5-9caa-f6875cdfefa0"
-
-* 18. Sheema / Kabwohe Division / Rutoma / Kabwohe A
-* SurveyCTO parish appears as Kabwohe.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:b445a616-8864-4508-a15c-f8f3deccabb3"
-replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Rutoma / Kabwohe A; SurveyCTO parish=Kabwohe" ///
-    if submission_key == "uuid:b445a616-8864-4508-a15c-f8f3deccabb3"
-
-* 19. Sheema / Kabwohe Division / Nyanga ward / Mabaga Cell
-* SurveyCTO parish appears as Nyanga.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:175fe80a-15d4-4f74-92b5-619f94854830"
-replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Nyanga ward / Mabaga Cell; SurveyCTO parish=Nyanga" ///
-    if submission_key == "uuid:175fe80a-15d4-4f74-92b5-619f94854830"
-
-* 20. Sheema / Kabwohe Division / Kabwohe / Kabwohe central
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:9bf5edc8-e555-40e1-8e3f-589f03b4a8ce"
-replace p1_admin_match_note = "Last CDFU: Sheema / Kabwohe Division / Kabwohe / Kabwohe central" ///
-    if submission_key == "uuid:9bf5edc8-e555-40e1-8e3f-589f03b4a8ce"
-
-* 21. Rubirizi / Katerera Town council / Katerera / Kikonjo
-* SurveyCTO records this as Bushenyi / Katerera Town council / Katerera ward / Kikonjo.
-replace p1_admin_last_cdfu = 1 if submission_key == "uuid:2b9d305d-d058-42db-a4d8-b98643c9570c"
-replace p1_admin_match_note = "Last CDFU: Rubirizi / Katerera Town council / Katerera / Kikonjo; SurveyCTO records district as Bushenyi and parish as Katerera ward" ///
-    if submission_key == "uuid:2b9d305d-d058-42db-a4d8-b98643c9570c"
-
-*-------------------------------*
-* 2. Inherited FHRI villages    *
-*-------------------------------*
-* 8 records marked Ineherited_FHRI == 1 in the admin list.
-
-* 22. Rubirizi / Katerera Town council / Katerera / KIZIRA CELL
-* SurveyCTO parish appears as Katerera ward.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:330d6791-29c9-4ce9-9f0c-e5a516a88665"
-replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / KIZIRA CELL; SurveyCTO parish=Katerera ward" ///
-    if submission_key == "uuid:330d6791-29c9-4ce9-9f0c-e5a516a88665"
-
-* 23. Rubirizi / Katerera Town council / Katerera / KACU CELL
-* SurveyCTO subcounty appears as Kizinda Town Council and parish as Katerera ward.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:2c4d99f2-3f5f-4e44-93e4-337b40b98c7f"
-replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / KACU CELL; SurveyCTO subcounty=Kizinda Town Council, parish=Katerera ward" ///
-    if submission_key == "uuid:2c4d99f2-3f5f-4e44-93e4-337b40b98c7f"
-
-* 24. Rubirizi / Katerera Town council / Katerera / RWENTOSHO I
-* SurveyCTO subcounty appears as Kizinda Town Council and parish as Katerera ward.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:db45a481-5312-4553-a9fc-85343aa34e88"
-replace p1_admin_match_note = "Inherited FHRI: Rubirizi / Katerera Town council / Katerera / RWENTOSHO I; SurveyCTO subcounty=Kizinda Town Council, parish=Katerera ward" ///
-    if submission_key == "uuid:db45a481-5312-4553-a9fc-85343aa34e88"
-
-* 25. Bushenyi / Kyamuhunga sub county / Nsumi / NYAMPUGYE
-* SurveyCTO village spelling appears as Nyampungye.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:694df33a-02e6-4c3c-a2cd-112001068039"
-replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Nsumi / NYAMPUGYE; SurveyCTO village=Nyampungye" ///
-    if submission_key == "uuid:694df33a-02e6-4c3c-a2cd-112001068039"
-
-* 26. Bushenyi / Kyamuhunga sub county / Mashonga / KYAMABARE
-* SurveyCTO subcounty appears as Kyamuhunga Town.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:19a8b7cb-3020-4b6a-9334-8082aa9e84e2"
-replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Mashonga / KYAMABARE; SurveyCTO subcounty=Kyamuhunga Town" ///
-    if submission_key == "uuid:19a8b7cb-3020-4b6a-9334-8082aa9e84e2"
-
-* 27. Bushenyi / Kyamuhunga sub county / Kibazi / NYAKAZINGA
-* SurveyCTO parish appears as Mashonga.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:e797533b-8e6d-44fd-9acb-730d417beac9"
-replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Kibazi / NYAKAZINGA; SurveyCTO subcounty=Kyamuhunga Town, parish=Mashonga" ///
-    if submission_key == "uuid:e797533b-8e6d-44fd-9acb-730d417beac9"
-
-* 28. Bushenyi / Kyamuhunga sub county / Mashonga / Nyamabare
-* SurveyCTO subcounty appears as Kyamuhunga Town.
-replace p1_admin_inherited_fhri = 1 if submission_key == "uuid:1b6b6511-7ad1-4574-8313-ff38b799c6fd"
-replace p1_admin_match_note = "Inherited FHRI: Bushenyi / Kyamuhunga sub county / Mashonga / Nyamabare; SurveyCTO subcounty=Kyamuhunga Town" ///
-    if submission_key == "uuid:1b6b6511-7ad1-4574-8313-ff38b799c6fd"
-
-*-------------------------------*
-* 3. Final grouped variables    *
-*-------------------------------*
-
-replace p1_admin_previously_contacted = ///
-    (p1_admin_last_cdfu == 1 | p1_admin_inherited_fhri == 1)
-
-replace p1_admin_new = 1 - p1_admin_previously_contacted
-
-replace p1_admin_origin = 1 if p1_admin_last_cdfu == 1
-replace p1_admin_origin = 2 if p1_admin_inherited_fhri == 1
-
-replace p1_admin_origin_detail = "Last CDFU phase" ///
-    if p1_admin_last_cdfu == 1
-
-replace p1_admin_origin_detail = "Inherited FHRI" ///
-    if p1_admin_inherited_fhri == 1
-
-capture label drop p1_admin_origin_lbl
-label define p1_admin_origin_lbl ///
-    0 "New / randomly selected" ///
-    1 "Last CDFU phase" ///
-    2 "Inherited FHRI"
-
-label values p1_admin_origin p1_admin_origin_lbl
-
-capture label define yesno 0 "No" 1 "Yes", replace
-label values p1_admin_last_cdfu yesno
-label values p1_admin_inherited_fhri yesno
-label values p1_admin_previously_contacted yesno
-label values p1_admin_new yesno
-
-*-------------------------------*
-* 4. Validation checks          *
-*-------------------------------*
-
-display as text "------------------------------------------------------------"
-display as text "Administrative Phase 1 origin classification checks"
-display as text "------------------------------------------------------------"
-
-count if p1_admin_last_cdfu == 1
-display as result "Last CDFU phase records flagged: " r(N)
-if r(N) != 21 {
-    display as error "WARNING: Expected 21 Last CDFU phase records based on admin list."
-}
-
-count if p1_admin_inherited_fhri == 1
-display as result "Inherited FHRI records flagged: " r(N)
-if r(N) != 7 {
-    display as error "WARNING: Expected 7 inherited FHRI records based on admin list."
-}
-
-count if p1_admin_previously_contacted == 1
-display as result "Total previously contacted/admin-added records flagged: " r(N)
-if r(N) != 28 {
-    display as error "WARNING: Expected 28 previously contacted/admin-added records."
-}
-
-count if p1_admin_last_cdfu == 1 & p1_admin_inherited_fhri == 1
-display as result "Records flagged as both Last CDFU and inherited FHRI: " r(N)
-if r(N) > 0 {
-    display as error "WARNING: Some records are flagged as both Last CDFU and inherited FHRI."
-}
-
-tab p1_admin_origin, missing
-tab district_scto p1_admin_origin, row missing
-
-* Optional comparison against the self-reported survey item.
-* This is diagnostic only; it is NOT used to create the admin dummy.
-capture confirm variable prior_cdfu_fhri_training
-if !_rc {
-    tab p1_admin_previously_contacted prior_cdfu_fhri_training, row missing
-}
-
-* List records for audit
-list district_scto subcounty_scto parish_scto village_scto ///
-     p1_admin_origin_detail p1_admin_match_note ///
-     if p1_admin_previously_contacted == 1, sepby(district_scto) noobs abbreviate(24)
-
-display as text "Administrative Phase 1 origin classification completed."
-display as text "Use p1_admin_previously_contacted or p1_admin_origin for baseline comparisons."
-display as text "------------------------------------------------------------"
-	
+* Administrative origin is now inherited from the canonical village match to
+* Final Village List.xlsx. It is no longer hard-coded to old submission keys.
+* Election succession, operational exclusions, and unresolved mop-up roles are
+* retained explicitly in the record-level ledger.
+	**# 20. Save reconciliation outputs and validate release
 	*-------------------------------*
-	**# 20. Save outputs and QA     *
-	*-------------------------------*
-	* Save the final corrected outputs. The QA workbook is erased and recreated so
-	* stale rows from previous failed runs cannot remain in any sheet.
+	local indexvars idx_respondent_capacity idx_institutional_functioning idx_legal_classif_knowledge ///
+		idx_adr_mediation_practice idx_referral_practice idx_record_quality idx_committee_functioning ///
+		idx_perceived_legitimacy idx_safeguards idx_reintegration_norms ///
+		idx_lcc_operational_capacity idx_lcc_case_handling_quality idx_lcc_legitimacy_and_norms ///
+		idx_p1_base_mentor_ready_proxy
 
+	* Prove the substantive scoring is reproduced exactly for the unchanged 133
+	* original records before the legacy cleaned file is overwritten.
+	preserve
+		keep if baseline_wave == 1
+		keep submission_key `indexvars'
+		foreach v of local indexvars {
+			rename `v' b_`v'
+		}
+		tempfile rebuilt_original_indices
+		save `rebuilt_original_indices'
+		use "${input_dir}/3 Coded/phase1_baseline_analysis.dta", clear
+		keep submission_key `indexvars'
+		merge 1:1 submission_key using `rebuilt_original_indices', assert(match) nogen
+		foreach v of local indexvars {
+			assert (missing(`v') & missing(b_`v')) | abs(`v' - b_`v') < 1e-12
+		}
+	restore
+
+	* Core inline release validations.
+	assert _N == 167
+	isid submission_key
+	assert !missing(baseline_wave, baseline_source_file, baseline_source_row)
+	count if baseline_wave == 2
+	assert r(N) == 34
+	count if final_baseline_record == 1 & consented_baseline_record != 1
+	assert r(N) == 0
+	count if final_baseline_record == 1 & missing(canonical_village_uid)
+	assert r(N) == 0
+	bysort canonical_village_uid: assert sum(final_baseline_record) <= 1
+	count if baseline_wave == 1 & election_voted_out == 1 & final_baseline_record == 1
+	assert r(N) == 0
+	count if obvious_august_rebaseline == 1 & final_baseline_record == 1
+	assert r(N) == 8
+	foreach v of local indexvars {
+		assert inrange(`v', 0, 1) if !missing(`v')
+	}
+
+	* Save the complete record ledger and both all-record cleaned aliases.
+	preserve
+		keep submission_key baseline_wave baseline_source_file interview_date formdef_version ///
+			district_scto subcounty_scto parish_scto village_scto ///
+			canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
+			election_voted_out respondent_still_relevant superseded_record superseded_by_submission_key supersession_reason ///
+			replacement_village originally_not_visited operational_exclusion invalid_geographic_unit chairperson_deceased ///
+			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
+			training_timing_status final_baseline_record analysis_sample final_exclusion_reason ///
+			reconciliation_status reconciliation_note
+		isid submission_key
+		save "${input_dir}/2 Working/phase1_baseline_record_lineage.dta", replace
+	restore
+
+	label data "Phase 1 baseline: all 167 harmonized records with reconciliation and scoring"
+	note: phase1_baseline_clean.dta is retained as the legacy downstream filename and now contains all records, not the released analytical cohort.
+	save "${input_dir}/2 Working/phase1_baseline_clean_all_records.dta", replace
 	save "${input_dir}/2 Working/phase1_baseline_clean.dta", replace
 
-	* Main de-identified analysis export; keeps no phone numbers, chairperson names,
-	* or device-level identifiers.
+	* No authoritative training exposure roster was found. Save only a de-identified
+	* candidate cohort; never overwrite the definitive analysis file while blocked.
 	preserve
+		keep if final_baseline_record == 1
 		capture drop chairperson_name tel_number devicephonenum deviceid username device_info
-		save "${input_dir}/3 Coded/phase1_baseline_analysis.dta", replace
+		label data "Phase 1 baseline candidate cohort: timing verification pending"
+		isid submission_key
+		isid canonical_village_uid
+		assert consented_baseline_record == 1
+		save "${input_dir}/3 Coded/phase1_baseline_analysis_candidate.dta", replace
 	restore
 
-	local qa_file "${input_dir}/3 Coded/phase1_baseline_data_quality.xlsx"
-	capture erase "`qa_file'"
+	* Calculate sample-flow values from the data rather than fixing the final N.
+	quietly count if baseline_wave == 1
+	local n_original = r(N)
+	quietly count if baseline_wave == 2
+	local n_august = r(N)
+	local n_combined = _N
+	quietly count if flag_duplicate_submission_key > 0
+	local n_duplicate_keys = r(N)
+	quietly count if consented_baseline_record == 1
+	local n_consented = r(N)
+	quietly count if !missing(canonical_village_uid)
+	local n_canonical = r(N)
+	quietly count if superseded_record == 1
+	local n_superseded = r(N)
+	quietly count if baseline_wave == 1 & election_voted_out == 1
+	local n_election_superseded = r(N)
+	quietly count if obvious_august_rebaseline == 1 & final_baseline_record == 1
+	local n_rebaseline = r(N)
+	quietly count if originally_not_visited == 1 & final_baseline_record == 1
+	local n_missed = r(N)
+	quietly count if replacement_village == 1
+	local n_replacement = r(N)
+	quietly count if invalid_geographic_unit == 1
+	local n_invalid = r(N)
+	quietly count if operational_exclusion == 1
+	local n_operational = r(N)
+	quietly count if strpos(reconciliation_status, "unresolved") > 0
+	local n_unresolved_records = r(N)
+	quietly count if final_baseline_record == 1
+	local n_candidate = r(N)
+	quietly count if final_baseline_record == 1 & training_timing_status == "unknown"
+	local n_timing_unknown = r(N)
+	quietly count if final_baseline_record == 1 & training_timing_status == "known_post_treatment"
+	local n_post_treatment = r(N)
 
-	* QA workbook: record-level flags.
+	local recon_file "${input_dir}/3 Coded/phase1_baseline_reconciliation.xlsx"
+	capture erase "`recon_file'"
 	preserve
-		keep survey_record_id submission_key instance_id interview_date duration_min enum ///
-			district_scto subcounty_scto parish_scto village_scto actual_village ///
-			flag_duplicate_submission_key flag_duplicate_scto_village flag_duration_short flag_duration_long ///
-			flag_caseload_30d_gt_3m flag_pending_gt_3m flag_direct_gt_3m flag_referred_to_lcc_gt_3m ///
-			flag_referred_onward_gt_3m n_inconsistency_flags flag_any_data_quality_issue
-		sort district_scto subcounty_scto parish_scto village_scto survey_record_id
-		export excel using "`qa_file'", sheet("record_flags", replace) firstrow(variables)
+		clear
+		set obs 17
+		gen str50 stage = ""
+		gen long n = .
+		replace stage = "Original submissions" in 1
+		replace n = `n_original' in 1
+		replace stage = "August submissions" in 2
+		replace n = `n_august' in 2
+		replace stage = "Combined archival submissions" in 3
+		replace n = `n_combined' in 3
+		replace stage = "Duplicate submission keys" in 4
+		replace n = `n_duplicate_keys' in 4
+		replace stage = "Consented records" in 5
+		replace n = `n_consented' in 5
+		replace stage = "Records with canonical LC identity" in 6
+		replace n = `n_canonical' in 6
+		replace stage = "Administrative VOTED OUT cases" in 7
+		replace n = 13 in 7
+		replace stage = "Old election records superseded" in 8
+		replace n = `n_election_superseded' in 8
+		replace stage = "Linked August re-baselines selected" in 9
+		replace n = `n_rebaseline' in 9
+		replace stage = "Missed-village completions selected" in 10
+		replace n = `n_missed' in 10
+		replace stage = "Replacement villages verified" in 11
+		replace n = `n_replacement' in 11
+		replace stage = "Invalid geographic-unit records" in 12
+		replace n = `n_invalid' in 12
+		replace stage = "Operational-exclusion records" in 13
+		replace n = `n_operational' in 13
+		replace stage = "Unresolved survey records" in 14
+		replace n = `n_unresolved_records' in 14
+		replace stage = "Candidate final records" in 15
+		replace n = `n_candidate' in 15
+		replace stage = "Candidate records with unknown timing" in 16
+		replace n = `n_timing_unknown' in 16
+		replace stage = "Known post-treatment candidates" in 17
+		replace n = `n_post_treatment' in 17
+		export excel using "`recon_file'", sheet("sample_flow", replace) firstrow(variables)
 	restore
 
-	* QA workbook: duplicate SurveyCTO-selected villages.
 	preserve
-		keep if flag_duplicate_scto_village > 0
-		keep survey_record_id submission_key interview_date enum district_scto subcounty_scto parish_scto village_scto ///
-			actual_village flag_duplicate_scto_village duration_min
-		sort district_scto subcounty_scto parish_scto village_scto interview_date
-		export excel using "`qa_file'", sheet("duplicate_scto_villages", replace) firstrow(variables)
+		use `election_cases', clear
+		export excel using "`recon_file'", sheet("election_reconciliation", modify) firstrow(variables)
 	restore
-
-	* QA workbook: corrected index distributions.
 	preserve
-		keep idx_respondent_capacity idx_institutional_functioning idx_legal_classif_knowledge ///
-			idx_adr_mediation_practice idx_referral_practice idx_record_quality idx_committee_functioning ///
-			idx_perceived_legitimacy idx_safeguards idx_reintegration_norms ///
-			idx_lcc_operational_capacity idx_lcc_case_handling_quality idx_lcc_legitimacy_and_norms ///
-			idx_p1_base_mentor_ready_proxy
-
-		gen obs_id = _n
-		reshape long idx_, i(obs_id) j(index_name) string
-		rename idx_ index_value
-
-		collapse (count) n=index_value ///
-			(mean) mean=index_value ///
-			(sd) sd=index_value ///
-			(p25) p25=index_value ///
-			(p50) p50=index_value ///
-			(p75) p75=index_value ///
-			(min) min=index_value ///
-			(max) max=index_value, by(index_name)
-
-		export excel using "`qa_file'", sheet("index_summary", replace) firstrow(variables)
+		keep if baseline_wave == 2
+		keep submission_key interview_date district_scto subcounty_scto parish_scto village_scto ///
+			canonical_district canonical_subcounty canonical_parish canonical_village ///
+			obvious_august_rebaseline originally_not_visited unresolved_identity final_baseline_record reconciliation_status reconciliation_note
+		export excel using "`recon_file'", sheet("august_records", modify) firstrow(variables)
 	restore
-
-	* QA workbook: missingness of core variables and indices.
 	preserve
-		tempname memhold
-		tempfile missings
-		postfile `memhold' str64 variable long n_missing long n_nonmissing using `missings', replace
-
-		foreach v of varlist submission_key enum consent m0_q04 m0_q05 m0_q06 m0_q07 ///
-			idx_respondent_capacity idx_institutional_functioning idx_legal_classif_knowledge ///
-			idx_adr_mediation_practice idx_referral_practice idx_record_quality idx_committee_functioning ///
-			idx_perceived_legitimacy idx_safeguards idx_reintegration_norms ///
-			idx_lcc_operational_capacity idx_lcc_case_handling_quality idx_lcc_legitimacy_and_norms ///
-			idx_p1_base_mentor_ready_proxy {
-
-			quietly count if missing(`v')
-			local nmiss = r(N)
-			quietly count if !missing(`v')
-			local nnonmiss = r(N)
-			post `memhold' ("`v'") (`nmiss') (`nnonmiss')
-		}
-
-		postclose `memhold'
-		use `missings', clear
-		export excel using "`qa_file'", sheet("missingness", replace) firstrow(variables)
+		keep if final_baseline_record == 1
+		keep submission_key baseline_wave interview_date canonical_district canonical_subcounty canonical_parish canonical_village ///
+			p1_admin_origin reconciliation_status training_timing_status
+		export excel using "`recon_file'", sheet("final_candidate_sample", modify) firstrow(variables)
 	restore
-
-	* QA workbook: sampling-frame merge status.
-	capture confirm variable merge_sampling_frame
-	if !_rc {
-		preserve
-			contract merge_sampling_frame
-			rename _freq n_records
-			export excel using "`qa_file'", sheet("sampling_merge_status", replace) firstrow(variables)
-		restore
-	}
-
-	* QA workbook: final district distribution.
 	preserve
-		contract district_scto
-		rename _freq n_records
-		export excel using "`qa_file'", sheet("district_distribution", replace) firstrow(variables)
+		keep if strpos(reconciliation_status, "unresolved") > 0
+		keep submission_key baseline_wave interview_date district_scto subcounty_scto parish_scto village_scto ///
+			canonical_village_uid reconciliation_status reconciliation_note
+		export excel using "`recon_file'", sheet("unresolved_cases", modify) firstrow(variables)
+	restore
+	preserve
+		contract canonical_district if final_baseline_record == 1
+		rename _freq n_candidate
+		export excel using "`recon_file'", sheet("district_distribution", modify) firstrow(variables)
+	restore
+	preserve
+		contract p1_admin_origin if final_baseline_record == 1
+		rename _freq n_candidate
+		export excel using "`recon_file'", sheet("admin_origin", modify) firstrow(variables)
+	restore
+	preserve
+		clear
+		set obs 8
+		gen str50 release_check = ""
+		gen byte passed = 0
+		gen str100 detail = ""
+		replace release_check = "Combined archival N equals source total" in 1
+		replace passed = (`n_combined' == 167) in 1
+		replace detail = "Expected 133 original plus 34 August" in 1
+		replace release_check = "Submission keys unique" in 2
+		replace passed = (`n_duplicate_keys' == 0) in 2
+		replace release_check = "Election workbook has 13 VOTED OUT rows" in 3
+		replace passed = 1 in 3
+		replace release_check = "Eight obvious re-baselines linked" in 4
+		replace passed = (`n_rebaseline' == 8) in 4
+		replace release_check = "At most one candidate per canonical LC" in 5
+		replace passed = 1 in 5
+		replace release_check = "All candidate records consented" in 6
+		replace passed = 1 in 6
+		replace release_check = "Training timing verified for every candidate" in 7
+		replace passed = (`n_timing_unknown' == 0 & `n_post_treatment' == 0) in 7
+		replace detail = "BLOCKING: no authoritative exposure roster found" in 7
+		replace release_check = "Five non-obvious voted-out cases resolved" in 8
+		replace passed = 0 in 8
+		replace detail = "BLOCKING: Nyarutuntu, Kacu Cell, Kirugu 2 A, Kirugu 2 B, Kyesama" in 8
+		export excel using "`recon_file'", sheet("release_checks", modify) firstrow(variables)
 	restore
 
-	* Final internal consistency checks.
-	capture assert !missing(survey_record_id)
-	if _rc {
-		dis as error "Warning: survey_record_id has missing values. Check record construction."
-	}
+	local release_file "${input_dir}/3 Coded/phase1_baseline_reconciliation_release_status.txt"
+	file open release_status using "`release_file'", write text replace
+	file write release_status "BLOCKED" _n
+	file write release_status "Reason 1: No authoritative Phase 1 training attendance/exposure-date roster was found; pre-treatment timing is unknown for `n_timing_unknown' candidate records." _n
+	file write release_status "Reason 2: Five VOTED OUT administrative cases lack an authoritative successor/replacement link: Nyarutuntu, Kacu Cell, Kirugu 2 A, Kirugu 2 B, and Kyesama." _n
+	file write release_status "Candidate dataset: phase1_baseline_analysis_candidate.dta (not a definitive analytical release)." _n
+	file close release_status
 
-	capture isid survey_record_id
-	if _rc {
-		dis as error "Warning: survey_record_id is not unique. Check duplicate records."
-	}
-	else {
-		dis as result "survey_record_id uniquely identifies all records."
-	}
-
-	capture isid submission_key
-	if _rc {
-		dis as error "Warning: submission_key is not unique. Check duplicate submissions."
-	}
-	else {
-		dis as result "submission_key uniquely identifies all records."
-	}
-
-	dis as result "Phase 1 baseline cleaning complete. Corrected outputs saved in 2 Working and 3 Coded."
-
-	
+	dis as text "------------------------------------------------------------"
+	dis as result "Original submissions: " `n_original'
+	dis as result "August submissions: " `n_august'
+	dis as result "Combined submissions: " `n_combined'
+	dis as result "Administrative VOTED OUT cases: 13"
+	dis as result "Old election records superseded: " `n_election_superseded'
+	dis as result "All old records superseded: " `n_superseded'
+	dis as result "Linked August re-baselines selected: " `n_rebaseline'
+	dis as result "Unresolved survey records: " `n_unresolved_records'
+	dis as result "Candidate final records / unique LCs: " `n_candidate'
+	dis as result "Candidate records with unknown treatment timing: " `n_timing_unknown'
+	tab canonical_district if final_baseline_record == 1, missing
+	tab baseline_wave if final_baseline_record == 1, missing
+	tab p1_admin_origin if final_baseline_record == 1, missing
+	dis as error "RELEASE STATUS: BLOCKED"
+	dis as text "------------------------------------------------------------"
 		
 *------------------------------------------------------------------------------*
 **# End Phase 1 baseline cleaning block

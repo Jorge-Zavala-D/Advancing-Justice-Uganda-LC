@@ -423,5 +423,365 @@
     "mtime": 1784194607.4498465,
     "ast_hash": "3e4978ad913d86d8ed4b25387e20d592",
     "semantic_hash": "3e4978ad913d86d8ed4b25387e20d592"
+  },
+  "1 Code/build_dropbox_corpus_snapshot.py": {
+    "mtime": 1788206320.6083972,
+    "ast_hash": "ee5a430d437b193e74c0a24a59b426d6",
+    "semantic_hash": ""
+  },
+  "AGENTS.md": {
+    "mtime": 1786339918.7969997,
+    "ast_hash": "21ceb6533048be51308e69e7b74a35cf",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/key_baseline_regression_results_f6664379.md": {
+    "mtime": 1788540005.4568765,
+    "ast_hash": "6522bb4b5f3cc0a43956362580d94dee",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_all_item_tabulations_6599e640.md": {
+    "mtime": 1788540005.3288026,
+    "ast_hash": "bb700bc0d30b1e0cf1142bf73632bb68",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_executive_results_159667b6.md": {
+    "mtime": 1788540005.392682,
+    "ast_hash": "cbb2510fcec18bbb476a9219dd5b64d0",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_jlos_expanded_analysis_5a499913.md": {
+    "mtime": 1788540005.4096131,
+    "ast_hash": "0672585181ee773662e7487f1059b8fe",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_origin_comparison_1bd5bc75.md": {
+    "mtime": 1788540005.437704,
+    "ast_hash": "333c7d547acc4c908859042ddd32dc3d",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/quick_record_quality_regression_d287a073.md": {
+    "mtime": 1788540005.5410445,
+    "ast_hash": "e692440c8ac013a982cac2e8b6c8f23c",
+    "semantic_hash": ""
+  },
+  "project_context/DROPBOX_CONTEXT_2026-08-31.md": {
+    "mtime": 1788207307.4143677,
+    "ast_hash": "f8644a424c58c2574fe580bc557e6a53",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/AI Podcast Transcript_ccff2f95.md": {
+    "mtime": 1788192517.8302624,
+    "ast_hash": "e42c772ed4f736d073b3f5b5092ca675",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Advancing Justice Uganda - Evaluation of LC Justive System for diversion program - Inception Report_30b233b1.md": {
+    "mtime": 1788192520.7221346,
+    "ast_hash": "1d27c2afa153b03ee0081e945adf499f",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Advancing Justice Uganda - Impact Evaluation Technical Proposal_7c0f7c97.md": {
+    "mtime": 1788192520.9360836,
+    "ast_hash": "6afae4a95da82ca4d882882d90db9067",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Advancing Justice Uganda - Questionnaire structure_1b408918.md": {
+    "mtime": 1788192518.282302,
+    "ast_hash": "5bf947b1d238d69192833b9d579dedd2",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Advancing Justice Uganda - Questionnaires_1f591e1d.md": {
+    "mtime": 1788192518.4862554,
+    "ast_hash": "6eb46fd184c3d1d8f352ed7784bc3ec1",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Baseline_Evaluation_Workplan_02042026_5ec9f074.md": {
+    "mtime": 1788192517.127156,
+    "ast_hash": "a6700272e9c45d67f2b59a8ff8709f07",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Contract_Jorge_Signed_a32da508.md": {
+    "mtime": 1788192517.4559143,
+    "ast_hash": "0df16a2a15f0d56e3415f010926629cb",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Final Village List_9f5c463f.md": {
+    "mtime": 1788192519.6705012,
+    "ast_hash": "d488c2a5ff23f01f8fabbe7c24099a56",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Inception Report_Shorter version_26042025_00235ebe.md": {
+    "mtime": 1788192521.1689138,
+    "ast_hash": "8aa86e90de63f855434ca13bd2abffce",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/KII_Police_Judiciary_Final version (1)_921c9fcc.md": {
+    "mtime": 1788192518.6307476,
+    "ast_hash": "385a11e31173c0a4053cdbc5959a4d8c",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/KII_Police_Judiciary_Final version_5bc6ec0e.md": {
+    "mtime": 1788192518.7372432,
+    "ast_hash": "777d4fe079d745d1a708b78e3261d6a3",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/KII_Prisions_09f706f7.md": {
+    "mtime": 1788192518.8290794,
+    "ast_hash": "92ff8c5bfd6355f85d267379c66bc06c",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Legatum Baseline Scope of work_Revised (1)_d8b2f3e2.md": {
+    "mtime": 1788192521.4451482,
+    "ast_hash": "207d1b4d2ec8be6d648c741c677397f8",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/List of LCs mapped_433512fb.md": {
+    "mtime": 1788192519.92136,
+    "ast_hash": "8622a51470b63dc05f80b1841d31b27f",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Literature Review_e8d8af1a.md": {
+    "mtime": 1788192517.9687986,
+    "ast_hash": "04815d6822ebecd1850e2e60b2396169",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Number of cases by village_2289807c.md": {
+    "mtime": 1788192519.9819708,
+    "ast_hash": "a4476bbb4e257bf7898316abbf3d30c5",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Number of cases per sub-county Jan - Dec 2025 cleaned_87ca8263.md": {
+    "mtime": 1788192520.0076778,
+    "ast_hash": "a2a35b41f0e3367e109fe4893902e454",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Number of cases per subcounty_79e50594.md": {
+    "mtime": 1788192520.0357087,
+    "ast_hash": "46626f69bacc2ca8c8dea2225dde9c1d",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Phase 1 Baseline_Runyankore_WIDE_250e821b.md": {
+    "mtime": 1788192519.8311968,
+    "ast_hash": "673f5c8bbe734ea37c05af62cf412e59",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Phase1_LC_Training_Manual_Evidence_Informed_Revisions_CDFU_0a51042a.md": {
+    "mtime": 1788192519.635875,
+    "ast_hash": "36aa626c0426f2c3be7d878a18e38ebf",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Phase1_sampling_randomization_c4b35d05.md": {
+    "mtime": 1788192520.3710456,
+    "ast_hash": "ca1b35e77af3e68d4cb68e7ae9e4c501",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/RUBIRIZI ADMIN DATA_f471676f.md": {
+    "mtime": 1788192520.0685084,
+    "ast_hash": "5abd7231c29f1558a014220ff1a099b9",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Scope of Work outline_ad339e8f.md": {
+    "mtime": 1788192517.6027062,
+    "ast_hash": "197cca4ee7c6322f18407642900fdfd4",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/Tracking_Form_Final_db284fac.md": {
+    "mtime": 1788192519.8648381,
+    "ast_hash": "8b1a15e8ee4e929a3ac3bbee4c302157",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase1_baseline_data_quality_0fff4d41.md": {
+    "mtime": 1788192520.421986,
+    "ast_hash": "550216028d7c5b40421ec7236621bc04",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase1_baseline_dq_report_10765247.md": {
+    "mtime": 1788192520.3332772,
+    "ast_hash": "c8589adb07526b15e715cecad94ef9f0",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase_1_baseline_bf189e82.md": {
+    "mtime": 1788192518.1712155,
+    "ast_hash": "93f32d9764a169d02e2bf8aeb307282f",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase_1_baseline_version 2_a201723a.md": {
+    "mtime": 1788192518.9697723,
+    "ast_hash": "e04ac604fc10046bca5354b3976a8246",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase_1_baseline_version_Runyankore_Edited (1)_20ce2e11.md": {
+    "mtime": 1788192519.2288628,
+    "ast_hash": "33f93ec5a02459c8517886064282e368",
+    "semantic_hash": ""
+  },
+  "project_context/dropbox_converted/phase_1_baseline_version_Runyankore_Edited_74c9ad4c.md": {
+    "mtime": 1788192519.5115476,
+    "ast_hash": "d51623183e71becbbaaf2c60cc8739cb",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_07_chairperson_profile.png": {
+    "mtime": 1781375694.5446038,
+    "ast_hash": "68954f9d04469fc782e7460bbfa118f9",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_10_caseload_3m_distribution.png": {
+    "mtime": 1781375696.6197424,
+    "ast_hash": "c301d9543f7f097729cdf808a871f8ca",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_13_vignette_performance.png": {
+    "mtime": 1781375699.4837108,
+    "ast_hash": "263ea43915401f25e5335d3fe82a5eb6",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_16_adr_methods.png": {
+    "mtime": 1781375701.533465,
+    "ast_hash": "f44d4fad04707bfe7096f7e92d852a71",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_18_referral_reasons.png": {
+    "mtime": 1781375702.9237657,
+    "ast_hash": "921c2c441aa80ca7141f9aebefcac19c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_22_committee_functioning.png": {
+    "mtime": 1781375705.6817167,
+    "ast_hash": "3151195bf5b67b739085266494cc86d0",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_24_legitimacy_bypass.png": {
+    "mtime": 1781375707.062628,
+    "ast_hash": "0f1c89f5ebb7e4bbc1e2e2feae5169bc",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_34_origin_priority_gaps.png": {
+    "mtime": 1781938768.2031007,
+    "ast_hash": "33c8b392ee2c0e373381961d0adcd8b0",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Executive/figures/fig_36_jlos_snapshot.png": {
+    "mtime": 1781945903.7595906,
+    "ast_hash": "76a1c10abc7ae823b0cd681d6f49d5d0",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_01_sample_by_district.png": {
+    "mtime": 1786336630.6417608,
+    "ast_hash": "61dad88098f552690a4f34fa2acf7c35",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_02_core_indices_overall.png": {
+    "mtime": 1786336630.6547308,
+    "ast_hash": "bf66d5132e44c02ddcdc768b97e8f2ff",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_03_composite_indices_by_district.png": {
+    "mtime": 1786336630.666281,
+    "ast_hash": "1fe3c04167cc069b54de63318df4aa27",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_04_priority_gaps.png": {
+    "mtime": 1786336630.6793385,
+    "ast_hash": "29b8294c192e49b532f05d5ed0f29d65",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_05_mentor_readiness_distribution.png": {
+    "mtime": 1786336630.6918435,
+    "ast_hash": "c908f94a5e8020d2e844b690ea0865e5",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_06_high_capacity_flags.png": {
+    "mtime": 1786336630.7031608,
+    "ast_hash": "12eb0455d059a9820b1ce75383f3b5de",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_07_chairperson_profile.png": {
+    "mtime": 1786336630.7175586,
+    "ast_hash": "2602e66b7dd414ec3836661ff723000a",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_08_institutional_functioning.png": {
+    "mtime": 1786336630.7311416,
+    "ast_hash": "28b72bd3a9d307f51e7b6bfc9aaac614",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_09_caseload_selected.png": {
+    "mtime": 1786336630.7436893,
+    "ast_hash": "7cf218346c4e7aee51fe1819f5d1cb10",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_10_caseload_3m_distribution.png": {
+    "mtime": 1786336630.7569513,
+    "ast_hash": "d4d32710114d313a2de05ce0c2d69887",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_10b_caseload_3m_zoom.png": {
+    "mtime": 1786336630.7697842,
+    "ast_hash": "5b81ef607854c6183c12587623318d83",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_11_case_types_3m.png": {
+    "mtime": 1786336630.7804914,
+    "ast_hash": "d3d1e71e043211bc975bca531f8be732",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_12_legal_knowledge.png": {
+    "mtime": 1786336630.7914972,
+    "ast_hash": "ffbe660e83ac23d6bb51c05224b6eed4",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_13_data_quality_flags.png": {
+    "mtime": 1786336630.8024979,
+    "ast_hash": "af39b888b40186edc25592206d8e170c",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_13_vignette_performance.png": {
+    "mtime": 1786336630.814913,
+    "ast_hash": "a646965d0e62566a238a13644021eca9",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_14_adr_mediation.png": {
+    "mtime": 1786336630.8266823,
+    "ast_hash": "db6210b61c60c15fabf2977d2b6153c7",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_15_adr_barriers.png": {
+    "mtime": 1786336630.8391504,
+    "ast_hash": "60999f76b013fc7013230b2734c7c543",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_16_adr_methods.png": {
+    "mtime": 1786336630.8506484,
+    "ast_hash": "14c135b675cce68f346229ce2d4eb686",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_17_referral_practice.png": {
+    "mtime": 1786336630.8683503,
+    "ast_hash": "25819b8edb9c2a3c07ae0047a0032282",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_18_referral_reasons.png": {
+    "mtime": 1786336630.8837423,
+    "ast_hash": "179314be1686d295618d8018d25f43b1",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_19_referral_barriers.png": {
+    "mtime": 1786336630.902606,
+    "ast_hash": "ebf21a1e2b44f4e2e6f35f1577165e8a",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/fig_20_record_quality.png": {
+    "mtime": 1786336630.9188929,
+    "ast_hash": "24333b5ca57fea752306d02f13d9bcbe",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/montage_1.png": {
+    "mtime": 1786336631.1853235,
+    "ast_hash": "5cc05c89ebb81a9e49e5fc4d3bf9ac96",
+    "semantic_hash": ""
+  },
+  "tmp/pdfs/graphify_chunk01/montage_2.png": {
+    "mtime": 1786336631.436524,
+    "ast_hash": "bbea412fa59391e13008eaef6357054c",
+    "semantic_hash": ""
   }
 }
