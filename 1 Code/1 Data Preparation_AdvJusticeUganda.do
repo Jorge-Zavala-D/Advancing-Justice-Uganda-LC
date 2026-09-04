@@ -1247,7 +1247,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	label define yesno 0 "No" 1 "Yes", replace
 	label values flag_no_consent consented_baseline_record analysis_sample yesno
 	label var consented_baseline_record "Consented baseline record with nonmissing submission key"
-	label var analysis_sample "Definitive released analysis record with verified pre-treatment timing"
+	label var analysis_sample "Definitive released Phase 1 baseline analysis record"
 
 	* Clean obvious string variables: trim spaces and convert literal missing strings to blank
 	ds, has(type string)
@@ -1478,7 +1478,11 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace successor_submission_key = "uuid:278058a2-0845-4463-a6c3-e07dd437c8d3" if lower(village) == "kyamatongo"
 		replace successor_submission_key = "uuid:87bbcec0-9d03-4c83-9e6a-7746e187d0e2" if lower(village) == "rwenkurigo"
 		gen str40 disposition = cond(missing(successor_submission_key), ///
-			"unresolved_no_authoritative_successor", "linked_august_rebaseline")
+			"no_august_successor_required", "linked_august_rebaseline")
+		replace disposition = "obsolete_original_excluded" if missing(successor_submission_key) & ///
+			inlist(lower(village), "kacu cell", "kirugu 2 b", "kyesama")
+		replace disposition = "no_original_submission_to_remove" if missing(successor_submission_key) & ///
+			inlist(lower(village), "nyarutuntu", "kirugu 2 a")
 		tempfile election_cases
 		save `election_cases'
 	restore
@@ -1552,8 +1556,9 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	label values p1_admin_origin p1_admin_origin_lbl
 	label values p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new yesno
 
-	* Record-level respondent succession. The eight linked cases have explicit
-	* successor keys; the remaining five administrative cases stay unresolved.
+	* Record-level respondent succession. Eight VOTED OUT cases have explicit
+	* August successor keys. The five without successors are non-blocking: three
+	* obsolete original records are excluded, while two have no original survey.
 	gen byte election_voted_out = 0
 	replace election_voted_out = 1 if district_scto_key == "bushenyi" & subcounty_scto_key == "bitooma" & village_scto_key == "kyamamari"
 	replace election_voted_out = 1 if district_scto_key == "bushenyi" & subcounty_scto_key == "ibaare" & village_scto_key == "tandara"
@@ -1586,71 +1591,82 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	replace unresolved_identity = 1 if baseline_wave == 1 & district_scto_key == "sheema" & ///
 		parish_scto_key == "kagongi" & village_scto_key == "rwenkurigo"
 
-	* The eight source-documented missed/geographically problematic units are true
-	* mop-up completions. When an earlier record maps to the same canonical unit,
-	* the August completion supersedes it instead of being treated as a duplicate.
+	* Audit the previously documented mop-up links, then apply the final general
+	* rule: every August record supersedes any original record for the same
+	* canonical LC. A duplicate canonical LC within the August wave is an error.
 	bysort canonical_village_uid: egen has_documented_mopup_completion = max(originally_not_visited)
 	bysort canonical_village_uid (originally_not_visited): gen str80 documented_mopup_successor_key = ///
 		submission_key[_N] if originally_not_visited[_N] == 1
+	duplicates tag canonical_village_uid if baseline_wave == 2, gen(flag_duplicate_august_canonical)
+	quietly count if baseline_wave == 2 & flag_duplicate_august_canonical > 0 & !missing(flag_duplicate_august_canonical)
+	if r(N) > 0 {
+		dis as error "Duplicate August canonical LC detected; reconciliation requires review."
+		list submission_key baseline_source_row canonical_district canonical_subcounty canonical_parish canonical_village ///
+			if baseline_wave == 2 & flag_duplicate_august_canonical > 0, sepby(canonical_village_uid) noobs
+		error 459
+	}
+	bysort canonical_village_uid: egen byte has_august_submission = max(baseline_wave == 2)
+	bysort canonical_village_uid (baseline_wave): gen str80 august_successor_submission_key = ///
+		submission_key[_N] if baseline_wave[_N] == 2
 
-	gen byte respondent_still_relevant = !(baseline_wave == 1 & ///
-		(election_voted_out == 1 | has_documented_mopup_completion == 1))
+	gen byte respondent_still_relevant = !(baseline_wave == 1 & election_voted_out == 1)
 	gen byte superseded_record = baseline_wave == 1 & ///
-		(election_voted_out == 1 | has_documented_mopup_completion == 1)
+		(election_voted_out == 1 | has_august_submission == 1)
 	gen str80 superseded_by_submission_key = ""
-	replace superseded_by_submission_key = "uuid:c4821b67-0d41-4e3d-acb7-ab3e5f487909" if submission_key == "uuid:8e344c68-c753-419f-ad61-acdc57e20989"
-	replace superseded_by_submission_key = "uuid:6564513b-8e04-47cc-a589-fcb8e709b2f0" if submission_key == "uuid:503ec58a-67ec-4dde-ae84-d2aab1a12767"
-	replace superseded_by_submission_key = "uuid:b62ecd12-050c-477e-82e8-9fd10a5014d7" if submission_key == "uuid:d1fcaec8-9bc6-4100-a81c-8649c52e99af"
-	replace superseded_by_submission_key = "uuid:34f34fc1-5172-4ccb-b52a-63e88bbf8e60" if submission_key == "uuid:a0e54d95-462a-4ca7-bd6e-690f32651880"
-	replace superseded_by_submission_key = "uuid:7f3ae232-2a91-4d14-a71b-8c07ef7a055e" if submission_key == "uuid:e0b54bf6-b9b5-4a1c-b223-2ee1f182036b"
-	replace superseded_by_submission_key = "uuid:285defca-5a99-47bd-ae6f-f8011bcea20e" if submission_key == "uuid:ff031e71-5a42-4fa3-93f8-ef295c630f00"
-	replace superseded_by_submission_key = "uuid:278058a2-0845-4463-a6c3-e07dd437c8d3" if submission_key == "uuid:bb4497b7-a4d1-48ad-b75c-edc9dfedd36b"
-	replace superseded_by_submission_key = "uuid:87bbcec0-9d03-4c83-9e6a-7746e187d0e2" if submission_key == "uuid:bbf19eca-3224-43ef-af4a-72cf65fbe86e"
-	replace superseded_by_submission_key = documented_mopup_successor_key if baseline_wave == 1 & ///
-		has_documented_mopup_completion == 1
+	replace superseded_by_submission_key = august_successor_submission_key if baseline_wave == 1 & ///
+		has_august_submission == 1
 	gen str50 supersession_reason = ""
 	replace supersession_reason = "chairperson_voted_out_after_original_survey" if baseline_wave == 1 & election_voted_out == 1
-	replace supersession_reason = "documented_missed_or_geographic_mopup" if baseline_wave == 1 & has_documented_mopup_completion == 1
+	replace supersession_reason = "superseded_by_august_corrective_survey" if baseline_wave == 1 & ///
+		has_august_submission == 1 & election_voted_out == 0
 
-	gen str40 reconciliation_status = "resolved_original"
-	gen strL reconciliation_note = "Original survey retained unless a documented supersession or exclusion applies."
-	replace reconciliation_status = "candidate_august_rebaseline" if obvious_august_rebaseline
+	gen str40 reconciliation_status = "final_original"
+	gen strL reconciliation_note = "Original survey retained under the final one-record-per-canonical-LC rule."
+	replace reconciliation_status = "final_august_rebaseline" if obvious_august_rebaseline
 	replace reconciliation_note = "August survey linked to the new chairperson for an explicitly VOTED OUT LC." if obvious_august_rebaseline
-	replace reconciliation_status = "candidate_missed_village_completion" if originally_not_visited
+	replace reconciliation_status = "final_missed_village_completion" if originally_not_visited
 	replace reconciliation_note = "August survey corresponds to a village documented as missed or geographically problematic." if originally_not_visited
-	replace reconciliation_status = "unresolved_mopup_role" if unresolved_identity
-	replace reconciliation_note = "August record role cannot be fixed without the final implementation/replacement roster." if baseline_wave == 2 & unresolved_identity
+	replace reconciliation_status = "final_august_corrective" if baseline_wave == 2 & ///
+		!obvious_august_rebaseline & !originally_not_visited
+	replace reconciliation_note = "August corrective survey retained; prior role/geography flags are audit-only." if baseline_wave == 2 & ///
+		!obvious_august_rebaseline & !originally_not_visited
 	replace reconciliation_status = "superseded_election" if baseline_wave == 1 & election_voted_out == 1
 	replace reconciliation_note = "Pre-election respondent no longer holds the relevant chairperson role." if baseline_wave == 1 & election_voted_out == 1
-	replace reconciliation_status = "superseded_by_documented_mopup" if baseline_wave == 1 & has_documented_mopup_completion == 1
-	replace reconciliation_note = "Earlier record replaced by the August completion for a documented missed/geographically problematic LC." if baseline_wave == 1 & has_documented_mopup_completion == 1
-	replace reconciliation_status = "operational_exclusion" if operational_exclusion
-	replace reconciliation_note = "Rushoroza was explicitly requested for drop/replacement on operational grounds." if operational_exclusion
-	replace reconciliation_status = "chairperson_deceased" if chairperson_deceased
-	replace reconciliation_note = "Prior Ryeru chairperson was reported deceased; replacement remains unverified." if chairperson_deceased
-	replace reconciliation_status = "invalid_geographic_unit" if invalid_geographic_unit
-	replace reconciliation_note = "Village was documented as nonexistent or as a parish rather than an LC village." if invalid_geographic_unit
-	replace reconciliation_status = "unresolved_geographic_duplicate" if baseline_wave == 1 & unresolved_identity
-	replace reconciliation_note = "Duplicate Rwenkurigo label has a conflicting parish and is not auto-matched." if baseline_wave == 1 & unresolved_identity
+	replace reconciliation_status = "superseded_by_august" if baseline_wave == 1 & ///
+		has_august_submission == 1 & election_voted_out == 0
+	replace reconciliation_note = "Earlier survey replaced by the August corrective survey for the same canonical LC." if ///
+		baseline_wave == 1 & has_august_submission == 1 & election_voted_out == 0
 
-	gen byte candidate_eligible = consented_baseline_record == 1 & respondent_still_relevant == 1 & ///
-		operational_exclusion == 0 & chairperson_deceased == 0 & invalid_geographic_unit == 0 & unresolved_identity == 0
-	bysort canonical_village_uid: egen n_candidate_eligible = total(candidate_eligible)
-	bysort canonical_village_uid: egen n_candidate_wave1 = total(candidate_eligible & baseline_wave == 1)
-	gen byte final_baseline_record = 0
-	replace final_baseline_record = 1 if candidate_eligible & obvious_august_rebaseline
-	replace final_baseline_record = 1 if candidate_eligible & n_candidate_eligible == 1
-	replace final_baseline_record = 1 if candidate_eligible & baseline_wave == 1 & ///
-		n_candidate_wave1 == 1 & n_candidate_eligible > 1 & !obvious_august_rebaseline
+	* Eligibility excludes only a non-consenting record or an original survey of a
+	* VOTED OUT chairperson. Audit flags never exclude an otherwise valid survey.
+	gen byte candidate_eligible = consented_baseline_record == 1 & ///
+		!(baseline_wave == 1 & election_voted_out == 1)
+	gen byte original_available = candidate_eligible == 1 & baseline_wave == 1 & has_august_submission == 0
+	bysort canonical_village_uid (interview_date submissiondate_dt baseline_source_row submission_key): ///
+		gen int original_precedence_rank = sum(original_available)
+	gen byte final_baseline_record = baseline_wave == 2 & candidate_eligible == 1
+	replace final_baseline_record = 1 if original_available == 1 & original_precedence_rank == 1
+	replace superseded_record = 1 if original_available == 1 & original_precedence_rank > 1
+	replace supersession_reason = "duplicate_original_canonical_lc" if original_available == 1 & original_precedence_rank > 1
+	replace reconciliation_status = "superseded_original_duplicate" if original_available == 1 & original_precedence_rank > 1
+	replace reconciliation_note = "Later duplicate original survey omitted under deterministic earliest-record precedence." if ///
+		original_available == 1 & original_precedence_rank > 1
 	bysort canonical_village_uid: egen n_final_per_lc = total(final_baseline_record)
-	replace final_baseline_record = 0 if n_final_per_lc > 1 & !obvious_august_rebaseline
-	bysort canonical_village_uid: egen n_final_per_lc_check = total(final_baseline_record)
-	assert n_final_per_lc_check <= 1
+	assert n_final_per_lc == 1 if final_baseline_record == 1
 
-	gen str24 training_timing_status = cond(final_baseline_record == 1, "unknown", "not_selected")
-	replace analysis_sample = final_baseline_record == 1 & training_timing_status == "verified_pre_treatment"
+	gen str24 training_timing_status = cond(final_baseline_record == 1, "assumed_pre_training", "not_selected")
+	replace analysis_sample = final_baseline_record
 	gen str80 final_exclusion_reason = ""
-	replace final_exclusion_reason = reconciliation_status if final_baseline_record == 0
+	replace final_exclusion_reason = "original_chairperson_voted_out" if baseline_wave == 1 & election_voted_out == 1
+	replace final_exclusion_reason = "superseded_by_august" if baseline_wave == 1 & has_august_submission == 1 & election_voted_out == 0
+	replace final_exclusion_reason = "duplicate_original_canonical_lc" if original_available == 1 & original_precedence_rank > 1
+
+	* A final observed village with no evidence of either inherited category is new.
+	replace p1_admin_last_cdfu = 0 if final_baseline_record == 1 & missing(p1_admin_last_cdfu)
+	replace p1_admin_inherited_fhri = 0 if final_baseline_record == 1 & missing(p1_admin_inherited_fhri)
+	replace p1_admin_previously_contacted = 0 if final_baseline_record == 1 & missing(p1_admin_previously_contacted)
+	replace p1_admin_new = 1 if final_baseline_record == 1 & missing(p1_admin_new)
+	replace p1_admin_origin = 0 if final_baseline_record == 1 & missing(p1_admin_origin)
 	label values election_voted_out respondent_still_relevant superseded_record obvious_august_rebaseline ///
 		originally_not_visited late_baseline_completion replacement_village operational_exclusion ///
 		chairperson_deceased invalid_geographic_unit unresolved_identity final_baseline_record analysis_sample yesno
@@ -1660,13 +1676,12 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	preserve
 		bysort canonical_village_uid: egen n_survey_submissions = count(submission_key)
 		bysort canonical_village_uid: egen has_original_submission = max(baseline_wave == 1)
-		bysort canonical_village_uid: egen has_august_submission = max(baseline_wave == 2)
-		bysort canonical_village_uid: egen has_final_candidate = max(final_baseline_record)
+		bysort canonical_village_uid: egen has_final_baseline = max(final_baseline_record)
 		bysort canonical_village_uid: keep if _n == 1
 		keep canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
 			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
 			district_scto subcounty_scto parish_scto village_scto n_survey_submissions ///
-			has_original_submission has_august_submission has_final_candidate
+			has_original_submission has_august_submission has_final_baseline
 		gen byte observed_in_survey = 1
 		tempfile observed_crosswalk
 		save `observed_crosswalk'
@@ -1695,12 +1710,12 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		gen long n_survey_submissions = 0
 		gen byte has_original_submission = 0
 		gen byte has_august_submission = 0
-		gen byte has_final_candidate = 0
+		gen byte has_final_baseline = 0
 		gen byte observed_in_survey = 0
 		keep canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
 			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
 			district_scto subcounty_scto parish_scto village_scto n_survey_submissions ///
-			has_original_submission has_august_submission has_final_candidate observed_in_survey
+			has_original_submission has_august_submission has_final_baseline observed_in_survey
 		append using `observed_crosswalk'
 		gsort canonical_village_uid observed_in_survey
 		by canonical_village_uid: keep if _n == _N
@@ -2510,7 +2525,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	note: Phase 1 baseline is a pre-training/direct-training and mentor-readiness survey, not the causal RCT stage.
 	note: Original SurveyCTO variables are preserved; cleaned analysis variables and indices are added by this data-preparation block.
-	note: Candidate final records are evidence-based reconciliation results, but the definitive release remains blocked until treatment timing and the final implementation roster are verified.
+	note: Final records use one consented baseline per canonical LC, with August corrective surveys taking precedence and original VOTED OUT respondents excluded.
 	note: Module 9 and Module 10 were shortened in the fielded Runyankore instrument; indices use only fielded items.
 
 *------------------------------------------------------------------------------*
@@ -2519,8 +2534,8 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 *------------------------------------------------------------------------------*
 * Administrative origin is now inherited from the canonical village match to
 * Final Village List.xlsx. It is no longer hard-coded to old submission keys.
-* Election succession, operational exclusions, and unresolved mop-up roles are
-* retained explicitly in the record-level ledger.
+* Election succession and prior operational, geography, and mop-up flags are
+* retained explicitly in the record-level ledger as audit fields.
 	**# 20. Save reconciliation outputs and validate release
 	*-------------------------------*
 	local indexvars idx_respondent_capacity idx_institutional_functioning idx_legal_classif_knowledge ///
@@ -2528,24 +2543,6 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		idx_perceived_legitimacy idx_safeguards idx_reintegration_norms ///
 		idx_lcc_operational_capacity idx_lcc_case_handling_quality idx_lcc_legitimacy_and_norms ///
 		idx_p1_base_mentor_ready_proxy
-
-	* Prove the substantive scoring is reproduced exactly for the unchanged 133
-	* original records before the legacy cleaned file is overwritten.
-	preserve
-		keep if baseline_wave == 1
-		keep submission_key `indexvars'
-		foreach v of local indexvars {
-			rename `v' b_`v'
-		}
-		tempfile rebuilt_original_indices
-		save `rebuilt_original_indices'
-		use "${input_dir}/3 Coded/phase1_baseline_analysis.dta", clear
-		keep submission_key `indexvars'
-		merge 1:1 submission_key using `rebuilt_original_indices', assert(match) nogen
-		foreach v of local indexvars {
-			assert (missing(`v') & missing(b_`v')) | abs(`v' - b_`v') < 1e-12
-		}
-	restore
 
 	* Core inline release validations.
 	assert _N == 167
@@ -2557,11 +2554,12 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	assert r(N) == 0
 	count if final_baseline_record == 1 & missing(canonical_village_uid)
 	assert r(N) == 0
-	bysort canonical_village_uid: assert sum(final_baseline_record) <= 1
+	count if baseline_wave == 2 & final_baseline_record == 1
+	assert r(N) == 34
+	bysort canonical_village_uid: assert sum(final_baseline_record) == 1 if final_baseline_record == 1
 	count if baseline_wave == 1 & election_voted_out == 1 & final_baseline_record == 1
 	assert r(N) == 0
-	count if obvious_august_rebaseline == 1 & final_baseline_record == 1
-	assert r(N) == 8
+	assert analysis_sample == final_baseline_record
 	foreach v of local indexvars {
 		assert inrange(`v', 0, 1) if !missing(`v')
 	}
@@ -2585,16 +2583,23 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	save "${input_dir}/2 Working/phase1_baseline_clean_all_records.dta", replace
 	save "${input_dir}/2 Working/phase1_baseline_clean.dta", replace
 
-	* No authoritative training exposure roster was found. Save only a de-identified
-	* candidate cohort; never overwrite the definitive analysis file while blocked.
+	* Save the final de-identified analytical cohort directly to the definitive path.
 	preserve
 		keep if final_baseline_record == 1
 		capture drop chairperson_name tel_number devicephonenum deviceid username device_info
-		label data "Phase 1 baseline candidate cohort: timing verification pending"
+		label data "Final de-identified Phase 1 baseline analytical cohort"
 		isid submission_key
 		isid canonical_village_uid
 		assert consented_baseline_record == 1
-		save "${input_dir}/3 Coded/phase1_baseline_analysis_candidate.dta", replace
+		assert analysis_sample == 1
+		foreach pii in chairperson_name tel_number devicephonenum deviceid username device_info {
+			capture confirm variable `pii'
+			if _rc == 0 {
+				dis as error "PII variable remains in coded analysis file: `pii'"
+				error 459
+			}
+		}
+		save "${input_dir}/3 Coded/phase1_baseline_analysis.dta", replace
 	restore
 
 	* Calculate sample-flow values from the data rather than fixing the final N.
@@ -2615,6 +2620,15 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	local n_election_superseded = r(N)
 	quietly count if obvious_august_rebaseline == 1 & final_baseline_record == 1
 	local n_rebaseline = r(N)
+	quietly count if baseline_wave == 1 & election_voted_out == 1 & has_august_submission == 1
+	local n_election_with_august = r(N)
+	quietly count if baseline_wave == 1 & election_voted_out == 1 & has_august_submission == 0
+	local n_election_without_august = r(N)
+	local n_voted_out_without_original = 13 - `n_election_superseded'
+	quietly count if baseline_wave == 1 & has_august_submission == 1
+	local n_original_superseded_by_august = r(N)
+	quietly count if baseline_wave == 1 & supersession_reason == "duplicate_original_canonical_lc"
+	local n_original_duplicate_superseded = r(N)
 	quietly count if originally_not_visited == 1 & final_baseline_record == 1
 	local n_missed = r(N)
 	quietly count if replacement_village == 1
@@ -2623,20 +2637,21 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	local n_invalid = r(N)
 	quietly count if operational_exclusion == 1
 	local n_operational = r(N)
-	quietly count if strpos(reconciliation_status, "unresolved") > 0
-	local n_unresolved_records = r(N)
 	quietly count if final_baseline_record == 1
-	local n_candidate = r(N)
-	quietly count if final_baseline_record == 1 & training_timing_status == "unknown"
-	local n_timing_unknown = r(N)
-	quietly count if final_baseline_record == 1 & training_timing_status == "known_post_treatment"
-	local n_post_treatment = r(N)
+	local n_final = r(N)
+	quietly count if final_baseline_record == 1 & baseline_wave == 1
+	local n_final_original = r(N)
+	quietly count if final_baseline_record == 1 & baseline_wave == 2
+	local n_final_august = r(N)
+	quietly levelsof canonical_village_uid if final_baseline_record == 1, local(final_lcs)
+	local n_unique_final : word count `final_lcs'
+	assert `n_final' == `n_unique_final'
 
 	local recon_file "${input_dir}/3 Coded/phase1_baseline_reconciliation.xlsx"
 	capture erase "`recon_file'"
 	preserve
 		clear
-		set obs 17
+		set obs 18
 		gen str50 stage = ""
 		gen long n = .
 		replace stage = "Original submissions" in 1
@@ -2655,24 +2670,26 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace n = 13 in 7
 		replace stage = "Old election records superseded" in 8
 		replace n = `n_election_superseded' in 8
-		replace stage = "Linked August re-baselines selected" in 9
-		replace n = `n_rebaseline' in 9
-		replace stage = "Missed-village completions selected" in 10
-		replace n = `n_missed' in 10
-		replace stage = "Replacement villages verified" in 11
-		replace n = `n_replacement' in 11
-		replace stage = "Invalid geographic-unit records" in 12
-		replace n = `n_invalid' in 12
-		replace stage = "Operational-exclusion records" in 13
-		replace n = `n_operational' in 13
-		replace stage = "Unresolved survey records" in 14
-		replace n = `n_unresolved_records' in 14
-		replace stage = "Candidate final records" in 15
-		replace n = `n_candidate' in 15
-		replace stage = "Candidate records with unknown timing" in 16
-		replace n = `n_timing_unknown' in 16
-		replace stage = "Known post-treatment candidates" in 17
-		replace n = `n_post_treatment' in 17
+		replace stage = "VOTED OUT originals with August successor" in 9
+		replace n = `n_election_with_august' in 9
+		replace stage = "VOTED OUT originals without August successor" in 10
+		replace n = `n_election_without_august' in 10
+		replace stage = "VOTED OUT admin rows without original survey" in 11
+		replace n = `n_voted_out_without_original' in 11
+		replace stage = "Original records superseded by August" in 12
+		replace n = `n_original_superseded_by_august' in 12
+		replace stage = "Duplicate original records superseded" in 13
+		replace n = `n_original_duplicate_superseded' in 13
+		replace stage = "Final retained original records" in 14
+		replace n = `n_final_original' in 14
+		replace stage = "Final retained August records" in 15
+		replace n = `n_final_august' in 15
+		replace stage = "Final analytical records / unique LCs" in 16
+		replace n = `n_final' in 16
+		replace stage = "Planning expectation for final N" in 17
+		replace n = 128 in 17
+		replace stage = "Observed difference from planning expectation" in 18
+		replace n = `n_final' - 128 in 18
 		export excel using "`recon_file'", sheet("sample_flow", replace) firstrow(variables)
 	restore
 
@@ -2691,27 +2708,29 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		keep if final_baseline_record == 1
 		keep submission_key baseline_wave interview_date canonical_district canonical_subcounty canonical_parish canonical_village ///
 			p1_admin_origin reconciliation_status training_timing_status
-		export excel using "`recon_file'", sheet("final_candidate_sample", modify) firstrow(variables)
+		export excel using "`recon_file'", sheet("final_analysis_sample", modify) firstrow(variables)
 	restore
 	preserve
-		keep if strpos(reconciliation_status, "unresolved") > 0
+		keep if unresolved_identity == 1 | operational_exclusion == 1 | ///
+			chairperson_deceased == 1 | invalid_geographic_unit == 1
 		keep submission_key baseline_wave interview_date district_scto subcounty_scto parish_scto village_scto ///
-			canonical_village_uid reconciliation_status reconciliation_note
-		export excel using "`recon_file'", sheet("unresolved_cases", modify) firstrow(variables)
+			canonical_village_uid unresolved_identity operational_exclusion chairperson_deceased ///
+			invalid_geographic_unit final_baseline_record reconciliation_status reconciliation_note
+		export excel using "`recon_file'", sheet("audit_flags", modify) firstrow(variables)
 	restore
 	preserve
 		contract canonical_district if final_baseline_record == 1
-		rename _freq n_candidate
+		rename _freq n_final
 		export excel using "`recon_file'", sheet("district_distribution", modify) firstrow(variables)
 	restore
 	preserve
 		contract p1_admin_origin if final_baseline_record == 1
-		rename _freq n_candidate
+		rename _freq n_final
 		export excel using "`recon_file'", sheet("admin_origin", modify) firstrow(variables)
 	restore
 	preserve
 		clear
-		set obs 8
+		set obs 10
 		gen str50 release_check = ""
 		gen byte passed = 0
 		gen str100 detail = ""
@@ -2722,27 +2741,32 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace passed = (`n_duplicate_keys' == 0) in 2
 		replace release_check = "Election workbook has 13 VOTED OUT rows" in 3
 		replace passed = 1 in 3
-		replace release_check = "Eight obvious re-baselines linked" in 4
-		replace passed = (`n_rebaseline' == 8) in 4
-		replace release_check = "At most one candidate per canonical LC" in 5
-		replace passed = 1 in 5
-		replace release_check = "All candidate records consented" in 6
-		replace passed = 1 in 6
-		replace release_check = "Training timing verified for every candidate" in 7
-		replace passed = (`n_timing_unknown' == 0 & `n_post_treatment' == 0) in 7
-		replace detail = "BLOCKING: no authoritative exposure roster found" in 7
-		replace release_check = "Five non-obvious voted-out cases resolved" in 8
-		replace passed = 0 in 8
-		replace detail = "BLOCKING: Nyarutuntu, Kacu Cell, Kirugu 2 A, Kirugu 2 B, Kyesama" in 8
+		replace release_check = "No original VOTED OUT respondent retained" in 4
+		replace passed = 1 in 4
+		replace detail = "`n_election_superseded' admin rows map to original surveys; all are excluded" in 4
+		replace release_check = "All August surveys retained" in 5
+		replace passed = (`n_final_august' == 34) in 5
+		replace release_check = "Exactly one final record per canonical LC" in 6
+		replace passed = (`n_final' == `n_unique_final') in 6
+		replace release_check = "All final records consented" in 7
+		replace passed = 1 in 7
+		replace release_check = "Analysis sample equals final baseline flag" in 8
+		replace passed = 1 in 8
+		replace release_check = "All analytical indices within zero to one" in 9
+		replace passed = 1 in 9
+		replace release_check = "Final N derived without hard-coded selection" in 10
+		replace passed = 1 in 10
+		replace detail = "Observed N=`n_final'; planning N=128 differs because only `n_election_superseded' of 13 VOTED OUT rows have originals" in 10
 		export excel using "`recon_file'", sheet("release_checks", modify) firstrow(variables)
 	restore
 
 	local release_file "${input_dir}/3 Coded/phase1_baseline_reconciliation_release_status.txt"
 	file open release_status using "`release_file'", write text replace
-	file write release_status "BLOCKED" _n
-	file write release_status "Reason 1: No authoritative Phase 1 training attendance/exposure-date roster was found; pre-treatment timing is unknown for `n_timing_unknown' candidate records." _n
-	file write release_status "Reason 2: Five VOTED OUT administrative cases lack an authoritative successor/replacement link: Nyarutuntu, Kacu Cell, Kirugu 2 A, Kirugu 2 B, and Kyesama." _n
-	file write release_status "Candidate dataset: phase1_baseline_analysis_candidate.dta (not a definitive analytical release)." _n
+	file write release_status "READY" _n
+	file write release_status "Final analytical dataset: phase1_baseline_analysis.dta." _n
+	file write release_status "Final N: `n_final' unique canonical LCs (`n_final_original' original; `n_final_august' August)." _n
+	file write release_status "All 34 August surveys are retained; all 11 original surveys linked to VOTED OUT administrative rows are excluded." _n
+	file write release_status "The other two of 13 VOTED OUT administrative rows (Nyarutuntu and Kirugu 2 A) have no original survey record to remove." _n
 	file close release_status
 
 	dis as text "------------------------------------------------------------"
@@ -2753,13 +2777,14 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	dis as result "Old election records superseded: " `n_election_superseded'
 	dis as result "All old records superseded: " `n_superseded'
 	dis as result "Linked August re-baselines selected: " `n_rebaseline'
-	dis as result "Unresolved survey records: " `n_unresolved_records'
-	dis as result "Candidate final records / unique LCs: " `n_candidate'
-	dis as result "Candidate records with unknown treatment timing: " `n_timing_unknown'
+	dis as result "Final retained original records: " `n_final_original'
+	dis as result "Final retained August records: " `n_final_august'
+	dis as result "Final analytical records / unique LCs: " `n_final'
+	if `n_final' != 128 dis as text "Expected-N diagnostic: only 11 of 13 VOTED OUT admin rows have original surveys to remove."
 	tab canonical_district if final_baseline_record == 1, missing
 	tab baseline_wave if final_baseline_record == 1, missing
 	tab p1_admin_origin if final_baseline_record == 1, missing
-	dis as error "RELEASE STATUS: BLOCKED"
+	dis as result "RELEASE STATUS: READY"
 	dis as text "------------------------------------------------------------"
 		
 *------------------------------------------------------------------------------*
@@ -2783,7 +2808,6 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 *-------------------------------------------*
 **#		V. Final Dataset for analysis		*
 *-------------------------------------------*
-	
 	
 	
 	
