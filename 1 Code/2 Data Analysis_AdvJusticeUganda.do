@@ -2908,6 +2908,556 @@ preserve
 restore
 
 *------------------------------------------------------------------------------*
+**# 21a. Section 10 survey benchmarks and Slide 57 crosswalk
+*------------------------------------------------------------------------------*
+* BEGIN SECTION 10 REPRODUCIBLE BENCHMARKS
+* Requires final cohort in memory and local excel_ind pointing to the indicator
+* workbook. Runs within this do-file; this block can also be selected in Stata.
+* No source variables, scores, indices, thresholds or sample flags are changed.
+* M3_Q09 question excludes parties whereas its hint includes them. The approved
+* report interpretation retains the count but explicitly marks respondent scope
+* ambiguous. It is NOT a formal diversion measure.
+assert _N == 129
+assert analysis_sample == 1 & consent == 1
+isid canonical_village_uid
+quietly datasignature
+local s10_signature_before "`r(datasignature)'"
+tempfile s10_metrics
+tempname s10_post
+postfile `s10_post' str40 variable str110 measure str40 domain ///
+    str60 evidence_type str244 measurement_note str24 unit ///
+    long n double total double mean double sd double median long missing_n ///
+    using `s10_metrics', replace
+
+* Capacity: Respondent capacity
+quietly summarize idx_respondent_capacity, detail
+post `s10_post' ("idx_respondent_capacity") ("Respondent capacity") ("Capacity") ///
+    ("Self-reported characteristics / literacy") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Institutional functioning
+quietly summarize idx_institutional_functioning, detail
+post `s10_post' ("idx_institutional_functioning") ("Institutional functioning") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Legal and classification knowledge
+quietly summarize idx_legal_classif_knowledge, detail
+post `s10_post' ("idx_legal_classif_knowledge") ("Legal and classification knowledge") ("Capacity") ///
+    ("Objectively scored knowledge / vignettes") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: ADR and mediation practice
+quietly summarize idx_adr_mediation_practice, detail
+post `s10_post' ("idx_adr_mediation_practice") ("ADR and mediation practice") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Referral practice
+quietly summarize idx_referral_practice, detail
+post `s10_post' ("idx_referral_practice") ("Referral practice") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Record quality
+quietly summarize idx_record_quality, detail
+post `s10_post' ("idx_record_quality") ("Record quality") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Committee functioning
+quietly summarize idx_committee_functioning, detail
+post `s10_post' ("idx_committee_functioning") ("Committee functioning") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Chairperson-perceived legitimacy
+quietly summarize idx_perceived_legitimacy, detail
+post `s10_post' ("idx_perceived_legitimacy") ("Chairperson-perceived legitimacy") ("Capacity") ///
+    ("Perception / confidence / attitude") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Safeguards knowledge and perceived special-handling need
+quietly summarize idx_safeguards, detail
+post `s10_post' ("idx_safeguards") ("Safeguards knowledge and perceived special-handling need") ("Capacity") ///
+    ("Scored knowledge / perceived need") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Chairperson reintegration norms
+quietly summarize idx_reintegration_norms, detail
+post `s10_post' ("idx_reintegration_norms") ("Chairperson reintegration norms") ("Capacity") ///
+    ("Perception / confidence / attitude") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Operational capacity
+quietly summarize idx_lcc_operational_capacity, detail
+post `s10_post' ("idx_lcc_operational_capacity") ("Operational capacity") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Case-handling quality
+quietly summarize idx_lcc_case_handling_quality, detail
+post `s10_post' ("idx_lcc_case_handling_quality") ("Case-handling quality") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Legitimacy and reintegration composite
+quietly summarize idx_lcc_legitimacy_and_norms, detail
+post `s10_post' ("idx_lcc_legitimacy_and_norms") ("Legitimacy and reintegration composite") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Capacity: Baseline mentor-readiness diagnostic
+quietly summarize idx_p1_base_mentor_ready_proxy, detail
+post `s10_post' ("idx_p1_base_mentor_ready_proxy") ("Baseline mentor-readiness diagnostic") ("Capacity") ///
+    ("Mixed survey evidence") ("Existing locked index; mean of available components. See Annex B. Not a programme outcome.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Readiness: Operational capacity at least 0.75
+quietly summarize high_operational_capacity, detail
+post `s10_post' ("high_operational_capacity") ("Operational capacity at least 0.75") ("Readiness") ///
+    ("Composite diagnostic") ("Existing >=0.75 descriptive threshold; not assessed graduates or final mentor eligibility.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Readiness: Case-handling quality at least 0.75
+quietly summarize high_case_handling_quality, detail
+post `s10_post' ("high_case_handling_quality") ("Case-handling quality at least 0.75") ("Readiness") ///
+    ("Composite diagnostic") ("Existing >=0.75 descriptive threshold; not assessed graduates or final mentor eligibility.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Readiness: Legitimacy and norms at least 0.75
+quietly summarize high_legitimacy_norms, detail
+post `s10_post' ("high_legitimacy_norms") ("Legitimacy and norms at least 0.75") ("Readiness") ///
+    ("Composite diagnostic") ("Existing >=0.75 descriptive threshold; not assessed graduates or final mentor eligibility.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Readiness: Baseline mentor proxy at least 0.75
+quietly summarize high_mentor_readiness_proxy, detail
+post `s10_post' ("high_mentor_readiness_proxy") ("Baseline mentor proxy at least 0.75") ("Readiness") ///
+    ("Composite diagnostic") ("Existing >=0.75 descriptive threshold; not assessed graduates or final mentor eligibility.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Cases received in past 30 days
+quietly summarize caseload_30d, detail
+post `s10_post' ("caseload_30d") ("Cases received in past 30 days") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Cases received in past 3 months
+quietly summarize caseload_3m, detail
+post `s10_post' ("caseload_3m") ("Cases received in past 3 months") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Cases currently pending or unresolved
+quietly summarize pending_cases, detail
+post `s10_post' ("pending_cases") ("Cases currently pending or unresolved") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Reported community-brought cases - respondent scope ambiguous
+quietly summarize directly_brought_cases_3m, detail
+post `s10_post' ("directly_brought_cases_3m") ("Reported community-brought cases - respondent scope ambiguous") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Reported inbound referrals in past 3 months
+quietly summarize referred_to_lcc_cases_3m, detail
+post `s10_post' ("referred_to_lcc_cases_3m") ("Reported inbound referrals in past 3 months") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Caseload: Reported onward referrals in past 3 months
+quietly summarize referred_onward_cases_3m, detail
+post `s10_post' ("referred_onward_cases_3m") ("Reported onward referrals in past 3 months") ("Caseload") ///
+    ("Chairperson-reported case counts") ("Available responses only; no missing-to-zero replacement. Period and case scope differ across measures.") ("Cases") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Case ratios: Current pending stock divided by recent 3-month inflow
+quietly summarize pending_share_3m, detail
+post `s10_post' ("pending_share_3m") ("Current pending stock divided by recent 3-month inflow") ("Case ratios") ///
+    ("Self-reported practice") ("Existing ratio/ordinal score; not a verified resolution or diversion rate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Case ratios: Ordinal petty-case composition score
+quietly summarize petty_case_share_score, detail
+post `s10_post' ("petty_case_share_score") ("Ordinal petty-case composition score") ("Case ratios") ///
+    ("Self-reported practice") ("Existing ratio/ordinal score; not a verified resolution or diversion rate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Prior formal coordination
+quietly summarize prior_formal_coordination, detail
+post `s10_post' ("prior_formal_coordination") ("Prior formal coordination") ("Referral") ///
+    ("Self-reported prior exposure") ("Separate cross-sectional items; not a longitudinal referral funnel or administrative case flow.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Reported referral frequency
+quietly summarize referral_frequency_score, detail
+post `s10_post' ("referral_frequency_score") ("Reported referral frequency") ("Referral") ///
+    ("Self-reported practice") ("Separate cross-sectional items; not a longitudinal referral funnel or administrative case flow.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Reported referral documentation
+quietly summarize referral_documentation_score, detail
+post `s10_post' ("referral_documentation_score") ("Reported referral documentation") ("Referral") ///
+    ("Self-reported practice") ("Separate cross-sectional items; not a longitudinal referral funnel or administrative case flow.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Reported receiving-authority feedback
+quietly summarize referral_feedback_score, detail
+post `s10_post' ("referral_feedback_score") ("Reported receiving-authority feedback") ("Referral") ///
+    ("Self-reported practice") ("Separate cross-sectional items; not a longitudinal referral funnel or administrative case flow.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Perceived ease of police coordination
+quietly summarize police_coordination_score, detail
+post `s10_post' ("police_coordination_score") ("Perceived ease of police coordination") ("Referral") ///
+    ("Perception / confidence / attitude") ("Normalized ordinal response, not objective referral performance.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Perceived ease of court coordination
+quietly summarize court_coordination_score, detail
+post `s10_post' ("court_coordination_score") ("Perceived ease of court coordination") ("Referral") ///
+    ("Perception / confidence / attitude") ("Normalized ordinal response, not objective referral performance.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Confidence knowing where to refer
+quietly summarize referral_path_conf_score, detail
+post `s10_post' ("referral_path_conf_score") ("Confidence knowing where to refer") ("Referral") ///
+    ("Perception / confidence / attitude") ("Normalized ordinal response, not objective referral performance.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Confidence explaining referral
+quietly summarize referral_explain_conf_score, detail
+post `s10_post' ("referral_explain_conf_score") ("Confidence explaining referral") ("Referral") ///
+    ("Perception / confidence / attitude") ("Normalized ordinal response, not objective referral performance.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Verified referral record score
+quietly summarize verified_referral_record_score, detail
+post `s10_post' ("verified_referral_record_score") ("Verified referral record score") ("Referral") ///
+    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all 129 LCs.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Referral: Verified referral destination score
+quietly summarize verified_ref_dest_score, detail
+post `s10_post' ("verified_ref_dest_score") ("Verified referral destination score") ("Referral") ///
+    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all 129 LCs.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* ADR: Reported agreement documentation
+quietly summarize m5_q06_score, detail
+post `s10_post' ("m5_q06_score") ("Reported agreement documentation") ("ADR") ///
+    ("Self-reported practice") ("Ordinal frequency normalized to 0-1; not a verified case-resolution or compliance rate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* ADR: Reported follow-up of mediated agreements
+quietly summarize m5_q07_score, detail
+post `s10_post' ("m5_q07_score") ("Reported follow-up of mediated agreements") ("ADR") ///
+    ("Self-reported practice") ("Ordinal frequency normalized to 0-1; not a verified case-resolution or compliance rate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* ADR: Reported frequency of agreement compliance
+quietly summarize m5_q14_score, detail
+post `s10_post' ("m5_q14_score") ("Reported frequency of agreement compliance") ("ADR") ///
+    ("Self-reported practice") ("Ordinal frequency normalized to 0-1; not a verified case-resolution or compliance rate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* ADR: Perceived prevention of escalation to police or courts
+quietly summarize m5_q16_score, detail
+post `s10_post' ("m5_q16_score") ("Perceived prevention of escalation to police or courts") ("ADR") ///
+    ("Perception / confidence / attitude") ("Assessment normalized to 0-1; not avoided formal-system entries or a causal estimate.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Chairperson-perceived LCC fairness
+quietly summarize perceived_lcc_fairness_score, detail
+post `s10_post' ("perceived_lcc_fairness_score") ("Chairperson-perceived LCC fairness") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Perceived willingness of community to use LCC
+quietly summarize perc_willing_use_lcc_score, detail
+post `s10_post' ("perc_willing_use_lcc_score") ("Perceived willingness of community to use LCC") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Low perceived bypassing
+quietly summarize low_bypass_score, detail
+post `s10_post' ("low_bypass_score") ("Low perceived bypassing") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Low perceived favoritism
+quietly summarize low_favoritism_influence_score, detail
+post `s10_post' ("low_favoritism_influence_score") ("Low perceived favoritism") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Confidence maintaining trust when referring
+quietly summarize conf_trust_when_referring, detail
+post `s10_post' ("conf_trust_when_referring") ("Confidence maintaining trust when referring") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Legitimacy: Confidence in fair and respectful handling
+quietly summarize conf_fair_respect_score, detail
+post `s10_post' ("conf_fair_respect_score") ("Confidence in fair and respectful handling") ("Legitimacy") ///
+    ("Perception / confidence / attitude") ("LC chairperson perceptions, not direct community respondents.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Importance of reintegration support
+quietly summarize reintegration_importance_score, detail
+post `s10_post' ("reintegration_importance_score") ("Importance of reintegration support") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Willingness to support peaceful return
+quietly summarize reintegration_willingness_score, detail
+post `s10_post' ("reintegration_willingness_score") ("Willingness to support peaceful return") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Fair-chance reintegration norm
+quietly summarize fair_chance_reintegration_score, detail
+post `s10_post' ("fair_chance_reintegration_score") ("Fair-chance reintegration norm") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Low exclusion norm
+quietly summarize low_exclusion_norm_score, detail
+post `s10_post' ("low_exclusion_norm_score") ("Low exclusion norm") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Low reoffending stigma
+quietly summarize low_reoffending_stigma_score, detail
+post `s10_post' ("low_reoffending_stigma_score") ("Low reoffending stigma") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Willingness to connect returnees to support
+quietly summarize connect_support_willing_score, detail
+post `s10_post' ("connect_support_willing_score") ("Willingness to connect returnees to support") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Reintegration support viewed as leadership role
+quietly summarize reint_comm_justice_role, detail
+post `s10_post' ("reint_comm_justice_role") ("Reintegration support viewed as leadership role") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Confidence reducing reintegration tensions
+quietly summarize reint_tension_conf_score, detail
+post `s10_post' ("reint_tension_conf_score") ("Confidence reducing reintegration tensions") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Confidence referring returnees for support
+quietly summarize reint_referral_conf_score, detail
+post `s10_post' ("reint_referral_conf_score") ("Confidence referring returnees for support") ("Reintegration") ///
+    ("Perception / confidence / attitude") ("Chairperson norms or assessments; not outcomes experienced by former prisoners.") ("Score (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Reintegration: Reported reintegration issue in past 6 months
+quietly summarize recent_reintegration_issue, detail
+post `s10_post' ("recent_reintegration_issue") ("Reported reintegration issue in past 6 months") ("Reintegration") ///
+    ("Self-reported practice") ("Six-month recall; distinct from the conditional three-month case-type universe.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Family and community acceptance
+quietly summarize m11_q10_1, detail
+post `s10_post' ("m11_q10_1") ("Family and community acceptance") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Livelihood opportunities
+quietly summarize m11_q10_2, detail
+post `s10_post' ("m11_q10_2") ("Livelihood opportunities") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Psychosocial or emotional support
+quietly summarize m11_q10_3, detail
+post `s10_post' ("m11_q10_3") ("Psychosocial or emotional support") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Family or community mediation
+quietly summarize m11_q10_4, detail
+post `s10_post' ("m11_q10_4") ("Family or community mediation") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: LC or community leader support
+quietly summarize m11_q10_5, detail
+post `s10_post' ("m11_q10_5") ("LC or community leader support") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Religious or cultural leader support
+quietly summarize m11_q10_6, detail
+post `s10_post' ("m11_q10_6") ("Religious or cultural leader support") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Legal or administrative support
+quietly summarize m11_q10_7, detail
+post `s10_post' ("m11_q10_7") ("Legal or administrative support") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Useful reintegration support: Skills training or education
+quietly summarize m11_q10_8, detail
+post `s10_post' ("m11_q10_8") ("Skills training or education") ("Useful reintegration support") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Fear of reoffending
+quietly summarize m11_q12_1, detail
+post `s10_post' ("m11_q12_1") ("Fear of reoffending") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Fear of violence or conflict
+quietly summarize m11_q12_2, detail
+post `s10_post' ("m11_q12_2") ("Fear of violence or conflict") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Shame or stigma
+quietly summarize m11_q12_3, detail
+post `s10_post' ("m11_q12_3") ("Shame or stigma") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Lack of trust
+quietly summarize m11_q12_4, detail
+post `s10_post' ("m11_q12_4") ("Lack of trust") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Unresolved victim or family relationships
+quietly summarize m11_q12_5, detail
+post `s10_post' ("m11_q12_5") ("Unresolved victim or family relationships") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Lack of livelihood
+quietly summarize m11_q12_6, detail
+post `s10_post' ("m11_q12_6") ("Lack of livelihood") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Weak support structures
+quietly summarize m11_q12_7, detail
+post `s10_post' ("m11_q12_7") ("Weak support structures") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+
+* Perceived reintegration barriers: Lack of knowledge about reintegration support
+quietly summarize m11_q12_8, detail
+post `s10_post' ("m11_q12_8") ("Lack of knowledge about reintegration support") ("Perceived reintegration barriers") ///
+    ("Perception / confidence / attitude") ("Multiple-response: share of chairpersons selecting option; not share of former prisoners or cases.") ("Proportion (0-1)") ///
+    (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
+postclose `s10_post'
+preserve
+    use `s10_metrics', clear
+    isid variable
+    assert n + missing_n == 129
+    assert missing(total) & missing(mean) if n == 0
+    format total mean sd median %12.6f
+    export excel using "`excel_ind'", sheet("section10_metrics", replace) firstrow(variables)
+restore
+* Stock/flow diagnostic, not an automatic error: current pending cases can have
+* arrived before the three-month inflow window. Do not subtract stock from inflow
+* to manufacture a count of resolved cases.
+putexcel set "`excel_ind'", sheet("section10_notes", replace) modify
+putexcel A1 = "Item" B1 = "Definition / interpretation"
+putexcel A2 = "Population" B2 = "129 unique canonical LCs; all selected and consented."
+putexcel A3 = "Mean" B3 = "Sum of observed scores/counts divided by nonmissing N; no imputation."
+putexcel A4 = "Binary measure" B4 = "Total is the number selecting/meeting the criterion; proportion = total/N."
+putexcel A5 = "Ordinal score" B5 = "Mean of locked normalized scores, not a percentage of cases or people achieving an outcome."
+putexcel A6 = "Total" B6 = "Sum across observed LC interviews only; missing if N=0. Not population extrapolation."
+putexcel A7 = "M3_Q09" B7 = "Reported community-brought cases - respondent scope ambiguous. Question excludes disputing parties; hint includes a party. Not formal diversion."
+putexcel A8 = "Pending ratio" B8 = "Current pending stock/recent inflow; existing valid 0-1 ratios only. Not a closure rate."
+putexcel A9 = "Petty composition" B9 = "M3_Q06 categories 0-5 divided by 5. Unequal response bands; do not multiply this score by caseload to estimate petty-case totals."
+putexcel A10 = "Formal indicators" B10 = "Cross-sectional survey benchmarks cannot establish reduction/increase, remand, costs, formal-system flows, graduate performance, or replication."
+quietly count if flag_pending_gt_3m == 1
+putexcel A11 = "Pending stock exceeds recent inflow: count" B11 = (r(N))
+quietly count if !missing(flag_pending_gt_3m)
+putexcel A12 = "Pending stock/inflow comparison: N" B12 = (r(N))
+putexcel A13 = "Missing referral counts" B13 = "M3_Q10/M3_Q12 have no observed final values; blank totals are not zero."
+putexcel A14 = "Readiness" B14 = "Existing >=0.75 diagnostic flags only. No assessed graduates, final mentor eligibility or ranking."
+putexcel A15 = "Reproducibility" B15 = "Data Analysis do-file section 21a; final phase1_baseline_analysis.dta; output sheets section10_metrics and section10_crosswalk."
+putexcel clear
+quietly datasignature
+assert "`r(datasignature)'" == "`s10_signature_before'"
+display as result "Section 10: N=129; all input values unchanged; survey benchmarks exported."
+
+* Slide codes are retained for traceability, not used to renumber the revised SOW.
+putexcel set "`excel_ind'", sheet("section10_crosswalk", replace) modify
+putexcel A1 = "Slide 57 code" B1 = "Revised SOW code" C1 = "Indicator area" ///
+    D1 = "Survey variable" E1 = "Statistic" F1 = "Survey benchmark value" ///
+    G1 = "Observed N" H1 = "Relationship" I1 = "Limitation"
+quietly summarize m5_q16_score, meanonly
+putexcel A2 = "0.0.1" B2 = "0.0.1" C2 = "Reduction in petty cases entering formal justice" ///
+    D2 = "m5_q16_score" E2 = "mean" F2 = (r(mean)) ///
+    G2 = (r(N)) H2 = "Perception benchmark only" I2 = "Perceived prevention of escalation; no formal-system inflow or change observed."
+putexcel A3 = "0.0.2" B3 = "0.0.2" C3 = "Reduction of remandees" ///
+    D3 = "" E3 = "" F3 = "Not measured" ///
+    G3 = "Not applicable" H3 = "Not measured" I3 = "No prison population or remand-status observations."
+quietly summarize idx_reintegration_norms, meanonly
+putexcel A4 = "0.0.3" B4 = "0.0.3" C4 = "Favourable reintegration conditions" ///
+    D4 = "idx_reintegration_norms" E4 = "mean" F4 = (r(mean)) ///
+    G4 = (r(N)) H4 = "Partial proxy" I4 = "Chairperson norms; not observed conditions or reincarceration among former prisoners."
+putexcel A5 = "0.0.4" B5 = "0.0.4 (cost)" C5 = "Cost per petty case diverted" ///
+    D5 = "" E5 = "" F5 = "Not measured" ///
+    G5 = "Not applicable" H5 = "Not measured" I5 = "Neither programme costs nor attributable formal entries avoided are observed."
+quietly summarize pending_cases, meanonly
+putexcel A6 = "0.0.5" B6 = "4.1.2" C6 = "Reduction in case backlog" ///
+    D6 = "pending_cases" E6 = "total" F6 = (cond(r(N)>0,r(sum),.)) ///
+    G6 = (r(N)) H6 = "Context benchmark only" I6 = "Current LC pending stock, not formal-court backlog or its reduction."
+quietly summarize idx_perceived_legitimacy, meanonly
+putexcel A7 = "0.0.6" B7 = "0.0.4 (confidence)" C7 = "Increased community confidence" ///
+    D7 = "idx_perceived_legitimacy" E7 = "mean" F7 = (r(mean)) ///
+    G7 = (r(N)) H7 = "Partial proxy" I7 = "Chairperson perceptions, not community respondents or change over time. Duplicate 0.0.4 in Scope of Work remains unresolved."
+quietly summarize caseload_3m, meanonly
+putexcel A8 = "1.1.1" B8 = "1.1.1" C8 = "Increase in petty cases resolved through local ADR" ///
+    D8 = "caseload_3m" E8 = "total" F8 = (cond(r(N)>0,r(sum),.)) ///
+    G8 = (r(N)) H8 = "Context benchmark only" I8 = "Cases received of all types, not documented eligible petty-case resolutions."
+quietly summarize directly_brought_cases_3m, meanonly
+putexcel A9 = "1.1.2" B9 = "1.1.2" C9 = "Increase in cases formally referred to LCC ADR" ///
+    D9 = "directly_brought_cases_3m" E9 = "total" F9 = (cond(r(N)>0,r(sum),.)) ///
+    G9 = (r(N)) H9 = "Context benchmark only" I9 = "Reported community-brought cases: respondent scope ambiguous. Not formal diversion. Inbound referral counts have N=0."
+putexcel A10 = "2.1" B10 = "2.1" C10 = "Reduction in time on remand" ///
+    D10 = "" E10 = "" F10 = "Not measured" ///
+    G10 = "Not applicable" H10 = "Not measured" I10 = "No individual remand durations. Scope of Work unit is hours."
+putexcel A11 = "3.1.4" B11 = "3.1.5" C11 = "Use of prison-acquired skills for income after release" ///
+    D11 = "" E11 = "" F11 = "Not measured" ///
+    G11 = "Not applicable" H11 = "Not measured" I11 = "Chairpersons are not a sample of trained released prisoners; no income or skills-use outcome."
+quietly summarize prior_formal_coordination, meanonly
+putexcel A12 = "4.1.1" B12 = "4.1.1" C12 = "JLOS improvements linked to advocacy" ///
+    D12 = "prior_formal_coordination" E12 = "mean" F12 = (r(mean)) ///
+    G12 = (r(N)) H12 = "Mechanism benchmark only" I12 = "Prior LC coordination, not sector reform or an effect of advocacy."
+quietly summarize high_mentor_readiness_proxy, meanonly
+putexcel A13 = "4.1.7" B13 = "Not located in revised SOW" C13 = "LC graduates independently executing duties" ///
+    D13 = "high_mentor_readiness_proxy" E13 = "mean" F13 = (r(mean)) ///
+    G13 = (r(N)) H13 = "Preparatory diagnostic only" I13 = "Existing baseline >=0.75 proxy; not graduates, assessed competence or final mentor selection."
+putexcel A14 = "5.1.1" B14 = "Not located in revised SOW" C14 = "Programme models scaled or replicated" ///
+    D14 = "" E14 = "" F14 = "Not measured" ///
+    G14 = "Not applicable" H14 = "Not measured" I14 = "No survey measure or verified replication inventory. Do not impute zero."
+putexcel A15 = "Not on Slide 57" B15 = "2.2" C15 = "Legal-aid remandees heard within 60 days" ///
+    D15 = "" E15 = "" F15 = "Not measured" ///
+    G15 = "Not applicable" H15 = "Not measured" I15 = "No linked detention, legal-aid eligibility or first-hearing dates."
+putexcel A1:I1, bold txtwrap
+putexcel F2:F15, nformat("0.000")
+putexcel clear
+
+* END SECTION 10 REPRODUCIBLE BENCHMARKS
+
+
+*------------------------------------------------------------------------------*
 **# 22. Final validation and close
 *------------------------------------------------------------------------------*
 
