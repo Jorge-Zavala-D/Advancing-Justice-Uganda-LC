@@ -3,7 +3,7 @@
        log:  C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Outp
 > ut/Phase1_Baseline_Executive/logs/phase1_baseline_executive_analysis.log
   log type:  text
- opened on:   5 Sep 2026, 21:01:05
+ opened on:   6 Sep 2026, 14:45:17
 
 . 
 . set scheme plotplain
@@ -346,6 +346,9 @@ not available in non-GUI version
 
 . capture label var referral_explain_conf_score "Confidence explaining referral
 > s to community members"
+
+. capture label var women_perspective_mechanism "Reported mechanism to consider
+>  women's perspectives in case handling"
 
 . 
 . capture label var m6_q04_1 "Referral reason: outside LCC mandate"
@@ -871,7 +874,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > enominator using `sample_report', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00002r.tmp not found)
+    > 5bb_opml03wf\ST_e880_000032.tmp not found)
 
 . post `sr' ("Final sample") ("Unique canonical LCs") ("Count") (129) (129)
 
@@ -1086,7 +1089,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Automated data-quality flags")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000031.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003a.tmp not found)
 (2 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1134,7 +1137,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Average baseline scores across core domains") gap
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000032.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003b.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1481,7 +1484,7 @@ file
 >     title("Share of chairpersons above high-capacity thresholds")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000035.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003e.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1531,7 +1534,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > ', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000036.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003f.tmp not found)
 
 . foreach v of local all_indices {
   2.     capture confirm numeric variable `v'
@@ -1591,7 +1594,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Chairperson profile: capacity and prior exposure")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000038.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003h.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1652,7 +1655,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Institutional functioning and operational readiness")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000039.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003i.tmp not found)
 (1 observation deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1708,7 +1711,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Caseload and sensitive-case exposure")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003a.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003j.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1817,7 +1820,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Types of cases received in past 3 months")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003c.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003l.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1857,7 +1860,7 @@ file
 >     title("Legal mandate, referral, and procedural knowledge")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003c.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003l.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -1891,7 +1894,7 @@ file
 >     title("Performance on case-classification vignettes")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003c.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003l.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2009,7 +2012,7 @@ file
 >     title("ADR and mediation practice")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2033,7 +2036,7 @@ file
 >     title("Reported barriers to local mediation/ADR")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2057,7 +2060,7 @@ file
 >     title("ADR/local resolution methods used")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2099,7 +2102,7 @@ file
 >     title("Referral practice, coordination, and documentation")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2123,7 +2126,7 @@ file
 >     title("Reasons LC chairpersons refer cases onward")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2147,7 +2150,7 @@ file
 >     title("Reported barriers to referral")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2192,7 +2195,7 @@ file
 >     title("Record-keeping and case-management quality")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2216,7 +2219,7 @@ file
 >     title("Reported record-keeping challenges")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2260,7 +2263,7 @@ file
 >     title("Committee functioning and collective decision-making")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2284,7 +2287,7 @@ file
 >     title("Reported committee-functioning challenges")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2328,7 +2331,7 @@ file
 >     title("Perceived legitimacy, bypassing, and fairness risks")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2366,7 +2369,7 @@ file
 >     title("Safeguards and serious/sensitive-case handling")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2414,7 +2417,7 @@ file
 >     title("Reintegration norms and support capacity")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2438,7 +2441,7 @@ file
 >     title("Support types identified for successful reintegration")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2462,7 +2465,7 @@ file
 >     title("Perceived barriers to reintegration")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003m.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_executive_results.xlsx saved
@@ -2541,7 +2544,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > sing `readiness_corrs', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003e.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003n.tmp not found)
 
 . 
 . foreach v of local core_indices {
@@ -2736,7 +2739,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > ssing str40 status using `numeric_field_status', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003g.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003p.tmp not found)
 
 . quietly count
 
@@ -2780,7 +2783,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . aju_tab_numeric_all `all_num_existing', sheet("numeric_summary_all")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003i.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003r.tmp not found)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_all_item_tabulations.xlsx saved
 
@@ -2788,7 +2791,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > axlevels(30)
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003i.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003r.tmp not found)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_all_item_tabulations.xlsx saved
 
@@ -2811,7 +2814,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     xlsx("${AJU_ITEMS_XLSX}")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003i.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003r.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > bb_opml03wf//phase1_baseline_all_item_tabulations.xlsx saved
@@ -2827,7 +2830,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     long n_nonmissing n_missing n_unique using `string_summary', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00003i.tmp not found)
+    > 5bb_opml03wf\ST_e880_00003r.tmp not found)
 
 . 
 . ds, has(type string)
@@ -3385,7 +3388,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `origin_diffs', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000060.tmp not found)
+    > 5bb_opml03wf\ST_e880_000069.tmp not found)
 
 . 
 . foreach v of local candvars {
@@ -3893,7 +3896,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `origin_regressions', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000066.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006f.tmp not found)
 
 . 
 . local regression_outcomes ///
@@ -4065,7 +4068,7 @@ file
 >     long n double coefficient se p_value r2 using `multivar_results', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_000068.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006h.tmp not found)
 
 . 
 . local diagnostic_outcomes ///
@@ -4345,7 +4348,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > _snapshot', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006b.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006k.tmp not found)
 
 . 
 .     local v1  prior_formal_coordination
@@ -4370,11 +4373,11 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 .     local v6  referral_path_conf_score
 
-.     local l6  "Knows where to refer"
+.     local l6  "Confidence knowing where to refer"
 
 .     local v7  referral_explain_conf_score
 
-.     local l7  "Can explain referral"
+.     local l7  "Confidence explaining referral"
 
 .     local v8  referral_documentation_score
 
@@ -4413,8 +4416,8 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >         3 "Coordination with police" ///
 >         4 "Coordination with courts" ///
 >         5 "Referral regularity" ///
->         6 "Knows where to refer" ///
->         7 "Can explain referral" ///
+>         6 "Confidence knowing where to refer" ///
+>         7 "Confidence explaining referral" ///
 >         8 "Referral documentation" ///
 >         9 "Feedback after referral", replace
 
@@ -4475,7 +4478,7 @@ file
 > asons', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006d.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006m.tmp not found)
 
 . 
 .     local v1  m6_q04_1
@@ -4601,7 +4604,7 @@ file
 > arriers', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006f.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006o.tmp not found)
 
 . 
 .     local v1  m6_q12_1
@@ -4778,7 +4781,7 @@ file
 > hway', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006h.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006q.tmp not found)
 
 . 
 .     local v1  prior_formal_coordination
@@ -4799,7 +4802,7 @@ file
 
 .     local v5  jlos_pathway_conf_avg
 
-.     local l5  "Knows/explains referral pathway"
+.     local l5  "Referral pathway confidence"
 
 .     local v6  jlos_closure_avg
 
@@ -4837,7 +4840,7 @@ file
 >         2 "Knows cases requiring referral" ///
 >         3 "Police/court coordination" ///
 >         4 "Referral regularity" ///
->         5 "Knows/explains pathway" ///
+>         5 "Referral pathway confidence" ///
 >         6 "Documentation and feedback" ///
 >         7 "Verified referral record", replace
 
@@ -4988,7 +4991,7 @@ Recommended placement: referrals and JLOS coordination section of the Final Bas
 . postfile `of' str80 measure double mean using `operations_figure', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006j.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006s.tmp not found)
 
 . foreach v in case_register_score verified_record_usability_score idx_record_q
 > uality active_member_part_score women_participation_score idx_committee_funct
@@ -5037,7 +5040,7 @@ file
 . postfile `nf' str80 measure double mean using `norms_figure', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006l.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006u.tmp not found)
 
 . foreach v in idx_perceived_legitimacy idx_safeguards idx_reintegration_norms 
 > {
@@ -5148,7 +5151,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `indicator_table', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_opml03wf\ST_e880_00006n.tmp not found)
+    > 5bb_opml03wf\ST_e880_00006w.tmp not found)
 
 . 
 . foreach v in idx_legal_classif_knowledge idx_adr_mediation_practice idx_refer
@@ -5433,54 +5436,5 @@ Log file: C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Output/
        log:  C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Outp
 > ut/Phase1_Baseline_Executive/logs/phase1_baseline_executive_analysis.log
   log type:  text
- closed on:   5 Sep 2026, 21:02:07
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-      name:  <unnamed>
-       log:  C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Outp
-> ut/Phase1_Baseline_Executive/logs/phase1_baseline_executive_analysis.log
-  log type:  text
- opened on:   5 Sep 2026, 21:03:28
-
-. assert _N == 129
-
-. isid canonical_village_uid
-
-. sort canonical_village_uid
-
-. cf canonical_village_uid m5_q14 m5_q16 m5_q14_score m5_q16_score idx_* using 
-> "${input_dir}/3 Coded/phase1_baseline_analysis.dta", all
-canonical_vill~d: match
-          m5_q14: match
-          m5_q16: match
-    m5_q14_score: match
-    m5_q16_score: match
-idx_respondent~y: match
-idx_institutio~g: match
-idx_legal_clas~e: match
-idx_adr_mediat~e: match
-idx_referral_p~e: match
-idx_record_qua~y: match
-idx_committee_~g: match
-idx_perceived_~y: match
-  idx_safeguards: match
-idx_reintegrat~s: match
-idx_lcc_operat~y: match
-idx_lcc_case_h~y: match
-idx_lcc_legiti~s: match
-idx_p1_base_me~y: match
-idx_vignette_c~n: match
-idx_safeguard_~w: match
-
-. display "Label-only validation: every raw item, score and idx_* value matches
->  the unchanged locked input."
-Label-only validation: every raw item, score and idx_* value matches the unchan
-> ged locked input.
-
-. log close
-      name:  <unnamed>
-       log:  C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Outp
-> ut/Phase1_Baseline_Executive/logs/phase1_baseline_executive_analysis.log
-  log type:  text
- closed on:   5 Sep 2026, 21:03:28
+ closed on:   6 Sep 2026, 14:46:09
 -------------------------------------------------------------------------------

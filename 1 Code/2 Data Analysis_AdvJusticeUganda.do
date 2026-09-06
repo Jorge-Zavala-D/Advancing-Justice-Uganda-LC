@@ -274,6 +274,7 @@ capture label var police_coordination_score "Coordination score with police"
 capture label var court_coordination_score "Coordination score with court/formal justice actors"
 capture label var referral_path_conf_score "Confidence knowing where to refer cases"
 capture label var referral_explain_conf_score "Confidence explaining referrals to community members"
+capture label var women_perspective_mechanism "Reported mechanism to consider women's perspectives in case handling"
 
 capture label var m6_q04_1 "Referral reason: outside LCC mandate"
 capture label var m6_q04_2 "Referral reason: serious violence/threat to life"
@@ -2392,9 +2393,9 @@ preserve
     local v5  referral_frequency_score
     local l5  "Referral regularity"
     local v6  referral_path_conf_score
-    local l6  "Knows where to refer"
+    local l6  "Confidence knowing where to refer"
     local v7  referral_explain_conf_score
-    local l7  "Can explain referral"
+    local l7  "Confidence explaining referral"
     local v8  referral_documentation_score
     local l8  "Referral documentation"
     local v9  referral_feedback_score
@@ -2423,8 +2424,8 @@ preserve
         3 "Coordination with police" ///
         4 "Coordination with courts" ///
         5 "Referral regularity" ///
-        6 "Knows where to refer" ///
-        7 "Can explain referral" ///
+        6 "Confidence knowing where to refer" ///
+        7 "Confidence explaining referral" ///
         8 "Referral documentation" ///
         9 "Feedback after referral", replace
     label values item_id jlos_snap_lbl
@@ -2644,7 +2645,7 @@ preserve
     local v4  referral_frequency_score
     local l4  "Referral regularity"
     local v5  jlos_pathway_conf_avg
-    local l5  "Knows/explains referral pathway"
+    local l5  "Referral pathway confidence"
     local v6  jlos_closure_avg
     local l6  "Documentation and feedback"
     local v7  jlos_verified_record_avg
@@ -2672,7 +2673,7 @@ preserve
         2 "Knows cases requiring referral" ///
         3 "Police/court coordination" ///
         4 "Referral regularity" ///
-        5 "Knows/explains pathway" ///
+        5 "Referral pathway confidence" ///
         6 "Documentation and feedback" ///
         7 "Verified referral record", replace
     label values item_id jlos_path_lbl
