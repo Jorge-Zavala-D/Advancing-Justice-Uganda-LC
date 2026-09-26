@@ -785,8 +785,8 @@
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_indicator_table_aff55d23.md": {
-    "mtime": 1788698826.7786007,
-    "ast_hash": "25af481eaf6125c9535bb13139e2d820",
+    "mtime": 1790370556.8242986,
+    "ast_hash": "b9498fbe76d14f46c904996ccecab0d2",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_regression_results_5ad58d99.md": {
@@ -822,6 +822,481 @@
   "2 Output/Phase1_Baseline_Executive/figures/fig_42_adjusted_origin_coefficients.png": {
     "mtime": 1788698768.7494602,
     "ast_hash": "43bd3caf10dd69aae917907bf290f9cb",
+    "semantic_hash": ""
+  },
+  ".serena/project.yml": {
+    "mtime": 1790350341.9616766,
+    "ast_hash": "e4c61cc159b6a8b3d7faf55d0d9ba76a",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_all_item_tabulations_e840681a.md": {
+    "mtime": 1790370558.4302,
+    "ast_hash": "a92c04bea26b84651dcf69b7a971640e",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_executive_results_febcbf27.md": {
+    "mtime": 1790370558.492236,
+    "ast_hash": "3a14599c5f1118203d6824b46e4d6fed",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_indicator_table_847c6dd7.md": {
+    "mtime": 1790370558.5216446,
+    "ast_hash": "d818c2b3fffe7193f6e7e95b07049e23",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_jlos_expanded_analysis_af527f77.md": {
+    "mtime": 1790370558.5396452,
+    "ast_hash": "ee2fd37cd8cdba7b155c194837f31aee",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_origin_comparison_6ba0ef47.md": {
+    "mtime": 1790370558.5726662,
+    "ast_hash": "063b0c1c2ab1ab4e2d5d00b0d707b915",
+    "semantic_hash": ""
+  },
+  "graphify-out/converted/phase1_baseline_regression_results_d60827fb.md": {
+    "mtime": 1790370558.599289,
+    "ast_hash": "aac6fc93f2962cd57255453ee7f2ba32",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_01_sample_by_district.pdf": {
+    "mtime": 1790370072.0958402,
+    "ast_hash": "a36f4f474d49fd0c40c7374debf27704",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_02_core_indices_overall.pdf": {
+    "mtime": 1790370072.1044075,
+    "ast_hash": "50957daf7c83440d1c66653aa2c5ae2c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_03_composite_indices_by_district.pdf": {
+    "mtime": 1790370072.1074111,
+    "ast_hash": "b43d2fa269cbcabd499c24f36e5472ed",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_04_priority_gaps.pdf": {
+    "mtime": 1790370072.1099234,
+    "ast_hash": "fd7968e25642bb4dde1114eb4f704454",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_05_mentor_readiness_distribution.pdf": {
+    "mtime": 1790370072.1306899,
+    "ast_hash": "fff1157727b3cf0bb52669fdd13d8189",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_06_high_capacity_flags.pdf": {
+    "mtime": 1790370072.1332145,
+    "ast_hash": "b5369e45404d574428d03de3a26de10d",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_07_chairperson_profile.pdf": {
+    "mtime": 1790370072.1446948,
+    "ast_hash": "7f34118ec6cba279de3e8081cb7f7653",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_08_institutional_functioning.pdf": {
+    "mtime": 1790370072.1482828,
+    "ast_hash": "3c2160c21d0ab87e67a2aaf05394e956",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_09_caseload_selected.pdf": {
+    "mtime": 1790370072.1512952,
+    "ast_hash": "fb251582be8336553b13271287df4f1a",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10_caseload_3m_distribution.pdf": {
+    "mtime": 1790370072.1908221,
+    "ast_hash": "71bce5f757b8dd1d87359565ec509272",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10b_caseload_3m_zoom.pdf": {
+    "mtime": 1790370072.1693938,
+    "ast_hash": "be92dcae05d149e0d3aed4310766513c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_11_case_types_3m.pdf": {
+    "mtime": 1790370072.1943355,
+    "ast_hash": "5dfeb69bdb21590ebd3ea12a61ae681e",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_12_legal_knowledge.pdf": {
+    "mtime": 1790370072.196762,
+    "ast_hash": "3efe3b89b2a6231c2690d450f2dbf80a",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_data_quality_flags.pdf": {
+    "mtime": 1790370072.1987643,
+    "ast_hash": "e68e2b5f578e61744d86eb7b1efce87e",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_vignette_performance.pdf": {
+    "mtime": 1790370072.2102957,
+    "ast_hash": "af9da90b08f9e6bcd66bd78df3da7f39",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_14_adr_mediation.pdf": {
+    "mtime": 1790370072.2132964,
+    "ast_hash": "b6b065e234b98f1a34b14b77c92f9cbf",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_15_adr_barriers.pdf": {
+    "mtime": 1790370072.2152948,
+    "ast_hash": "85242606b1b1bba86d7b28fc0c4e1762",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_16_adr_methods.pdf": {
+    "mtime": 1790370072.2172904,
+    "ast_hash": "cb8f36d2eb30ffada59e2f8951a0a178",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_17_referral_practice.pdf": {
+    "mtime": 1790370072.220299,
+    "ast_hash": "1f004532451166558ad9818ded1abd71",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_18_referral_reasons.pdf": {
+    "mtime": 1790370072.223807,
+    "ast_hash": "55afe1b1866fa5647cf671dd6a4d34d0",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_19_referral_barriers.pdf": {
+    "mtime": 1790370072.2268076,
+    "ast_hash": "f6e7809d3f0f2e50a8d98433f27f0057",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_20_record_quality.pdf": {
+    "mtime": 1790370072.2408226,
+    "ast_hash": "3826b6925859a7e68cd98729d5fb2fb4",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_21_record_challenges.pdf": {
+    "mtime": 1790370072.2441611,
+    "ast_hash": "9c34476e04d08dd81d4b07bb2db19973",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_22_committee_functioning.pdf": {
+    "mtime": 1790370072.2471743,
+    "ast_hash": "37bd671a3e31144abb05f705ac4c4edc",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_23_committee_challenges.pdf": {
+    "mtime": 1790370072.2496772,
+    "ast_hash": "a02f00cfce8b8c1ea888f8b44f9d12a2",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_24_legitimacy_bypass.pdf": {
+    "mtime": 1790370072.253107,
+    "ast_hash": "4a974950f34fcfc270de261ff3bec518",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_25_safeguards.pdf": {
+    "mtime": 1790370072.255707,
+    "ast_hash": "da34d29f94403282896760c6c40aac3f",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_26_reintegration_norms.pdf": {
+    "mtime": 1790370072.2577064,
+    "ast_hash": "f8b6b44513ba49c021aecb4c501c195c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_27_reintegration_support.pdf": {
+    "mtime": 1790370072.2715316,
+    "ast_hash": "244992ab1ac16aaae1bf0dfa8161f521",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_28_reintegration_barriers.pdf": {
+    "mtime": 1790370072.2745318,
+    "ast_hash": "a2ddc1bd12da97cac6b14fd91a3516df",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_29_readiness_correlations.pdf": {
+    "mtime": 1790370072.2775326,
+    "ast_hash": "07e9e835c60aa35fda19963ab4d73dd1",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_30_readiness_vs_case_handling.pdf": {
+    "mtime": 1790370072.3036833,
+    "ast_hash": "8b4a42f025e2e5f473dbddd591c500c6",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_31_readiness_vs_legitimacy_norms.pdf": {
+    "mtime": 1790370072.3281016,
+    "ast_hash": "3c65b3378496df4b23812d594502f89f",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_32_origin_core_composites.pdf": {
+    "mtime": 1790370072.3301003,
+    "ast_hash": "b981b98ee2c5f2332d9716f0ed560e24",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_33_origin_jlos_collaboration.pdf": {
+    "mtime": 1790370072.3341253,
+    "ast_hash": "ace32394b3e8003b9d8dbc3e30890b1f",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_34_origin_priority_gaps.pdf": {
+    "mtime": 1790370072.3482578,
+    "ast_hash": "6a47acfbbf108fd9c009b65ee3f1a303",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_35_origin_high_readiness_flags.pdf": {
+    "mtime": 1790370072.3628018,
+    "ast_hash": "ce75d5c0e19616eaaee41db681418dfc",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_36_jlos_snapshot.pdf": {
+    "mtime": 1790370072.3738086,
+    "ast_hash": "7a75697a934c9478e000177886c77abb",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_37_jlos_referral_reasons.pdf": {
+    "mtime": 1790370072.3758073,
+    "ast_hash": "a40537e4286bef722375b62bb5cb6fcf",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_38_jlos_referral_barriers.pdf": {
+    "mtime": 1790370072.3876789,
+    "ast_hash": "3954baeafd159af32fc63154c2190de5",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_39_jlos_referral_loop.pdf": {
+    "mtime": 1790370072.390677,
+    "ast_hash": "0c92735b95e1d09c1fe0301a249f4bf9",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_40_records_committee_constraints.pdf": {
+    "mtime": 1790370072.3926802,
+    "ast_hash": "e7a97532522f0893af1183802ad741c3",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_41_legitimacy_safeguards_reintegration.pdf": {
+    "mtime": 1790370072.4036984,
+    "ast_hash": "e489f4a507d5ecd0ff89cfda35e4e6fc",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_42_adjusted_origin_coefficients.pdf": {
+    "mtime": 1790370072.413071,
+    "ast_hash": "e697e79fae611a0ebe018910481a833b",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_01_sample_by_district.png": {
+    "mtime": 1790370071.522942,
+    "ast_hash": "3b9425b82a2de1e864db4d78521eb12a",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_02_core_indices_overall.png": {
+    "mtime": 1790370071.5306964,
+    "ast_hash": "03e82ca1044af14dc67657632a7118f2",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_03_composite_indices_by_district.png": {
+    "mtime": 1790370071.5447211,
+    "ast_hash": "c11c0bf947eaf5161c481554b3dec792",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_04_priority_gaps.png": {
+    "mtime": 1790370071.553665,
+    "ast_hash": "bfcc38b1483e34b756141d78a804d321",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_05_mentor_readiness_distribution.png": {
+    "mtime": 1790370071.5676987,
+    "ast_hash": "9b5defd8b8a878dea375b3fccd421c4a",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_06_high_capacity_flags.png": {
+    "mtime": 1790370071.5811584,
+    "ast_hash": "e9fd69badc45b7d782bad6563c701fae",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_07_chairperson_profile.png": {
+    "mtime": 1790370071.5990393,
+    "ast_hash": "19bc41afcb5362395df7f53da43be34c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_08_institutional_functioning.png": {
+    "mtime": 1790370071.6150737,
+    "ast_hash": "0ab9ab898d6deaaa9907d632295f72b6",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_09_caseload_selected.png": {
+    "mtime": 1790370071.6300488,
+    "ast_hash": "d9334a9ce1aec9b0e6a5cf5cfb026e26",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10_caseload_3m_distribution.png": {
+    "mtime": 1790370071.6585667,
+    "ast_hash": "ac0b7994d5b98e732a3211be841cc596",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10b_caseload_3m_zoom.png": {
+    "mtime": 1790370071.6443894,
+    "ast_hash": "c80c1cc3824b1c6efee8aebcb5445ef0",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_11_case_types_3m.png": {
+    "mtime": 1790370071.6720788,
+    "ast_hash": "693a071e047648e046522a09d1feb6cd",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_12_legal_knowledge.png": {
+    "mtime": 1790370071.6846023,
+    "ast_hash": "08638d376088fb85190d682cf11e0988",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_data_quality_flags.png": {
+    "mtime": 1790370071.6971037,
+    "ast_hash": "54564b62eab2aacfdaf7f201fb3d9135",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_vignette_performance.png": {
+    "mtime": 1790370071.7056556,
+    "ast_hash": "298a82677def453f4cffb8bd61c50c95",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_14_adr_mediation.png": {
+    "mtime": 1790370071.7146747,
+    "ast_hash": "1c08305cdf2bc1cfbb0112dab7b94354",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_15_adr_barriers.png": {
+    "mtime": 1790370071.722069,
+    "ast_hash": "05edbb62f19dc691b1480c9adba593bb",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_16_adr_methods.png": {
+    "mtime": 1790370071.7334738,
+    "ast_hash": "d29763fe1d9d8b6888ff61536dd0e55c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_17_referral_practice.png": {
+    "mtime": 1790370071.7477882,
+    "ast_hash": "5332adea69b7abd8e57feaad83f8c507",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_18_referral_reasons.png": {
+    "mtime": 1790370071.7618887,
+    "ast_hash": "6b5d8721b1244a0429aea011c1ec3265",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_19_referral_barriers.png": {
+    "mtime": 1790370071.774402,
+    "ast_hash": "07f26aeb32f5b6bd1a8628876f87db2d",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_20_record_quality.png": {
+    "mtime": 1790370071.7886803,
+    "ast_hash": "72bee934541fb429e55b025c535398ab",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_21_record_challenges.png": {
+    "mtime": 1790370071.80346,
+    "ast_hash": "4dc9405cd7e456dac9967cdc14065c6b",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_22_committee_functioning.png": {
+    "mtime": 1790370071.8201969,
+    "ast_hash": "1c06862f106aeeb22784ca1b86d23e4b",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_23_committee_challenges.png": {
+    "mtime": 1790370071.8341382,
+    "ast_hash": "c12354cb6bb017290471b73fcb55f808",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_24_legitimacy_bypass.png": {
+    "mtime": 1790370071.853876,
+    "ast_hash": "a453935dce19b02d0612a28c83f63bd1",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_25_safeguards.png": {
+    "mtime": 1790370071.8689823,
+    "ast_hash": "df0b09ab9e57410ba68928bd4bb0b097",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_26_reintegration_norms.png": {
+    "mtime": 1790370071.8855026,
+    "ast_hash": "de8cdc6a024921cc3f4d70c95e26b542",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_27_reintegration_support.png": {
+    "mtime": 1790370071.895501,
+    "ast_hash": "7038aab72a7a3d1254aa03222f044281",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_28_reintegration_barriers.png": {
+    "mtime": 1790370071.9100387,
+    "ast_hash": "ea91922c08f9e7aa3738124892a3a4a9",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_29_readiness_correlations.png": {
+    "mtime": 1790370071.9245563,
+    "ast_hash": "fd0b34006c7c470c2e42bf79e1b7bdbe",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_30_readiness_vs_case_handling.png": {
+    "mtime": 1790370071.9396203,
+    "ast_hash": "e7e1d3d14482f344d79a6cf3067bf416",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_31_readiness_vs_legitimacy_norms.png": {
+    "mtime": 1790370071.9550068,
+    "ast_hash": "e1a4b90dd5324e3ae074d48523db8e14",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_32_origin_core_composites.png": {
+    "mtime": 1790370071.9710298,
+    "ast_hash": "cd8c385c82b1fe005065b490233a3abe",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_33_origin_jlos_collaboration.png": {
+    "mtime": 1790370071.9885454,
+    "ast_hash": "b4cc096cdd5ec91028bbf76c41be0ffb",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_34_origin_priority_gaps.png": {
+    "mtime": 1790370072.003882,
+    "ast_hash": "ac53ca94f04a926c8a01c87f3c486df7",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_35_origin_high_readiness_flags.png": {
+    "mtime": 1790370072.0166757,
+    "ast_hash": "b1727966206b1fab98c5366af64fd4ec",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_36_jlos_snapshot.png": {
+    "mtime": 1790370072.033586,
+    "ast_hash": "8406d5da8953e578bf1c5a06a697567c",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_37_jlos_referral_reasons.png": {
+    "mtime": 1790370072.0475154,
+    "ast_hash": "dc1c59a3068cb521d64afd8ba1782651",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_38_jlos_referral_barriers.png": {
+    "mtime": 1790370072.0540395,
+    "ast_hash": "4a42a1d9856c0c404d98004667a412a0",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_39_jlos_referral_loop.png": {
+    "mtime": 1790370072.0620103,
+    "ast_hash": "5e7fd8614cf1b6d6df2e3b2450e1ea80",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_40_records_committee_constraints.png": {
+    "mtime": 1790370072.0696201,
+    "ast_hash": "70462b205e8fcb0a7468e16b5d30007e",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_41_legitimacy_safeguards_reintegration.png": {
+    "mtime": 1790370072.0760713,
+    "ast_hash": "f949ffa50ddf81190a121aa98291c744",
+    "semantic_hash": ""
+  },
+  "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_42_adjusted_origin_coefficients.png": {
+    "mtime": 1790370072.0840688,
+    "ast_hash": "14af89f5e1e8ce135f678a473c68131f",
     "semantic_hash": ""
   }
 }

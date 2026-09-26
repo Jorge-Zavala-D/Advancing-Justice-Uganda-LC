@@ -49,7 +49,9 @@ if _rc {
     exit 601
 }
 
-local exec_dir "${output_dir}/Phase1_Baseline_Executive"
+* Keep the amended 129-LC archive outputs intact. This run reports the
+* interviewed members of the 100-unit Final Village List selection frame.
+local exec_dir "${output_dir}/Phase1_Baseline_Selected100_Observed"
 local fig_dir_final "`exec_dir'/figures"
 local fig_dir  "`c(tmpdir)'/phase1_baseline_figures"
 local tab_dir  "`exec_dir'/tables"
@@ -158,17 +160,6 @@ local composite_indices ///
     idx_p1_base_mentor_ready_proxy
 
 local all_indices `core_indices' `composite_indices'
-
-* Preserve an in-memory checksum of every analytical index. Analysis may summarize
-* or label these variables, but must never change their values.
-local index_counter = 0
-foreach v of local all_indices {
-    assert inrange(`v', 0, 1) if !missing(`v')
-    quietly summarize `v', meanonly
-    local ++index_counter
-    local index_n`index_counter' = r(N)
-    local index_sum`index_counter' = r(sum)
-}
 
 local high_flags ///
     high_operational_capacity ///
@@ -337,6 +328,96 @@ capture label var m11_q12_6 "Reintegration barrier: lack livelihood/work"
 capture label var m11_q12_7 "Reintegration barrier: weak support structures"
 capture label var m11_q12_8 "Reintegration barrier: people do not know how to support"
 capture label var m11_q12_9 "Community usually willing to accept"
+
+* The administrative "new" category contains amended units outside the
+* original selected frame. Identify the selected frame from its source list,
+* not from p1_admin_origin == 0. Never manufacture 100 interviews.
+tempfile fvl100 full_cohort primary_cohort
+preserve
+import excel using "${input_dir}/1 Raw/Primary data/Final Village List.xlsx", firstrow clear
+rename *, lower
+assert _N == 128
+assert randomly_selected + last_cdfu_phase + ineherited_fhri == 1
+keep if randomly_selected == 1
+local frame_n = _N
+assert `frame_n' == 100
+replace district = subinstr(district, " District", "", .)
+gen str80 __district_key = lower(itrim(strtrim(district)))
+gen str80 __village_key = lower(itrim(strtrim(village)))
+gen str80 __fvl_subcounty_key = lower(itrim(strtrim(subcounty)))
+gen str80 __fvl_parish_key = lower(itrim(strtrim(parish)))
+foreach key in __district_key __village_key {
+    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
+    replace `key' = ustrregexra(`key', "^_+|_+$", "")
+}
+foreach key in __fvl_subcounty_key __fvl_parish_key {
+    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
+    replace `key' = ustrregexra(`key', "^_+|_+$", "")
+}
+isid __district_key __village_key
+keep __district_key __village_key __fvl_subcounty_key __fvl_parish_key
+save `fvl100'
+restore
+
+gen str80 __district_key = lower(itrim(strtrim(canonical_district)))
+gen str80 __village_key = lower(itrim(strtrim(canonical_village)))
+foreach key in __district_key __village_key {
+    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
+    replace `key' = ustrregexra(`key', "^_+|_+$", "")
+}
+merge m:1 __district_key __village_key using `fvl100', ///
+    keep(master match) gen(__fvl_match)
+assert _N == 129
+quietly count if __fvl_match == 3
+assert r(N) == 90
+gen str80 __canonical_subcounty_key = lower(itrim(strtrim(canonical_subcounty)))
+gen str80 __canonical_parish_key = lower(itrim(strtrim(canonical_parish)))
+foreach key in __canonical_subcounty_key __canonical_parish_key {
+    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
+    replace `key' = ustrregexra(`key', "^_+|_+$", "")
+}
+assert __canonical_subcounty_key == __fvl_subcounty_key if __fvl_match == 3 & __fvl_subcounty_key != ""
+assert __canonical_parish_key == __fvl_parish_key if __fvl_match == 3 & __fvl_parish_key != ""
+gen byte selected_fvl100_observed = __fvl_match == 3
+* Data Preparation documents Kibaare A as the August successor to the
+* selected Kibaare I unit. This is the only extra alias supported by code.
+replace selected_fvl100_observed = 1 if canonical_district == "Bushenyi" & ///
+    canonical_subcounty == "Nyakabirizi" & canonical_parish == "Kibaare" & ///
+    canonical_village == "Kibaare A"
+assert selected_fvl100_observed == 0 if p1_admin_previously_contacted == 1
+assert p1_admin_origin == 0 if selected_fvl100_observed == 1
+label var selected_fvl100_observed "Observed LC on selected Final Village List frame"
+drop __district_key __village_key __fvl_subcounty_key __fvl_parish_key ///
+    __canonical_subcounty_key __canonical_parish_key __fvl_match
+save `full_cohort'
+
+keep if selected_fvl100_observed == 1
+local primary_n = _N
+local unobserved_n = `frame_n' - `primary_n'
+assert `primary_n' == 91
+assert `unobserved_n' == 9
+isid canonical_village_uid
+quietly count if canonical_district == "Bushenyi"
+assert r(N) == 40
+quietly count if canonical_district == "Rubirizi"
+assert r(N) == 28
+quietly count if canonical_district == "Sheema"
+assert r(N) == 23
+quietly count if baseline_wave == 1
+assert r(N) == 67
+quietly count if baseline_wave == 2
+assert r(N) == 24
+display as result "Selected-list frame: `frame_n'; observed analytical LCs: `primary_n'; unobserved: `unobserved_n'."
+
+* Preserve the primary-cohort index values across descriptive analyses.
+local index_counter = 0
+foreach v of local all_indices {
+    assert inrange(`v', 0, 1) if !missing(`v')
+    quietly summarize `v', meanonly
+    local ++index_counter
+    local index_n`index_counter' = r(N)
+    local index_sum`index_counter' = r(sum)
+}
 
 
 *------------------------------------------------------------------------------*
@@ -585,7 +666,7 @@ putexcel B3 = "Implementation-focused descriptive evidence for the Phase 1 Final
 putexcel A4 = "Input dataset"
 putexcel B4 = "`analysis_data'"
 putexcel A5 = "Analysis sample"
-putexcel B5 = "Final amended two-wave baseline: 129 consented, unique canonical LCs; 95 original and 34 August corrective records."
+putexcel B5 = "Primary report: `primary_n' observed interviews from the `frame_n' selected Final Village List LCs; `unobserved_n' selected units have no matched final survey."
 putexcel A6 = "Causal status"
 putexcel B6 = "Descriptive baseline analysis only. Associations are cross-sectional and are not treatment effects."
 putexcel A7 = "Mentor-readiness note"
@@ -616,20 +697,23 @@ putexcel clear
 tempfile sample_report
 tempname sr
 postfile `sr' str40 section str80 measure str24 statistic double value long denominator using `sample_report', replace
-post `sr' ("Final sample") ("Unique canonical LCs") ("Count") (129) (129)
+post `sr' ("Selected list frame") ("Original selected LCs") ("Count") (`frame_n') (`frame_n')
+post `sr' ("Selected list frame") ("Observed selected LCs") ("Count") (`primary_n') (`frame_n')
+post `sr' ("Selected list frame") ("No matched final survey") ("Count") (`unobserved_n') (`frame_n')
+post `sr' ("Final sample") ("Unique canonical LCs") ("Count") (`primary_n') (`primary_n')
 foreach d in Bushenyi Rubirizi Sheema {
     quietly count if canonical_district == "`d'"
-    post `sr' ("District") ("`d'") ("Count") (r(N)) (129)
-    post `sr' ("District") ("`d'") ("Percent") (100*r(N)/129) (129)
+    post `sr' ("District") ("`d'") ("Count") (r(N)) (`primary_n')
+    post `sr' ("District") ("`d'") ("Percent") (100*r(N)/`primary_n') (`primary_n')
 }
 quietly count if baseline_wave == 1
-post `sr' ("Baseline wave") ("Original May/June baseline") ("Count") (r(N)) (129)
+post `sr' ("Baseline wave") ("Original May/June baseline") ("Count") (r(N)) (`primary_n')
 quietly count if baseline_wave == 2
-post `sr' ("Baseline wave") ("August 2026 corrective") ("Count") (r(N)) (129)
+post `sr' ("Baseline wave") ("August 2026 corrective") ("Count") (r(N)) (`primary_n')
 foreach o in 0 1 2 {
     quietly count if p1_admin_origin == `o'
     local olab : label p1_admin_origin_lbl `o'
-    post `sr' ("Administrative origin") ("`olab'") ("Count") (r(N)) (129)
+    post `sr' ("Administrative origin") ("`olab'") ("Count") (r(N)) (`primary_n')
 }
 foreach v in respondent_female completed_secondary_or_above education_score lc_experience_years prior_justice_training prior_formal_coordination prior_cdfu_fhri_training {
     quietly summarize `v'
@@ -661,8 +745,8 @@ preserve
         bar(1, color("32 87 129")) ///
         blabel(bar, format(%9.0f)) ///
         ytitle("Number of interviews") ///
-        title("Final Phase 1 baseline sample by district", size(medsmall)) ///
-        note("N=129 unique canonical LCs.", size(vsmall))
+        title("Observed selected-list baseline LCs by district", size(medsmall)) ///
+        note("N=`primary_n' interviewed LCs from the original `frame_n'-unit Final Village List frame.", size(vsmall))
     graph export "`fig_dir'/fig_01_sample_by_district.png", width(2400) replace
     graph export "`fig_dir'/fig_01_sample_by_district.pdf", replace
 restore
@@ -776,7 +860,7 @@ preserve
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean baseline score (0-1)") ///
         title("Phase 1 baseline domain dashboard", size(medsmall)) ///
-        note("N=129 unique LCs. Higher scores indicate stronger baseline capacity or practice.", size(vsmall))
+        note("N=`primary_n' selected-list LCs. Higher scores indicate stronger baseline capacity or practice.", size(vsmall))
     graph export "`fig_dir'/fig_02_core_indices_overall.png", width(2800) replace
     graph export "`fig_dir'/fig_02_core_indices_overall.pdf", replace
 restore
@@ -1566,15 +1650,15 @@ restore
 
 
 *------------------------------------------------------------------------------*
-**# 18. Baseline comparison: new vs previously contacted villages
+**# 18. Baseline comparison: selected-list vs previously contacted villages
 *------------------------------------------------------------------------------*
 * Purpose:
 *   Compare key high-level baseline indicators between:
-*       0 = New / randomly selected villages
+*       0 = Interviewed LCs on the 100-unit Final Village List selected frame
 *       1 = Previously contacted villages
 *
 * Grouping variable:
-*   p1_admin_previously_contacted
+*   p1_admin_previously_contacted, excluding other amended LCs
 *
 * Source of grouping:
 *   Administrative village list: Last_CDFU_phase == 1 OR Inherited_FHRI == 1.
@@ -1585,6 +1669,13 @@ restore
 *   These differences do not identify causal effects of previous exposure.
 *------------------------------------------------------------------------------*
 
+save `primary_cohort'
+use `full_cohort', clear
+keep if selected_fvl100_observed == 1 | p1_admin_previously_contacted == 1
+assert _N == `primary_n' + 22
+assert selected_fvl100_observed == 1 if p1_admin_previously_contacted == 0
+isid canonical_village_uid
+
 capture confirm variable p1_admin_previously_contacted
 if _rc {
     display as error "p1_admin_previously_contacted not found."
@@ -1594,7 +1685,7 @@ if _rc {
 
 capture label drop p1_admin_prev_lbl
 label define p1_admin_prev_lbl ///
-    0 "New / randomly selected" ///
+    0 "Selected-list LC (interviewed)" ///
     1 "Previously contacted"
 label values p1_admin_previously_contacted p1_admin_prev_lbl
 
@@ -1616,8 +1707,8 @@ display as result "Previously contacted records: " r(N)
 assert r(N) == 22
 
 count if p1_admin_previously_contacted == 0
-display as result "New/randomly selected records: " r(N)
-assert r(N) == 107
+display as result "Observed selected-list records: " r(N)
+assert r(N) == `primary_n'
 
 count if missing(p1_admin_previously_contacted)
 display as result "Missing origin group records: " r(N)
@@ -1632,7 +1723,7 @@ if r(N) > 0 {
 putexcel set "`excel_origin'", replace sheet("README")
 putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline origin comparison"
 putexcel A3 = "Purpose"
-putexcel B3 = "Descriptive comparison of baseline indicators between new/randomly selected villages and previously contacted villages."
+putexcel B3 = "Descriptive comparison of observed selected-list LCs and previously contacted LCs; other amended LCs excluded."
 putexcel A4 = "Grouping variable"
 putexcel B4 = "p1_admin_previously_contacted"
 putexcel A5 = "Definition"
@@ -1781,9 +1872,9 @@ local candvars ///
 **# 18.3 Candidate difference table
 *------------------------------------------------------------------------------*
 * Produces a broad comparison table with:
-*   - N and mean in new villages
+*   - N and mean in interviewed selected-list LCs
 *   - N and mean in previously contacted villages
-*   - Difference: previously contacted minus new
+*   - Difference: previously contacted minus selected-list LCs
 *   - Two-sided p-value from a simple t-test
 *
 * P-values are descriptive diagnostics only. No causal interpretation.
@@ -1796,11 +1887,11 @@ postfile `memhold' ///
     str40 domain ///
     str80 variable ///
     str180 label ///
-    long n_new ///
-    double mean_new ///
+    long n_selected ///
+    double mean_selected ///
     long n_prev ///
     double mean_prev ///
-    double diff_prev_minus_new ///
+    double diff_prev_minus_selected ///
     double p_value ///
     double abs_diff ///
     using `origin_diffs', replace
@@ -1863,9 +1954,9 @@ preserve
     use `origin_diffs', clear
 
     * Remove variables with no usable comparison
-    drop if missing(mean_new) & missing(mean_prev)
+    drop if missing(mean_selected) & missing(mean_prev)
 
-    format mean_new mean_prev diff_prev_minus_new p_value abs_diff %9.3f
+    format mean_selected mean_prev diff_prev_minus_selected p_value abs_diff %9.3f
 
     * Full diagnostic table
     gsort domain -abs_diff
@@ -2144,7 +2235,7 @@ postfile `regpost' ///
     double coef_prev_contacted ///
     double se ///
     double p_value ///
-    double mean_new ///
+    double mean_selected ///
     double mean_prev ///
     using `origin_regressions', replace
 
@@ -2202,19 +2293,19 @@ postclose `regpost'
 
 preserve
     use `origin_regressions', clear
-    gen raw_diff_prev_minus_new = mean_prev - mean_new
+    gen raw_diff_prev_minus_selected = mean_prev - mean_selected
     gen ci_low = coef_prev_contacted - invttail(n-4, .025)*se
     gen ci_high = coef_prev_contacted + invttail(n-4, .025)*se
     gen model_note = "Cross-sectional baseline associations; not causal estimates."
-    format coef_prev_contacted se p_value mean_new mean_prev raw_diff_prev_minus_new %9.3f
-    order outcome label n mean_new mean_prev raw_diff_prev_minus_new coef_prev_contacted se ci_low ci_high p_value model_note
+    format coef_prev_contacted se p_value mean_selected mean_prev raw_diff_prev_minus_selected %9.3f
+    order outcome label n mean_selected mean_prev raw_diff_prev_minus_selected coef_prev_contacted se ci_low ci_high p_value model_note
     export excel using "`excel_origin'", sheet("district_adjusted_diagnostics", replace) firstrow(variables)
     putexcel set "`excel_reg'", replace sheet("README")
     putexcel A1 = "Phase 1 final baseline association models"
     putexcel A3 = "Interpretation"
     putexcel B3 = "Cross-sectional baseline associations; not causal estimates."
     putexcel A4 = "Origin specification"
-    putexcel B4 = "Previously contacted versus new/randomly selected, canonical district fixed effects, heteroskedasticity-robust standard errors."
+    putexcel B4 = "Previously contacted versus observed selected-list LCs, canonical district fixed effects, heteroskedasticity-robust standard errors."
     putexcel A5 = "Multivariable specification"
     putexcel B5 = "One common parsimonious specification using pre-existing chairperson characteristics and canonical district fixed effects."
     putexcel clear
@@ -2227,7 +2318,7 @@ preserve
         xline(0, lcolor(gs8) lpattern(dash)) ///
         ylabel(1(1)7, valuelabel angle(0) labsize(small)) ///
         xlabel(-.30(.10).30, format(%4.2f) grid) ///
-        xtitle("Adjusted difference: previously contacted minus new/random") ///
+        xtitle("Adjusted difference: previous contact minus selected-list LC") ///
         ytitle("") legend(off) ///
         title("Adjusted administrative-origin associations", size(medsmall)) ///
         note("Canonical district fixed effects with robust standard errors." ///
@@ -2297,6 +2388,8 @@ display as text "------------------------------------------------------------"
 display as text "Interpretation: Descriptive baseline association, not a causal effect of previous contact."
 display as text "------------------------------------------------------------"
 
+use `primary_cohort', clear
+
 
 
 *------------------------------------------------------------------------------*
@@ -2304,7 +2397,7 @@ display as text "------------------------------------------------------------"
 *------------------------------------------------------------------------------*
 * Purpose:
 *   Produce report-ready figures expanding the analysis of collaboration with
-*   JLOS actors for the full Phase 1 baseline sample.
+*   JLOS actors for the observed selected-list baseline sample.
 *
 * JLOS:
 *   Justice, Law and Order Sector. In this analysis, this mainly refers to
@@ -2362,7 +2455,7 @@ putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline expanded JLOS analysi
 putexcel A3 = "Purpose"
 putexcel B3 = "Expanded descriptive analysis of LC chairperson collaboration with JLOS actors and referral pathways."
 putexcel A4 = "Sample"
-putexcel B4 = "Full Phase 1 baseline analysis sample."
+putexcel B4 = "Observed LCs from the 100-unit selected Final Village List frame."
 putexcel A5 = "JLOS definition"
 putexcel B5 = "Justice, Law and Order Sector: police, courts, probation/child protection, and related justice-sector authorities."
 putexcel A6 = "Interpretation"
@@ -2440,7 +2533,7 @@ graph hbar (asis) value, ///
     ytitle("") ///
 	scheme(plotplain) ///
     title("JLOS collaboration and referral practice", size(medsmall)) ///
-    subtitle("Full Phase 1 baseline sample", size(small)) ///
+    subtitle("Observed selected-list baseline sample", size(small)) ///
     note("Values are percentages or 0-1 scores converted to 0-100. JLOS = Justice, Law and Order Sector.", size(vsmall))
 
 graph export "`fig_dir'/fig_36_jlos_snapshot.png", width(2800) replace
@@ -2516,7 +2609,7 @@ graph hbar (asis) value, ///
 	scheme(plotplain) ///
     title("Reasons for referring cases onward", size(medsmall)) ///
     subtitle("Share of chairpersons selecting each reason", size(small)) ///
-    note("Multiple responses allowed. Full Phase 1 baseline sample.", size(vsmall))
+    note("Multiple responses allowed. Observed selected-list baseline sample.", size(vsmall))
 
 graph export "`fig_dir'/fig_37_jlos_referral_reasons.png", width(2800) replace
 graph export "`fig_dir'/fig_37_jlos_referral_reasons.pdf", replace
@@ -2600,7 +2693,7 @@ graph hbar (asis) value, ///
 	scheme(plotplain) ///
     title("Reported barriers to referral", size(medsmall)) ///
     subtitle("Share of chairpersons selecting each barrier", size(small)) ///
-    note("Multiple responses allowed. Full Phase 1 baseline sample.", size(vsmall))
+    note("Multiple responses allowed. Observed selected-list baseline sample.", size(vsmall))
 
 graph export "`fig_dir'/fig_38_jlos_referral_barriers.png", width(2800) replace
 graph export "`fig_dir'/fig_38_jlos_referral_barriers.pdf", replace
@@ -2917,7 +3010,7 @@ restore
 * M3_Q09 question excludes parties whereas its hint includes them. The approved
 * report interpretation retains the count but explicitly marks respondent scope
 * ambiguous. It is NOT a formal diversion measure.
-assert _N == 129
+assert _N == `primary_n'
 assert analysis_sample == 1 & consent == 1
 isid canonical_village_uid
 quietly datasignature
@@ -3136,13 +3229,13 @@ post `s10_post' ("referral_explain_conf_score") ("Confidence explaining referral
 * Referral: Verified referral record score
 quietly summarize verified_referral_record_score, detail
 post `s10_post' ("verified_referral_record_score") ("Verified referral record score") ("Referral") ///
-    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all 129 LCs.") ("Score (0-1)") ///
+    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all selected-list LCs.") ("Score (0-1)") ///
     (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
 
 * Referral: Verified referral destination score
 quietly summarize verified_ref_dest_score, detail
 post `s10_post' ("verified_ref_dest_score") ("Verified referral destination score") ("Referral") ///
-    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all 129 LCs.") ("Score (0-1)") ///
+    ("Verified / enumerator-observed") ("Conditional observed records; cannot generalize verification to all selected-list LCs.") ("Score (0-1)") ///
     (r(N)) (cond(r(N)>0, r(sum), .)) (r(mean)) (r(sd)) (r(p50)) (_N-r(N))
 
 * ADR: Reported agreement documentation
@@ -3364,7 +3457,7 @@ postclose `s10_post'
 preserve
     use `s10_metrics', clear
     isid variable
-    assert n + missing_n == 129
+    assert n + missing_n == `primary_n'
     assert missing(total) & missing(mean) if n == 0
     format total mean sd median %12.6f
     export excel using "`excel_ind'", sheet("section10_metrics", replace) firstrow(variables)
@@ -3374,7 +3467,7 @@ restore
 * to manufacture a count of resolved cases.
 putexcel set "`excel_ind'", sheet("section10_notes", replace) modify
 putexcel A1 = "Item" B1 = "Definition / interpretation"
-putexcel A2 = "Population" B2 = "129 unique canonical LCs; all selected and consented."
+putexcel A2 = "Population" B2 = "`primary_n' observed selected-list LCs from the `frame_n'-unit original frame; all consented."
 putexcel A3 = "Mean" B3 = "Sum of observed scores/counts divided by nonmissing N; no imputation."
 putexcel A4 = "Binary measure" B4 = "Total is the number selecting/meeting the criterion; proportion = total/N."
 putexcel A5 = "Ordinal score" B5 = "Mean of locked normalized scores, not a percentage of cases or people achieving an outcome."
@@ -3393,7 +3486,7 @@ putexcel A15 = "Reproducibility" B15 = "Data Analysis do-file section 21a; final
 putexcel clear
 quietly datasignature
 assert "`r(datasignature)'" == "`s10_signature_before'"
-display as result "Section 10: N=129; all input values unchanged; survey benchmarks exported."
+display as result "Section 10: N=`primary_n'; all input values unchanged; survey benchmarks exported."
 
 * Slide codes are retained for traceability, not used to renumber the revised SOW.
 putexcel set "`excel_ind'", sheet("section10_crosswalk", replace) modify
@@ -3461,7 +3554,7 @@ putexcel clear
 **# 22. Final validation and close
 *------------------------------------------------------------------------------*
 
-assert _N == 129
+assert _N == `primary_n'
 isid canonical_village_uid
 assert analysis_sample == 1
 assert consent == 1
