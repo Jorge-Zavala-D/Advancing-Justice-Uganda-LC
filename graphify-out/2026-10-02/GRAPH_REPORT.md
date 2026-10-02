@@ -1,16 +1,16 @@
-# Graph Report - Advancing-Justice-Uganda-LC  (2026-09-25)
+# Graph Report - Advancing-Justice-Uganda-LC  (2026-10-02)
 
 ## Corpus Check
-- 51 files · ~1,680,312 words
+- 51 files · ~1,802,564 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 649 nodes · 599 edges · 74 communities (50 shown, 24 thin omitted)
+- 650 nodes · 600 edges · 74 communities (50 shown, 24 thin omitted)
 - Extraction: 86% EXTRACTED · 14% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3375a4f8`
+- Built from commit: `39584c38`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -312,7 +312,7 @@ Nodes (5): Sheet: indicator_table, Sheet: README, Sheet: section10_crosswalk, Sh
 
 ### Community 68 - "phase1_baseline_executive_results_febcbf27.md"
 Cohesion: 0.04
-Nodes (44): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+36 more)
+Nodes (45): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+37 more)
 
 ### Community 69 - "phase1_baseline_origin_comparison_6ba0ef47.md"
 Cohesion: 0.17
@@ -341,7 +341,7 @@ Nodes (3): Sheet: multivariable_diagnostics, Sheet: origin_adjusted, Sheet: READ
   C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/McCart et al. - 2022 - Randomized trial of a diversion program for property offenders with drug use.pdf · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **393 isolated node(s):** `graphify`, `Sheet: regression_results`, `Sheet: README`, `Sheet: numeric_field_status`, `Sheet: numeric_summary_all` (+388 more)
+- **394 isolated node(s):** `graphify`, `Sheet: regression_results`, `Sheet: README`, `Sheet: numeric_field_status`, `Sheet: numeric_summary_all` (+389 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -357,7 +357,7 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Procedural justice and decision acceptance` to `Dropbox corpus snapshot 31 August 2026`?**
   _High betweenness centrality (0.003) - this node is a cross-community bridge._
 - **What connects `graphify`, `Sheet: regression_results`, `Sheet: README` to the rest of the system?**
-  _393 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _394 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Dropbox corpus snapshot 31 August 2026` be split into smaller, more focused modules?**
   _Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected._
 - **Should `Advancing Justice Uganda Inception Report` be split into smaller, more focused modules?**

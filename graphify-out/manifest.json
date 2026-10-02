@@ -1298,5 +1298,10 @@
     "mtime": 1790943991.323357,
     "ast_hash": "f13a018a497e1c37ac847b4bcad51aad",
     "semantic_hash": ""
+  },
+  "1 Code/5 Phase2_Administrative_Frame.py": {
+    "mtime": 1790972296.3085427,
+    "ast_hash": "2bdb57a2cf18a00caa9e3a62884bf00b",
+    "semantic_hash": ""
   }
 }

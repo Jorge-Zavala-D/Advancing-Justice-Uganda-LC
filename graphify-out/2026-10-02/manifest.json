@@ -830,473 +830,473 @@
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_all_item_tabulations_e840681a.md": {
-    "mtime": 1790370558.4302,
-    "ast_hash": "a92c04bea26b84651dcf69b7a971640e",
+    "mtime": 1790944360.8134687,
+    "ast_hash": "ef4f981cc395aa63b7bb38adf0e27551",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_executive_results_febcbf27.md": {
-    "mtime": 1790370558.492236,
-    "ast_hash": "3a14599c5f1118203d6824b46e4d6fed",
+    "mtime": 1790944360.876296,
+    "ast_hash": "e4d5e3d02734a0084573cdeb5991eec4",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_indicator_table_847c6dd7.md": {
-    "mtime": 1790370558.5216446,
-    "ast_hash": "d818c2b3fffe7193f6e7e95b07049e23",
+    "mtime": 1790944360.9177122,
+    "ast_hash": "2daf85e3df8057c578c3a30b73c41f03",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_jlos_expanded_analysis_af527f77.md": {
-    "mtime": 1790370558.5396452,
-    "ast_hash": "ee2fd37cd8cdba7b155c194837f31aee",
+    "mtime": 1790944360.9372666,
+    "ast_hash": "cc78b8c71597039f4cee8f9cd418863a",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_origin_comparison_6ba0ef47.md": {
-    "mtime": 1790370558.5726662,
-    "ast_hash": "063b0c1c2ab1ab4e2d5d00b0d707b915",
+    "mtime": 1790944360.959621,
+    "ast_hash": "890dcbb7fc853008c3b28d71c71ccc72",
     "semantic_hash": ""
   },
   "graphify-out/converted/phase1_baseline_regression_results_d60827fb.md": {
-    "mtime": 1790370558.599289,
-    "ast_hash": "aac6fc93f2962cd57255453ee7f2ba32",
+    "mtime": 1790944360.9846504,
+    "ast_hash": "7c520e46b4d93c492631b725672f78d8",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_01_sample_by_district.pdf": {
-    "mtime": 1790370072.0958402,
-    "ast_hash": "a36f4f474d49fd0c40c7374debf27704",
+    "mtime": 1790943991.3269844,
+    "ast_hash": "bcd12022657af37e9ab4c7bfa57ae0c3",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_02_core_indices_overall.pdf": {
-    "mtime": 1790370072.1044075,
-    "ast_hash": "50957daf7c83440d1c66653aa2c5ae2c",
+    "mtime": 1790943991.3418047,
+    "ast_hash": "c18231d3e33471e08cb38aa84cb9f4d1",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_03_composite_indices_by_district.pdf": {
-    "mtime": 1790370072.1074111,
-    "ast_hash": "b43d2fa269cbcabd499c24f36e5472ed",
+    "mtime": 1790943991.354725,
+    "ast_hash": "7fac2cf3863cf4561f76270ef63cf092",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_04_priority_gaps.pdf": {
-    "mtime": 1790370072.1099234,
-    "ast_hash": "fd7968e25642bb4dde1114eb4f704454",
+    "mtime": 1790943991.36001,
+    "ast_hash": "4f247229f869a71209b147b9c563cabe",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_05_mentor_readiness_distribution.pdf": {
-    "mtime": 1790370072.1306899,
-    "ast_hash": "fff1157727b3cf0bb52669fdd13d8189",
+    "mtime": 1790943991.3709292,
+    "ast_hash": "ce7f423bb6c2bf9ef798c529d5189216",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_06_high_capacity_flags.pdf": {
-    "mtime": 1790370072.1332145,
-    "ast_hash": "b5369e45404d574428d03de3a26de10d",
+    "mtime": 1790943991.3813663,
+    "ast_hash": "b61be2ece9e84d53031522c123fcf16d",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_07_chairperson_profile.pdf": {
-    "mtime": 1790370072.1446948,
-    "ast_hash": "7f34118ec6cba279de3e8081cb7f7653",
+    "mtime": 1790943991.3933926,
+    "ast_hash": "09a83f947a38163ca5ab604d413e2a42",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_08_institutional_functioning.pdf": {
-    "mtime": 1790370072.1482828,
-    "ast_hash": "3c2160c21d0ab87e67a2aaf05394e956",
+    "mtime": 1790943991.4068463,
+    "ast_hash": "0356a955fcd4d3d0f8c6da2f9dd14a59",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_09_caseload_selected.pdf": {
-    "mtime": 1790370072.1512952,
-    "ast_hash": "fb251582be8336553b13271287df4f1a",
+    "mtime": 1790943991.4224117,
+    "ast_hash": "09d08992c725d7a988553c1847a51798",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10_caseload_3m_distribution.pdf": {
-    "mtime": 1790370072.1908221,
-    "ast_hash": "71bce5f757b8dd1d87359565ec509272",
+    "mtime": 1790943991.4474297,
+    "ast_hash": "4bcfb336300e60c387fa4965ff3a0e21",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10b_caseload_3m_zoom.pdf": {
-    "mtime": 1790370072.1693938,
-    "ast_hash": "be92dcae05d149e0d3aed4310766513c",
+    "mtime": 1790943991.4337242,
+    "ast_hash": "caf5e413835b2371d74bc0ecc2131f81",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_11_case_types_3m.pdf": {
-    "mtime": 1790370072.1943355,
-    "ast_hash": "5dfeb69bdb21590ebd3ea12a61ae681e",
+    "mtime": 1790943991.46121,
+    "ast_hash": "2416b31b742a8854d5faa4a1dcb5b348",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_12_legal_knowledge.pdf": {
-    "mtime": 1790370072.196762,
-    "ast_hash": "3efe3b89b2a6231c2690d450f2dbf80a",
+    "mtime": 1790943991.476793,
+    "ast_hash": "c56a3db3f4390cc4b31e217129e551a1",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_data_quality_flags.pdf": {
-    "mtime": 1790370072.1987643,
-    "ast_hash": "e68e2b5f578e61744d86eb7b1efce87e",
+    "mtime": 1790943991.4903247,
+    "ast_hash": "003cc9f8041623f2f1672a5294c050eb",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_vignette_performance.pdf": {
-    "mtime": 1790370072.2102957,
-    "ast_hash": "af9da90b08f9e6bcd66bd78df3da7f39",
+    "mtime": 1790943991.4938366,
+    "ast_hash": "f82f056bda3300b0e81fc91a593192a8",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_14_adr_mediation.pdf": {
-    "mtime": 1790370072.2132964,
-    "ast_hash": "b6b065e234b98f1a34b14b77c92f9cbf",
+    "mtime": 1790943991.5053585,
+    "ast_hash": "5bf54f16023b1934bdfc26b00716df92",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_15_adr_barriers.pdf": {
-    "mtime": 1790370072.2152948,
-    "ast_hash": "85242606b1b1bba86d7b28fc0c4e1762",
+    "mtime": 1790943991.5195057,
+    "ast_hash": "e14ea4b74b42a49cf9f6fc1767008dee",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_16_adr_methods.pdf": {
-    "mtime": 1790370072.2172904,
-    "ast_hash": "cb8f36d2eb30ffada59e2f8951a0a178",
+    "mtime": 1790943991.531447,
+    "ast_hash": "1cd45e4bf63d105b6e0dc8c086a17367",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_17_referral_practice.pdf": {
-    "mtime": 1790370072.220299,
-    "ast_hash": "1f004532451166558ad9818ded1abd71",
+    "mtime": 1790943991.5473473,
+    "ast_hash": "8ee1de9deac57928aa34acd67b9c3109",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_18_referral_reasons.pdf": {
-    "mtime": 1790370072.223807,
-    "ast_hash": "55afe1b1866fa5647cf671dd6a4d34d0",
+    "mtime": 1790943991.5612688,
+    "ast_hash": "c12a0e19f0a27e49efbea05cfa1cf270",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_19_referral_barriers.pdf": {
-    "mtime": 1790370072.2268076,
-    "ast_hash": "f6e7809d3f0f2e50a8d98433f27f0057",
+    "mtime": 1790943991.5752852,
+    "ast_hash": "bf2214a3f73cbc2659f3fa82b1bdebff",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_20_record_quality.pdf": {
-    "mtime": 1790370072.2408226,
-    "ast_hash": "3826b6925859a7e68cd98729d5fb2fb4",
+    "mtime": 1790943991.5872855,
+    "ast_hash": "3d48db090574a7f86afc5dcf7512b23c",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_21_record_challenges.pdf": {
-    "mtime": 1790370072.2441611,
-    "ast_hash": "9c34476e04d08dd81d4b07bb2db19973",
+    "mtime": 1790943991.6005533,
+    "ast_hash": "b62e4aca1896365b437480820dbc6de0",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_22_committee_functioning.pdf": {
-    "mtime": 1790370072.2471743,
-    "ast_hash": "37bd671a3e31144abb05f705ac4c4edc",
+    "mtime": 1790943991.6143472,
+    "ast_hash": "158a5bfb38376972f03ff20b766d8f78",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_23_committee_challenges.pdf": {
-    "mtime": 1790370072.2496772,
-    "ast_hash": "a02f00cfce8b8c1ea888f8b44f9d12a2",
+    "mtime": 1790943991.6294663,
+    "ast_hash": "9c812fc301f6c457d6fd2c45859d2139",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_24_legitimacy_bypass.pdf": {
-    "mtime": 1790370072.253107,
-    "ast_hash": "4a974950f34fcfc270de261ff3bec518",
+    "mtime": 1790943991.6426678,
+    "ast_hash": "7f175b8754da97286695ec3aa18881d9",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_25_safeguards.pdf": {
-    "mtime": 1790370072.255707,
-    "ast_hash": "da34d29f94403282896760c6c40aac3f",
+    "mtime": 1790943991.6555111,
+    "ast_hash": "8d9a60f1b1a557aac953b3d9422f8612",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_26_reintegration_norms.pdf": {
-    "mtime": 1790370072.2577064,
-    "ast_hash": "f8b6b44513ba49c021aecb4c501c195c",
+    "mtime": 1790943991.6725519,
+    "ast_hash": "657173a3e66e1976930e14f9fade87bb",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_27_reintegration_support.pdf": {
-    "mtime": 1790370072.2715316,
-    "ast_hash": "244992ab1ac16aaae1bf0dfa8161f521",
+    "mtime": 1790943991.68945,
+    "ast_hash": "ca19e10d31b4750525b91a0e31f65df1",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_28_reintegration_barriers.pdf": {
-    "mtime": 1790370072.2745318,
-    "ast_hash": "a2ddc1bd12da97cac6b14fd91a3516df",
+    "mtime": 1790943991.705089,
+    "ast_hash": "0c7327c392b478021d1c0fb3e2492a53",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_29_readiness_correlations.pdf": {
-    "mtime": 1790370072.2775326,
-    "ast_hash": "07e9e835c60aa35fda19963ab4d73dd1",
+    "mtime": 1790943991.717266,
+    "ast_hash": "2423101f94ea1f4c005c1ac10390798b",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_30_readiness_vs_case_handling.pdf": {
-    "mtime": 1790370072.3036833,
-    "ast_hash": "8b4a42f025e2e5f473dbddd591c500c6",
+    "mtime": 1790943991.7307,
+    "ast_hash": "e8e2e8b9814e2693f754d0e3a8a05d94",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_31_readiness_vs_legitimacy_norms.pdf": {
-    "mtime": 1790370072.3281016,
-    "ast_hash": "3c65b3378496df4b23812d594502f89f",
+    "mtime": 1790943991.7465105,
+    "ast_hash": "950a6e6c389711c359a457769920690b",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_32_origin_core_composites.pdf": {
-    "mtime": 1790370072.3301003,
-    "ast_hash": "b981b98ee2c5f2332d9716f0ed560e24",
+    "mtime": 1790943991.7584107,
+    "ast_hash": "8ceddda67e37b3feeceacb9f735fe683",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_33_origin_jlos_collaboration.pdf": {
-    "mtime": 1790370072.3341253,
-    "ast_hash": "ace32394b3e8003b9d8dbc3e30890b1f",
+    "mtime": 1790943991.7695763,
+    "ast_hash": "c61fde373feb937e449adfd89ad86fc3",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_34_origin_priority_gaps.pdf": {
-    "mtime": 1790370072.3482578,
-    "ast_hash": "6a47acfbbf108fd9c009b65ee3f1a303",
+    "mtime": 1790943991.772091,
+    "ast_hash": "3e47894e50b29b2d392ef6ef8d23ebf9",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_35_origin_high_readiness_flags.pdf": {
-    "mtime": 1790370072.3628018,
-    "ast_hash": "ce75d5c0e19616eaaee41db681418dfc",
+    "mtime": 1790943991.7750895,
+    "ast_hash": "5b0dddea064666fd9905647938b3c700",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_36_jlos_snapshot.pdf": {
-    "mtime": 1790370072.3738086,
-    "ast_hash": "7a75697a934c9478e000177886c77abb",
+    "mtime": 1790943991.7774029,
+    "ast_hash": "911887e422a1ac5f6bc0708cde72854c",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_37_jlos_referral_reasons.pdf": {
-    "mtime": 1790370072.3758073,
-    "ast_hash": "a40537e4286bef722375b62bb5cb6fcf",
+    "mtime": 1790943991.7806726,
+    "ast_hash": "6c8d88567d89937055476e91e9b8f545",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_38_jlos_referral_barriers.pdf": {
-    "mtime": 1790370072.3876789,
-    "ast_hash": "3954baeafd159af32fc63154c2190de5",
+    "mtime": 1790943991.7826748,
+    "ast_hash": "36ed3e091307e4440db9096f9757c7fa",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_39_jlos_referral_loop.pdf": {
-    "mtime": 1790370072.390677,
-    "ast_hash": "0c92735b95e1d09c1fe0301a249f4bf9",
+    "mtime": 1790943991.7846708,
+    "ast_hash": "b18e2014c6a47e96259402960b24a50d",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_40_records_committee_constraints.pdf": {
-    "mtime": 1790370072.3926802,
-    "ast_hash": "e7a97532522f0893af1183802ad741c3",
+    "mtime": 1790943991.7884436,
+    "ast_hash": "b88abe04dc4cb1b1d5b3aefd492b0225",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_41_legitimacy_safeguards_reintegration.pdf": {
-    "mtime": 1790370072.4036984,
-    "ast_hash": "e489f4a507d5ecd0ff89cfda35e4e6fc",
+    "mtime": 1790943991.7904444,
+    "ast_hash": "537434433fe13362da7d770ae5f23fdf",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_42_adjusted_origin_coefficients.pdf": {
-    "mtime": 1790370072.413071,
-    "ast_hash": "e697e79fae611a0ebe018910481a833b",
+    "mtime": 1790943991.802493,
+    "ast_hash": "3cb62e9c47d8cafe05334f840c70b9f1",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_01_sample_by_district.png": {
-    "mtime": 1790370071.522942,
-    "ast_hash": "3b9425b82a2de1e864db4d78521eb12a",
+    "mtime": 1790943990.81707,
+    "ast_hash": "61eec74f9ac0ea5cf58fb0928ff4ce81",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_02_core_indices_overall.png": {
-    "mtime": 1790370071.5306964,
-    "ast_hash": "03e82ca1044af14dc67657632a7118f2",
+    "mtime": 1790943990.8686163,
+    "ast_hash": "5ee8bbcfe8191915045bfd788aea42c1",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_03_composite_indices_by_district.png": {
-    "mtime": 1790370071.5447211,
-    "ast_hash": "c11c0bf947eaf5161c481554b3dec792",
+    "mtime": 1790943990.8790612,
+    "ast_hash": "054e1d404f09cec59b9e59eb97739e5f",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_04_priority_gaps.png": {
-    "mtime": 1790370071.553665,
-    "ast_hash": "bfcc38b1483e34b756141d78a804d321",
+    "mtime": 1790943990.8909953,
+    "ast_hash": "6892a8ab42551617afcf936628c167d4",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_05_mentor_readiness_distribution.png": {
-    "mtime": 1790370071.5676987,
-    "ast_hash": "9b5defd8b8a878dea375b3fccd421c4a",
+    "mtime": 1790943990.9016414,
+    "ast_hash": "8702a2bd0355e4f1df5ccc976fc9ffda",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_06_high_capacity_flags.png": {
-    "mtime": 1790370071.5811584,
-    "ast_hash": "e9fd69badc45b7d782bad6563c701fae",
+    "mtime": 1790943990.911549,
+    "ast_hash": "d0cee44103a28584ee62d146b24843f3",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_07_chairperson_profile.png": {
-    "mtime": 1790370071.5990393,
-    "ast_hash": "19bc41afcb5362395df7f53da43be34c",
+    "mtime": 1790943990.9250844,
+    "ast_hash": "f554397ed78fde60be9c5b393e8dd43a",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_08_institutional_functioning.png": {
-    "mtime": 1790370071.6150737,
-    "ast_hash": "0ab9ab898d6deaaa9907d632295f72b6",
+    "mtime": 1790943990.9348998,
+    "ast_hash": "840145026399e27efcc54f6c6ddd0889",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_09_caseload_selected.png": {
-    "mtime": 1790370071.6300488,
-    "ast_hash": "d9334a9ce1aec9b0e6a5cf5cfb026e26",
+    "mtime": 1790943990.944626,
+    "ast_hash": "7c6b1293f0c87d6040b8424cc5035a6b",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10_caseload_3m_distribution.png": {
-    "mtime": 1790370071.6585667,
-    "ast_hash": "ac0b7994d5b98e732a3211be841cc596",
+    "mtime": 1790943990.9651618,
+    "ast_hash": "2c2b2efff26c2579933ebf874b7c1173",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_10b_caseload_3m_zoom.png": {
-    "mtime": 1790370071.6443894,
-    "ast_hash": "c80c1cc3824b1c6efee8aebcb5445ef0",
+    "mtime": 1790943990.9562366,
+    "ast_hash": "2d0a66538ca75a8f84c3375f19c446ce",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_11_case_types_3m.png": {
-    "mtime": 1790370071.6720788,
-    "ast_hash": "693a071e047648e046522a09d1feb6cd",
+    "mtime": 1790943990.9781625,
+    "ast_hash": "fea01a5e27d240a660672b8ce93c6935",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_12_legal_knowledge.png": {
-    "mtime": 1790370071.6846023,
-    "ast_hash": "08638d376088fb85190d682cf11e0988",
+    "mtime": 1790943990.9881876,
+    "ast_hash": "4dafd25da9461af047b0d8dca16c52e0",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_data_quality_flags.png": {
-    "mtime": 1790370071.6971037,
-    "ast_hash": "54564b62eab2aacfdaf7f201fb3d9135",
+    "mtime": 1790943990.9979541,
+    "ast_hash": "295b980431999aa2e4d83858efd6c5b0",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_13_vignette_performance.png": {
-    "mtime": 1790370071.7056556,
-    "ast_hash": "298a82677def453f4cffb8bd61c50c95",
+    "mtime": 1790943991.0099857,
+    "ast_hash": "b811888ba2e056e7e8ac63bad089fa36",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_14_adr_mediation.png": {
-    "mtime": 1790370071.7146747,
-    "ast_hash": "1c08305cdf2bc1cfbb0112dab7b94354",
+    "mtime": 1790943991.021067,
+    "ast_hash": "1bd0ed75edfa57dfd4c6f7ed7ec78922",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_15_adr_barriers.png": {
-    "mtime": 1790370071.722069,
-    "ast_hash": "05edbb62f19dc691b1480c9adba593bb",
+    "mtime": 1790943991.0327787,
+    "ast_hash": "03f62144a71183e01709146b26e5928f",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_16_adr_methods.png": {
-    "mtime": 1790370071.7334738,
-    "ast_hash": "d29763fe1d9d8b6888ff61536dd0e55c",
+    "mtime": 1790943991.0421028,
+    "ast_hash": "825a50af2ae889db8944cc5f9e70320e",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_17_referral_practice.png": {
-    "mtime": 1790370071.7477882,
-    "ast_hash": "5332adea69b7abd8e57feaad83f8c507",
+    "mtime": 1790943991.0532665,
+    "ast_hash": "de7e07dad665579ac3068c20d49ba205",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_18_referral_reasons.png": {
-    "mtime": 1790370071.7618887,
-    "ast_hash": "6b5d8721b1244a0429aea011c1ec3265",
+    "mtime": 1790943991.0644853,
+    "ast_hash": "6c9f725da8617ac7ce77009fba872a1f",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_19_referral_barriers.png": {
-    "mtime": 1790370071.774402,
-    "ast_hash": "07f26aeb32f5b6bd1a8628876f87db2d",
+    "mtime": 1790943991.0757294,
+    "ast_hash": "1b2d6b075eb9c4d0b39873598132b341",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_20_record_quality.png": {
-    "mtime": 1790370071.7886803,
-    "ast_hash": "72bee934541fb429e55b025c535398ab",
+    "mtime": 1790943991.08623,
+    "ast_hash": "18447247d45bae38808f63bb2f90c1f7",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_21_record_challenges.png": {
-    "mtime": 1790370071.80346,
-    "ast_hash": "4dc9405cd7e456dac9967cdc14065c6b",
+    "mtime": 1790943991.0980158,
+    "ast_hash": "82bdaa581d37d73109e2d366b8fb5373",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_22_committee_functioning.png": {
-    "mtime": 1790370071.8201969,
-    "ast_hash": "1c06862f106aeeb22784ca1b86d23e4b",
+    "mtime": 1790943991.1086829,
+    "ast_hash": "7ff73547dc1f1f0e0e70b83b9e3ccd41",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_23_committee_challenges.png": {
-    "mtime": 1790370071.8341382,
-    "ast_hash": "c12354cb6bb017290471b73fcb55f808",
+    "mtime": 1790943991.1192162,
+    "ast_hash": "e5d20dab2ad0d8d727c2fb0f78839424",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_24_legitimacy_bypass.png": {
-    "mtime": 1790370071.853876,
-    "ast_hash": "a453935dce19b02d0612a28c83f63bd1",
+    "mtime": 1790943991.1302218,
+    "ast_hash": "56c77964a229fb17ba4575a86ce3051e",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_25_safeguards.png": {
-    "mtime": 1790370071.8689823,
-    "ast_hash": "df0b09ab9e57410ba68928bd4bb0b097",
+    "mtime": 1790943991.1385021,
+    "ast_hash": "62e17a820324be10dcf5b62dcda4aa7f",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_26_reintegration_norms.png": {
-    "mtime": 1790370071.8855026,
-    "ast_hash": "de8cdc6a024921cc3f4d70c95e26b542",
+    "mtime": 1790943991.1500895,
+    "ast_hash": "d0cbbc1fb90d6ef0f4dfd9166a2fa1a4",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_27_reintegration_support.png": {
-    "mtime": 1790370071.895501,
-    "ast_hash": "7038aab72a7a3d1254aa03222f044281",
+    "mtime": 1790943991.1612105,
+    "ast_hash": "4804e8fc4cbdb8d0b8ea71caa78b8e3f",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_28_reintegration_barriers.png": {
-    "mtime": 1790370071.9100387,
-    "ast_hash": "ea91922c08f9e7aa3738124892a3a4a9",
+    "mtime": 1790943991.171532,
+    "ast_hash": "a8be745bcec4d8cd54cc1cb1702826f9",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_29_readiness_correlations.png": {
-    "mtime": 1790370071.9245563,
-    "ast_hash": "fd0b34006c7c470c2e42bf79e1b7bdbe",
+    "mtime": 1790943991.1822245,
+    "ast_hash": "d32aec1dfe16a14f8abea0b4114b0873",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_30_readiness_vs_case_handling.png": {
-    "mtime": 1790370071.9396203,
-    "ast_hash": "e7e1d3d14482f344d79a6cf3067bf416",
+    "mtime": 1790943991.1941807,
+    "ast_hash": "cd7d2644e3cde3dad9665863777ddedd",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_31_readiness_vs_legitimacy_norms.png": {
-    "mtime": 1790370071.9550068,
-    "ast_hash": "e1a4b90dd5324e3ae074d48523db8e14",
+    "mtime": 1790943991.2068634,
+    "ast_hash": "25624ff580b78983ed4c5010dfceabc6",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_32_origin_core_composites.png": {
-    "mtime": 1790370071.9710298,
-    "ast_hash": "cd8c385c82b1fe005065b490233a3abe",
+    "mtime": 1790943991.2180688,
+    "ast_hash": "0507830615333d97d3e04bb20e1b3e34",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_33_origin_jlos_collaboration.png": {
-    "mtime": 1790370071.9885454,
-    "ast_hash": "b4cc096cdd5ec91028bbf76c41be0ffb",
+    "mtime": 1790943991.22915,
+    "ast_hash": "cf8596486f2fd721468e45f356e9245a",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_34_origin_priority_gaps.png": {
-    "mtime": 1790370072.003882,
-    "ast_hash": "ac53ca94f04a926c8a01c87f3c486df7",
+    "mtime": 1790943991.2383049,
+    "ast_hash": "5c3fa93631409a99fdc13dec12a52c67",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_35_origin_high_readiness_flags.png": {
-    "mtime": 1790370072.0166757,
-    "ast_hash": "b1727966206b1fab98c5366af64fd4ec",
+    "mtime": 1790943991.2501943,
+    "ast_hash": "e672d26b244bc86d280b0323f3f1f766",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_36_jlos_snapshot.png": {
-    "mtime": 1790370072.033586,
-    "ast_hash": "8406d5da8953e578bf1c5a06a697567c",
+    "mtime": 1790943991.2621977,
+    "ast_hash": "c46934b0cebec649bd41510bb64f28c2",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_37_jlos_referral_reasons.png": {
-    "mtime": 1790370072.0475154,
-    "ast_hash": "dc1c59a3068cb521d64afd8ba1782651",
+    "mtime": 1790943991.2723966,
+    "ast_hash": "fd914aab0b1310cd28050fbe2430d1f6",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_38_jlos_referral_barriers.png": {
-    "mtime": 1790370072.0540395,
-    "ast_hash": "4a42a1d9856c0c404d98004667a412a0",
+    "mtime": 1790943991.2818048,
+    "ast_hash": "10d17158df19720be15397cc5a5cd24c",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_39_jlos_referral_loop.png": {
-    "mtime": 1790370072.0620103,
-    "ast_hash": "5e7fd8614cf1b6d6df2e3b2450e1ea80",
+    "mtime": 1790943991.2911158,
+    "ast_hash": "668ef5b30cc5c2d624d54e2cdaad2864",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_40_records_committee_constraints.png": {
-    "mtime": 1790370072.0696201,
-    "ast_hash": "70462b205e8fcb0a7468e16b5d30007e",
+    "mtime": 1790943991.3022227,
+    "ast_hash": "0f901956e5a3bd5000dd6935c7c5ba7e",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_41_legitimacy_safeguards_reintegration.png": {
-    "mtime": 1790370072.0760713,
-    "ast_hash": "f949ffa50ddf81190a121aa98291c744",
+    "mtime": 1790943991.3140862,
+    "ast_hash": "39378aeb117cbd355e63209963b6624c",
     "semantic_hash": ""
   },
   "2 Output/Phase1_Baseline_Selected100_Observed/figures/fig_42_adjusted_origin_coefficients.png": {
-    "mtime": 1790370072.0840688,
-    "ast_hash": "14af89f5e1e8ce135f678a473c68131f",
+    "mtime": 1790943991.323357,
+    "ast_hash": "f13a018a497e1c37ac847b4bcad51aad",
     "semantic_hash": ""
   }
 }

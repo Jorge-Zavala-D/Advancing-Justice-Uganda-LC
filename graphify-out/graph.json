@@ -789,7 +789,7 @@
       "norm_label": "path"
     },
     {
-      "label": "Build a read-only metadata and schema snapshot of the project Dropbox corpus.\u2026",
+      "label": "Build a read-only metadata and schema snapshot of the project Dropbox corpus.…",
       "file_type": "rationale",
       "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
       "source_location": "L1",
@@ -2229,7 +2229,7 @@
     {
       "label": "Macdonald et al. (2022) citizen engagement with lower courts",
       "file_type": "paper",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - \u201cMaybe we should take the legal ways\u201d Citizen engagement with lower state courts in post-war northe.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - “Maybe we should take the legal ways” Citizen engagement with lower state courts in post-war northe.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -2259,7 +2259,7 @@
     {
       "label": "Village Dispute Mediation in China, 2002-10: An Enduring Institution amid Rural Change",
       "file_type": "paper",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Read and Michelson - 2018 - Village Dispute Mediation in China, 2002\u201310 An Enduring Institution amid Rural Change.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Read and Michelson - 2018 - Village Dispute Mediation in China, 2002–10 An Enduring Institution amid Rural Change.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -2275,7 +2275,7 @@
     {
       "label": "Callaway and Sant'Anna (2021) multiple-period DiD",
       "file_type": "paper",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant\u2019Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant’Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -2709,7 +2709,7 @@
     {
       "label": "Albezreh et al. (2022) multiyear multisectoral SGBV training",
       "file_type": "paper",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical\u2013Legal Processes in Response to.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical–Legal Processes in Response to.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -2739,7 +2739,7 @@
     {
       "label": "Cooper-Knock and Macdonald (2020) lower state courts",
       "file_type": "paper",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates\u2019 courts in South Africa and Uganda.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates’ courts in South Africa and Uganda.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -3942,7 +3942,7 @@
     {
       "label": "Staggered difference-in-differences",
       "file_type": "concept",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant\u2019Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant’Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -5357,7 +5357,7 @@
     {
       "label": "Trifactor framework of court engagement",
       "file_type": "concept",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates\u2019 courts in South Africa and Uganda.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates’ courts in South Africa and Uganda.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -5373,7 +5373,7 @@
     {
       "label": "Citizen engagement with lower state courts",
       "file_type": "concept",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - \u201cMaybe we should take the legal ways\u201d Citizen engagement with lower state courts in post-war northe.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - “Maybe we should take the legal ways” Citizen engagement with lower state courts in post-war northe.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -5939,7 +5939,7 @@
     {
       "label": "Multisectoral SGBV training and coordination",
       "file_type": "concept",
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical\u2013Legal Processes in Response to.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical–Legal Processes in Response to.pdf",
       "source_location": null,
       "source_url": null,
       "captured_at": null,
@@ -8865,6 +8865,421 @@
       "norm_label": "dropbox corpus snapshot 31 august 2026",
       "_origin": "semantic",
       "id": "dropbox_corpus_snapshot_2026_08_31"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame",
+      "label": "5 Phase2_Administrative_Frame.py",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_prefixcomplete",
+      "label": "PrefixComplete",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L45",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "exception",
+      "label": "Exception",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_page_prefix",
+      "label": "page_prefix()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L49",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_locate_pages",
+      "label": "locate_pages()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L67",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_py_path",
+      "label": "Path",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_digest",
+      "label": "digest()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L93",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_download_sources",
+      "label": "download_sources()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L98",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_inspect_sources",
+      "label": "inspect_sources()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L128",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_clean",
+      "label": "clean()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L138",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_coded_name",
+      "label": "coded_name()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L142",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_word_rows",
+      "label": "word_rows()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L147",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_write_csv",
+      "label": "write_csv()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L165",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "label": "extract_sheema_tables()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L176",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "label": "extract_ec_sources()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L234",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_strip_number",
+      "label": "strip_number()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L321",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_local_record",
+      "label": "local_record()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L325",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "label": "extract_local_sources()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L333",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "label": "extract_project_references()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L431",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_name_key",
+      "label": "name_key()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L482",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "label": "hierarchy_key()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L497",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_shorthand_key",
+      "label": "shorthand_key()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L501",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_ec_uid",
+      "label": "ec_uid()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L505",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_reconcile",
+      "label": "reconcile()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L510",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "label": "verify_source_totals()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L577",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_build_census",
+      "label": "build_census()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L626",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_main",
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L827",
+      "_callable": true,
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_rationale_1",
+      "label": "Build the Phase 2 administrative LC reference census, not an RCT allocation.…",
+      "file_type": "rationale",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L1",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_rationale_177",
+      "label": "Read legacy DOC table cells without saving or editing the document. Use native…",
+      "file_type": "rationale",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L177",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_rationale_432",
+      "label": "Geography only: never export chairperson, telephone or free-text notes.",
+      "file_type": "rationale",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L432",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_rationale_578",
+      "label": "Independent publication checksums, plus visible local-list inconsistencies.",
+      "file_type": "rationale",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L578",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_rationale_627",
+      "label": "Produce an auditable administrative reference, never an eligibility/assignment…",
+      "file_type": "rationale",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L627",
+      "_origin": "ast"
+    },
+    {
+      "id": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "label": "Path",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast"
+    },
+    {
+      "id": "argparse",
+      "label": "argparse",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "collections",
+      "label": "collections",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "csv",
+      "label": "csv",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "datetime",
+      "label": "datetime",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "difflib",
+      "label": "difflib",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "hashlib",
+      "label": "hashlib",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "json",
+      "label": "json",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "openpyxl",
+      "label": "openpyxl",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "os",
+      "label": "os",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "pathlib",
+      "label": "pathlib",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "pdfplumber",
+      "label": "pdfplumber",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "pypdf",
+      "label": "pypdf",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "re",
+      "label": "re",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "struct",
+      "label": "struct",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "subprocess",
+      "label": "subprocess",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "time",
+      "label": "time",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "urllib_request",
+      "label": "urllib_request",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
+    },
+    {
+      "id": "zipfile",
+      "label": "zipfile",
+      "file_type": "external",
+      "source_file": "",
+      "_origin": "ast_external_reference"
     }
   ],
   "links": [
@@ -10874,7 +11289,7 @@
       "relation": "conceptually_related_to",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical\u2013Legal Processes in Response to.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Albezreh et al. - 2022 - Multiyear, Multisectoral Training Program in Kenya to Enhance Medical–Legal Processes in Response to.pdf",
       "source_location": null,
       "weight": 1.0,
       "_origin": "semantic",
@@ -10951,7 +11366,7 @@
       "relation": "conceptually_related_to",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant\u2019Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant’Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
       "source_location": null,
       "weight": 1.0,
       "_origin": "semantic",
@@ -10962,7 +11377,7 @@
       "relation": "conceptually_related_to",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates\u2019 courts in South Africa and Uganda.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates’ courts in South Africa and Uganda.pdf",
       "source_location": null,
       "weight": 1.0,
       "_origin": "semantic",
@@ -11083,7 +11498,7 @@
       "relation": "conceptually_related_to",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - \u201cMaybe we should take the legal ways\u201d Citizen engagement with lower state courts in post-war northe.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Macdonald et al. - 2022 - “Maybe we should take the legal ways” Citizen engagement with lower state courts in post-war northe.pdf",
       "source_location": null,
       "weight": 1.0,
       "_origin": "semantic",
@@ -14796,7 +15211,7 @@
       "relation": "semantically_similar_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant\u2019Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Callaway and Sant’Anna - 2021 - Difference-in-Differences with multiple time periods.pdf",
       "source_location": null,
       "weight": 0.85,
       "_origin": "semantic",
@@ -14818,7 +15233,7 @@
       "relation": "semantically_similar_to",
       "confidence": "INFERRED",
       "confidence_score": 0.85,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Read and Michelson - 2018 - Village Dispute Mediation in China, 2002\u201310 An Enduring Institution amid Rural Change.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Read and Michelson - 2018 - Village Dispute Mediation in China, 2002–10 An Enduring Institution amid Rural Change.pdf",
       "source_location": null,
       "weight": 0.7,
       "_origin": "semantic",
@@ -15060,7 +15475,7 @@
       "relation": "semantically_similar_to",
       "confidence": "INFERRED",
       "confidence_score": 0.95,
-      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates\u2019 courts in South Africa and Uganda.pdf",
+      "source_file": "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Cooper-Knock and Macdonald - 2020 - A summons to the magistrates’ courts in South Africa and Uganda.pdf",
       "source_location": null,
       "weight": 0.95,
       "_origin": "semantic",
@@ -15363,6 +15778,1296 @@
       "_origin": "semantic",
       "source": "converted_number_of_cases_by_village_2289807c_document",
       "target": "converted_number_of_cases_per_sub_county_jan_dec_2025_cleaned_87ca8263_document"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "argparse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "csv",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "hashlib",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "re",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "subprocess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "time",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "urllib_request",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "datetime",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "collections",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "difflib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "pypdf",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "pdfplumber",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "openpyxl",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_prefixcomplete",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_prefixcomplete",
+      "target": "exception",
+      "relation": "inherits",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L45",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_page_prefix",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L49",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_locate_pages",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_locate_pages",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_digest",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_digest",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_download_sources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_download_sources",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L98",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_inspect_sources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_inspect_sources",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L128",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L138",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_coded_name",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_word_rows",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L165",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_write_csv",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L165",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L176",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L176",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L234",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L234",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_strip_number",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L321",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_local_record",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L325",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L333",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L333",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L431",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L431",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_name_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L482",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L497",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_shorthand_key",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L501",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_ec_uid",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L505",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_reconcile",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L510",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_reconcile",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L510",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L577",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L577",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_build_census",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L626",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L626",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame",
+      "target": "1_code_5_phase2_administrative_frame_main",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L827",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_locate_pages",
+      "target": "1_code_5_phase2_administrative_frame_page_prefix",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L75",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_download_sources",
+      "target": "1_code_5_phase2_administrative_frame_digest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L106",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_coded_name",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L143",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "target": "1_code_5_phase2_administrative_frame_digest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L187",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_locate_pages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L238",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L256",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_word_rows",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L275",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_coded_name",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L280",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L315",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_strip_number",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L322",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_local_record",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L326",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_local_record",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L354",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_strip_number",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L374",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L390",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L397",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L425",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L449",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "target": "1_code_5_phase2_administrative_frame_local_record",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L458",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L477",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_name_key",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L483",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "target": "1_code_5_phase2_administrative_frame_name_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L498",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_shorthand_key",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L502",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_reconcile",
+      "target": "1_code_5_phase2_administrative_frame_ec_uid",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L517",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_reconcile",
+      "target": "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L521",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_reconcile",
+      "target": "1_code_5_phase2_administrative_frame_shorthand_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L525",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_reconcile",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L570",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "target": "1_code_5_phase2_administrative_frame_name_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L582",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "target": "1_code_5_phase2_administrative_frame_clean",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L589",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L621",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_digest",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L647",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L662",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L663",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_reconcile",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L664",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L665",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L672",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_name_key",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L701",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_build_census",
+      "target": "1_code_5_phase2_administrative_frame_write_csv",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L747",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_download_sources",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L842",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_inspect_sources",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L844",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_locate_pages",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L846",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L848",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L850",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L853",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L855",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_reconcile",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L857",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L859",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_main",
+      "target": "1_code_5_phase2_administrative_frame_build_census",
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L861",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_rationale_1",
+      "target": "1_code_5_phase2_administrative_frame",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_rationale_177",
+      "target": "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L177",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_rationale_432",
+      "target": "1_code_5_phase2_administrative_frame_extract_project_references",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L432",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_rationale_578",
+      "target": "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L578",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_5_phase2_administrative_frame_rationale_627",
+      "target": "1_code_5_phase2_administrative_frame_build_census",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/5 Phase2_Administrative_Frame.py",
+      "source_location": "L627",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "argparse",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L9",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "csv",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "hashlib",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "json",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "os",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "struct",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "subprocess",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "zipfile",
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "collections",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "datetime",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot",
+      "target": "pathlib",
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot_sha256",
+      "target": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot_dbf_profile",
+      "target": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot_shapefile_profile",
+      "target": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L60",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot_legacy_xls_profile",
+      "target": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L89",
+      "weight": 1.0,
+      "_origin": "ast"
+    },
+    {
+      "source": "1_code_build_dropbox_corpus_snapshot_basic_profile",
+      "target": "1_code_build_dropbox_corpus_snapshot_py_path",
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "1 Code/build_dropbox_corpus_snapshot.py",
+      "source_location": "L123",
+      "weight": 1.0,
+      "_origin": "ast"
     }
   ],
   "hyperedges": [
