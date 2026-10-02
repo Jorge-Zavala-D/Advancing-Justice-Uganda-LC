@@ -49,7 +49,7 @@ if _rc {
     exit 601
 }
 
-* Keep the amended 129-LC archive outputs intact. This run reports the
+* Keep the historical full-cohort archive outputs intact. This run reports the
 * interviewed members of the 100-unit Final Village List selection frame.
 local exec_dir "${output_dir}/Phase1_Baseline_Selected100_Observed"
 local fig_dir_final "`exec_dir'/figures"
@@ -85,12 +85,7 @@ capture erase "`excel_origin'"
 capture erase "`excel_reg'"
 capture erase "`excel_ind'"
 capture erase "`excel_jlos'"
-capture erase "`excel_exec_final'"
-capture erase "`excel_items_final'"
-capture erase "`excel_origin_final'"
-capture erase "`excel_reg_final'"
-capture erase "`excel_ind_final'"
-capture erase "`excel_jlos_final'"
+* Preserve the last published results until all current validation succeeds.
 
 capture log close _all
 log using "`log_dir'/phase1_baseline_executive_analysis.log", replace text
@@ -102,32 +97,22 @@ use "`analysis_data'", clear
 
 keep if analysis_sample == 1
 
-* Final amended two-wave baseline: fail fast if the locked cohort changes.
-assert _N == 129
+* Validate the derived amended cohort; do not freeze superseded sample counts.
+assert _N > 0
+local full_n = _N
 assert analysis_sample == 1
 assert consent == 1
 isid survey_record_id
 isid submission_key
 isid canonical_village_uid
-
-quietly count if canonical_district == "Bushenyi"
-assert r(N) == 55
-quietly count if canonical_district == "Rubirizi"
-assert r(N) == 40
-quietly count if canonical_district == "Sheema"
-assert r(N) == 34
-quietly count if baseline_wave == 1
-assert r(N) == 95
+assert inlist(canonical_district, "Bushenyi", "Rubirizi", "Sheema")
+assert inlist(baseline_wave, 1, 2)
 quietly count if baseline_wave == 2
 assert r(N) == 34
-quietly count if p1_admin_origin == 0
-assert r(N) == 107
-quietly count if p1_admin_origin == 1
-assert r(N) == 17
-quietly count if p1_admin_origin == 2
-assert r(N) == 5
+assert inlist(p1_admin_origin, 0, 1, 2)
+assert p1_admin_previously_contacted == inlist(p1_admin_origin, 1, 2)
 quietly count if p1_admin_previously_contacted == 1
-assert r(N) == 22
+local legacy_n = r(N)
 assert !missing(canonical_district, canonical_subcounty, canonical_parish, canonical_village)
 
 * Encode district for regressions/tables where needed
@@ -202,7 +187,7 @@ capture label var flag_direct_gt_3m "Directly brought cases exceed reported 3-mo
 capture label var flag_referred_to_lcc_gt_3m "Cases referred to LCC exceed reported 3-month caseload"
 capture label var flag_referred_onward_gt_3m "Cases referred onward exceed reported 3-month caseload"
 capture label var lcc_vacancies_count "Number of vacant LCC/LC committee positions"
-capture label var any_serious_or_sensitive_case_3m "Any child, SGBV, or other serious/sensitive case in past 3 months"
+capture label var any_serious_or_sensitive_case_3m "Reported child-related or SGBV case in past 3 months"
 
 capture label var m3_q04_1  "Land or boundary disputes"
 capture label var m3_q04_2  "Family or marital disputes"
@@ -217,20 +202,20 @@ capture label var m3_q04_10 "Reintegration/former prisoner conflicts"
 
 capture label var v01_boundary_q1_correct "Boundary vignette: correct classification"
 capture label var v01_boundary_q2_correct "Boundary vignette: correct action/referral"
-capture label var v01_boundary_q3_correct "Boundary vignette: correct documentation/procedure"
+capture label var v01_boundary_q3_correct "Boundary vignette: appropriate actor involvement/notification"
 capture label var v02_family_q1_correct "Family dispute vignette: correct classification"
 capture label var v02_family_q2_correct "Family dispute vignette: correct action/referral"
-capture label var v02_family_q3_correct "Family dispute vignette: correct documentation/procedure"
+capture label var v02_family_q3_correct "Family dispute vignette: appropriate actor involvement/notification"
 capture label var v05_child_q1_correct "Child-related vignette: correct classification"
 capture label var v05_child_q2_correct "Child-related vignette: correct action/referral"
-capture label var v05_child_q3_correct "Child-related vignette: correct documentation/procedure"
+capture label var v05_child_q3_correct "Child-related vignette: appropriate actor involvement/notification"
 capture label var v06_sgbv_q1_correct "SGBV vignette: correct classification"
 capture label var v06_sgbv_q2_correct "SGBV vignette: correct action/referral"
-capture label var v06_sgbv_q3_correct "SGBV vignette: correct documentation/procedure"
+capture label var v06_sgbv_q3_correct "SGBV vignette: appropriate actor involvement/notification"
 
-capture label var m5_q01_score "ADR practice score: hearing both sides"
-capture label var m5_q02_score "ADR practice score: neutrality/impartiality"
-capture label var m5_q03_score "ADR practice score: encouraging voluntary agreement"
+capture label var m5_q01_score "Reported frequency of trying ADR before escalation"
+capture label var m5_q02_score "Reported frequency of hearing both sides"
+capture label var m5_q03_score "Reported frequency of allowing uninterrupted explanations"
 capture label var m5_q06_score "ADR practice score: recording agreements"
 capture label var m5_q07_score "ADR practice score: follow-up after mediation"
 capture label var adr_confidence_score "Confidence mediating ordinary local disputes"
@@ -261,8 +246,8 @@ capture label var m5_q13_8 "Restitution or compensation agreement"
 capture label var referral_frequency_score "Referral practice score: frequency/regularity"
 capture label var referral_documentation_score "Referral practice score: documentation"
 capture label var referral_feedback_score "Referral practice score: receiving feedback"
-capture label var police_coordination_score "Coordination score with police"
-capture label var court_coordination_score "Coordination score with court/formal justice actors"
+capture label var police_coordination_score "Perceived ease of coordinating with police"
+capture label var court_coordination_score "Perceived ease of coordinating with court/formal justice actors"
 capture label var referral_path_conf_score "Confidence knowing where to refer cases"
 capture label var referral_explain_conf_score "Confidence explaining referrals to community members"
 capture label var women_perspective_mechanism "Reported mechanism to consider women's perspectives in case handling"
@@ -329,85 +314,49 @@ capture label var m11_q12_7 "Reintegration barrier: weak support structures"
 capture label var m11_q12_8 "Reintegration barrier: people do not know how to support"
 capture label var m11_q12_9 "Community usually willing to accept"
 
-* The administrative "new" category contains amended units outside the
-* original selected frame. Identify the selected frame from its source list,
-* not from p1_admin_origin == 0. Never manufacture 100 interviews.
-tempfile fvl100 full_cohort primary_cohort
+* Original randomized-list membership is defined once in Data Preparation,
+* independently of administrative "new" status. The 100-row frame contains
+* explicit missing survey responses; only observed interviews enter analysis.
+tempfile frame_observed full_cohort primary_cohort index_snapshot
 preserve
-import excel using "${input_dir}/1 Raw/Primary data/Final Village List.xlsx", firstrow clear
-rename *, lower
-assert _N == 128
-assert randomly_selected + last_cdfu_phase + ineherited_fhri == 1
-keep if randomly_selected == 1
+use "${input_dir}/3 Coded/phase1_baseline_selected100_frame.dta", clear
+assert _N == 100
 local frame_n = _N
-assert `frame_n' == 100
-replace district = subinstr(district, " District", "", .)
-gen str80 __district_key = lower(itrim(strtrim(district)))
-gen str80 __village_key = lower(itrim(strtrim(village)))
-gen str80 __fvl_subcounty_key = lower(itrim(strtrim(subcounty)))
-gen str80 __fvl_parish_key = lower(itrim(strtrim(parish)))
-foreach key in __district_key __village_key {
-    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-    replace `key' = ustrregexra(`key', "^_+|_+$", "")
-}
-foreach key in __fvl_subcounty_key __fvl_parish_key {
-    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-    replace `key' = ustrregexra(`key', "^_+|_+$", "")
-}
-isid __district_key __village_key
-keep __district_key __village_key __fvl_subcounty_key __fvl_parish_key
-save `fvl100'
+isid selected100_frame_uid
+isid canonical_village_uid
+assert inlist(selected100_survey_observed, 0, 1)
+assert analysis_sample == selected100_survey_observed
+assert missing(submission_key) & missing(consent) if selected100_survey_observed == 0
+quietly count if selected100_survey_observed == 1
+local frame_observed_n = r(N)
+keep if selected100_survey_observed == 1
+keep selected100_frame_uid
+save `frame_observed'
 restore
-
-gen str80 __district_key = lower(itrim(strtrim(canonical_district)))
-gen str80 __village_key = lower(itrim(strtrim(canonical_village)))
-foreach key in __district_key __village_key {
-    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-    replace `key' = ustrregexra(`key', "^_+|_+$", "")
-}
-merge m:1 __district_key __village_key using `fvl100', ///
-    keep(master match) gen(__fvl_match)
-assert _N == 129
-quietly count if __fvl_match == 3
-assert r(N) == 90
-gen str80 __canonical_subcounty_key = lower(itrim(strtrim(canonical_subcounty)))
-gen str80 __canonical_parish_key = lower(itrim(strtrim(canonical_parish)))
-foreach key in __canonical_subcounty_key __canonical_parish_key {
-    replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-    replace `key' = ustrregexra(`key', "^_+|_+$", "")
-}
-assert __canonical_subcounty_key == __fvl_subcounty_key if __fvl_match == 3 & __fvl_subcounty_key != ""
-assert __canonical_parish_key == __fvl_parish_key if __fvl_match == 3 & __fvl_parish_key != ""
-gen byte selected_fvl100_observed = __fvl_match == 3
-* Data Preparation documents Kibaare A as the August successor to the
-* selected Kibaare I unit. This is the only extra alias supported by code.
-replace selected_fvl100_observed = 1 if canonical_district == "Bushenyi" & ///
-    canonical_subcounty == "Nyakabirizi" & canonical_parish == "Kibaare" & ///
-    canonical_village == "Kibaare A"
+merge m:1 selected100_frame_uid using `frame_observed', ///
+    keep(master match) gen(__frame_match)
+assert _N == `full_n'
+assert (__frame_match == 3) == selected_fvl100_observed
 assert selected_fvl100_observed == 0 if p1_admin_previously_contacted == 1
 assert p1_admin_origin == 0 if selected_fvl100_observed == 1
-label var selected_fvl100_observed "Observed LC on selected Final Village List frame"
-drop __district_key __village_key __fvl_subcounty_key __fvl_parish_key ///
-    __canonical_subcounty_key __canonical_parish_key __fvl_match
+drop __frame_match
 save `full_cohort'
 
 keep if selected_fvl100_observed == 1
 local primary_n = _N
 local unobserved_n = `frame_n' - `primary_n'
-assert `primary_n' == 91
-assert `unobserved_n' == 9
+assert `primary_n' == `frame_observed_n'
+assert `primary_n' > 0 & `primary_n' <= `frame_n'
 isid canonical_village_uid
-quietly count if canonical_district == "Bushenyi"
-assert r(N) == 40
-quietly count if canonical_district == "Rubirizi"
-assert r(N) == 28
-quietly count if canonical_district == "Sheema"
-assert r(N) == 23
-quietly count if baseline_wave == 1
-assert r(N) == 67
-quietly count if baseline_wave == 2
-assert r(N) == 24
+isid selected100_frame_uid
 display as result "Selected-list frame: `frame_n'; observed analytical LCs: `primary_n'; unobserved: `unobserved_n'."
+tab canonical_district, missing
+tab baseline_wave, missing
+preserve
+keep submission_key `all_indices'
+sort submission_key
+save `index_snapshot'
+restore
 
 * Preserve the primary-cohort index values across descriptive analyses.
 local index_counter = 0
@@ -426,7 +375,7 @@ foreach v of local all_indices {
 
 capture program drop aju_mean_table
 program define aju_mean_table
-    syntax anything, SHEET(string) MODULE(string) [XLSX(string) GRAPH(string) TITLE(string) GAP]
+    syntax anything, SHEET(string) MODULE(string) [XLSX(string) GRAPH(string) GRAPHVARS(string) TITLE(string) GAP]
 
     tempfile out
     tempname memhold
@@ -435,6 +384,7 @@ program define aju_mean_table
 
     local clean_module "`module'"
     local rawvars `anything'
+    local sample_n = _N
 
     foreach v of local rawvars {
         capture confirm numeric variable `v'
@@ -485,6 +435,16 @@ program define aju_mean_table
         export excel using `"`outxlsx'"', sheet("`sheet'", replace) firstrow(variables)
 
         if `"`graph'"' != "" {
+            * Counts/years remain in the workbook, not on a common score axis.
+            local plotvars `rawvars'
+            if `"`graphvars'"' != "" local plotvars `graphvars'
+            gen byte __show = 0
+            foreach v of local plotvars {
+                replace __show = 1 if variable == "`v'"
+            }
+            keep if __show == 1
+            assert min >= 0 & max <= 1 if n > 0
+            replace label = label + " (n=" + strtrim(string(n, "%9.0f")) + ")"
             quietly count if !missing(mean)
             if r(N) > 0 {
                 local graphname = strtoname("`graph'")
@@ -492,11 +452,38 @@ program define aju_mean_table
                 local graphtitle `"`title'"'
                 if `"`graphtitle'"' == "" local graphtitle "`sheet'"
 
+                * Native multiline category labels; keep full text in Excel.
+                gsort -mean label
+                gen __id = _n
+                local category_labels ""
+                forvalues i = 1/`=_N' {
+                    local text = label[`i']
+                    local line ""
+                    local lines ""
+                    local words : word count `text'
+                    forvalues j = 1/`words' {
+                        local word : word `j' of `text'
+                        if strlen(`"`line' `word'"') > 34 & `"`line'"' != "" {
+                            local lines `"`lines' "`line'" "'
+                            local line `"`word'"'
+                        }
+                        else local line = strtrim(`"`line' `word'"')
+                    }
+                    local lines `"`lines' "`line'" "'
+                    local category_labels `"`category_labels' `i' `"`lines'"' "'
+                }
+                local graphheight = max(5, min(11, _N*.38 + 2.4))
+                local category_size = max(1.25, min(2.4, 23/_N))
                 graph hbar mean if !missing(mean), ///
-                    over(label, sort(mean) descending label(labsize(vsmall))) ///
+                    over(__id, relabel(`category_labels') label(labsize(`category_size'))) ///
                     bar(1, color("32 87 129")) ///
-                    ytitle("Share / mean") ///
-                    title(`"`graphtitle'"', size(medsmall)) ///
+                    blabel(bar, format(%4.2f) size(vsmall)) ///
+                    yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
+                    ytitle("Mean score / share (0-1)") ///
+                    xsize(12) ysize(`graphheight') graphregion(margin(l=27 r=3)) ///
+                    title(`"`graphtitle'"', size(medsmall) span) ///
+                    note("Observed selected-list interviews: N=`sample_n'; item N shown." ///
+                         "Scores and shares differ; evidence types are detailed in Excel.", size(vsmall) span) ///
                     name(`graphname', replace)
 
                 graph export "${AJU_FIG_DIR}/`graph'.png", replace width(2400)
@@ -892,8 +879,11 @@ preserve
 
     keep if inlist(domain,"Operational capacity","Case-handling quality","Legitimacy and reintegration","Mentor-readiness proxy")
     graph bar mean, over(domain, label(angle(35) labsize(vsmall))) over(canonical_district) ///
+        bar(1, color("32 87 129")) ///
+        yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean score, 0-1") ///
         title("Composite baseline domains by district", size(medsmall)) ///
+        note("Observed selected-list LCs; descriptive district comparison only.", size(vsmall)) ///
         legend(off)
     graph export "`fig_dir'/fig_03_composite_indices_by_district.png", width(2800) replace
     graph export "`fig_dir'/fig_03_composite_indices_by_district.pdf", replace
@@ -1006,7 +996,7 @@ local chair_profile ///
     weekly_lc_time_score ///
     idx_respondent_capacity
 
-aju_mean_table `chair_profile', sheet("chair_profile") module("LC chairperson profile") ///
+aju_mean_table `chair_profile', sheet("chair_profile") module("LC chairperson profile") graphvars("respondent_female completed_secondary_or_above education_score lc_experience_score record_literacy_score can_record_english can_record_runyankore cannot_complete_records prior_justice_training prior_formal_coordination prior_cdfu_fhri_training case_experience_score handled_child_or_sgbv_case weekly_lc_time_score idx_respondent_capacity") ///
     graph("fig_07_chairperson_profile") ///
     title("Chairperson profile: capacity and prior exposure")
 
@@ -1040,7 +1030,7 @@ local institutional_vars ///
     recent_entries_uptodate_score_m2 ///
     idx_institutional_functioning
 
-aju_mean_table `institutional_vars', sheet("institutional_function") module("Institutional functioning") ///
+aju_mean_table `institutional_vars', sheet("institutional_function") module("Institutional functioning") graphvars("lcc_women_share lcc_has_woman_member lcc_has_vacancy meeting_frequency_score quorum_score fixed_place_score inst_record_exist_score inst_record_uptodate_score materials_score record_seen_score_m2 recent_entries_uptodate_score_m2 idx_institutional_functioning") ///
     graph("fig_08_institutional_functioning") ///
     title("Institutional functioning and operational readiness")
 
@@ -1069,7 +1059,7 @@ local caseload_vars ///
     petty_case_share_score ///
     caseload_accuracy_score
 
-aju_mean_table `caseload_vars', sheet("caseload_summary") module("Caseload and dispute profile") ///
+aju_mean_table `caseload_vars', sheet("caseload_summary") module("Caseload and dispute profile") graphvars("pending_share_3m directly_brought_share_3m any_child_or_sgbv_case_3m any_reintegration_case_3m petty_case_share_score caseload_accuracy_score") ///
     graph("fig_09_caseload_selected") ///
     title("Caseload and sensitive-case exposure")
 
@@ -1090,8 +1080,8 @@ graph export "`fig_dir'/fig_10_caseload_3m_distribution.pdf", replace
 histogram caseload_3m if !missing(caseload_3m) & caseload_3m <= 15, frequency discrete ///
     xtitle("Cases received in past 3 months") ///
     ytitle("Number of LC chairpersons") ///
-    title("Distribution of 3-month LCC caseload, excluding extreme outlier", size(medsmall)) ///
-    note("Zoomed to 0-15 cases so the main distribution is visible; see outlier table for high values.", size(vsmall))
+    title("Distribution of 3-month LCC caseload: 0-15 cases", size(medsmall)) ///
+    note("Display restricted to 0-15 cases; see the full distribution for all observed values.", size(vsmall))
 graph export "`fig_dir'/fig_10b_caseload_3m_zoom.png", width(2600) replace
 graph export "`fig_dir'/fig_10b_caseload_3m_zoom.pdf", replace
 
@@ -1176,7 +1166,7 @@ preserve
     graph hbar mean, over(scenario, sort(mean) descending label(labsize(small))) ///
         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
-        ytitle("Mean correct response across classification, action, and documentation (0-1)") ///
+        ytitle("Mean correct response: classification, action, and actor involvement (0-1)") ///
         title("Case-vignette performance", size(medsmall)) ///
         note("Sensitive cases are shown alongside ordinary disputes to identify safeguarding training needs.", size(vsmall))
     graph export "`fig_dir'/fig_13_vignette_performance.png", width(2800) replace
@@ -1204,7 +1194,7 @@ local adr_vars ///
     m5_q16_score ///
     idx_adr_mediation_practice
 
-aju_mean_table `adr_vars', sheet("adr_mediation") module("ADR and mediation practice") ///
+aju_mean_table `adr_vars', sheet("adr_mediation") module("ADR and mediation practice") graphvars("m5_q01_score m5_q02_score m5_q03_score m5_q06_score m5_q07_score adr_confidence_score deescalation_confidence_score adr_methods_score noncomp_response_app m5_q14_score m5_q16_score idx_adr_mediation_practice") ///
     graph("fig_14_adr_mediation") ///
     title("ADR and mediation practice")
 
@@ -1244,7 +1234,7 @@ local referral_vars ///
     no_major_referral_barriers ///
     idx_referral_practice
 
-aju_mean_table `referral_vars', sheet("referral_practice") module("Referral practice and coordination") ///
+aju_mean_table `referral_vars', sheet("referral_practice") module("Referral practice and coordination") graphvars("referral_frequency_score referral_documentation_score referral_feedback_score police_coordination_score court_coordination_score referral_path_conf_score referral_explain_conf_score verified_referral_record_score verified_ref_dest_score no_major_referral_barriers idx_referral_practice") ///
     graph("fig_17_referral_practice") ///
     title("Referral practice, coordination, and documentation")
 
@@ -1287,7 +1277,7 @@ local record_vars ///
     verified_record_usability_score ///
     idx_record_quality
 
-aju_mean_table `record_vars', sheet("record_quality") module("Record-keeping and case management") ///
+aju_mean_table `record_vars', sheet("record_quality") module("Record-keeping and case management") graphvars("case_register_score record_type_breadth_score record_uptodate_score most_recent_entry_score record_fields_score outcome_recorded_score record_retrieval_score secure_storage_score records_access_open_to_community no_major_record_challenges verified_case_register_score verified_proceedings_score verified_storage_score verified_record_usability_score idx_record_quality") ///
     graph("fig_20_record_quality") ///
     title("Record-keeping and case-management quality")
 
@@ -1321,7 +1311,7 @@ local committee_vars ///
     verified_multimember_val_score ///
     idx_committee_functioning
 
-aju_mean_table `committee_vars', sheet("committee_function") module("Committee functioning and collective decision-making") ///
+aju_mean_table `committee_vars', sheet("committee_function") module("Committee functioning and collective decision-making") graphvars("collective_handling_score active_member_part_score collective_discussion_score women_participation_score women_perspective_mechanism record_validation_score case_review_score decision_process_score similar_case_consistency_score procedure_confidence_score no_major_committee_challenges verified_member_part_score verified_multimember_val_score idx_committee_functioning") ///
     graph("fig_22_committee_functioning") ///
     title("Committee functioning and collective decision-making")
 
@@ -1405,7 +1395,7 @@ local reintegration_vars ///
     reint_comm_justice_role ///
     idx_reintegration_norms
 
-aju_mean_table `reintegration_vars', sheet("reintegration_norms") module("Reintegration norms") ///
+aju_mean_table `reintegration_vars', sheet("reintegration_norms") module("Reintegration norms") graphvars("reintegration_importance_score reintegration_willingness_score fair_chance_reintegration_score low_exclusion_norm_score low_reoffending_stigma_score comm_role_reint_score reint_mediation_comfort connect_support_willing_score community_stigma_level_score reint_support_breadth_score no_reintegration_support_needed comm_accepts_ex_prisoner recent_reintegration_issue reint_tension_conf_score reint_referral_conf_score reint_comm_justice_role idx_reintegration_norms") ///
     graph("fig_26_reintegration_norms") ///
     title("Reintegration norms and support capacity")
 
@@ -1672,7 +1662,7 @@ restore
 save `primary_cohort'
 use `full_cohort', clear
 keep if selected_fvl100_observed == 1 | p1_admin_previously_contacted == 1
-assert _N == `primary_n' + 22
+assert _N == `primary_n' + `legacy_n'
 assert selected_fvl100_observed == 1 if p1_admin_previously_contacted == 0
 isid canonical_village_uid
 
@@ -1685,7 +1675,7 @@ if _rc {
 
 capture label drop p1_admin_prev_lbl
 label define p1_admin_prev_lbl ///
-    0 "Selected-list LC (interviewed)" ///
+    0 "Selected-list (observed)" ///
     1 "Previously contacted"
 label values p1_admin_previously_contacted p1_admin_prev_lbl
 
@@ -1704,7 +1694,7 @@ tab canonical_district p1_admin_previously_contacted, row missing
 
 count if p1_admin_previously_contacted == 1
 display as result "Previously contacted records: " r(N)
-assert r(N) == 22
+assert r(N) == `legacy_n'
 
 count if p1_admin_previously_contacted == 0
 display as result "Observed selected-list records: " r(N)
@@ -1866,6 +1856,7 @@ local candvars ///
     `legreintvars' ///
     `mentorvars' ///
     `contextvars'
+local candvars : list uniq candvars
 
 
 *------------------------------------------------------------------------------*
@@ -1996,7 +1987,7 @@ graph bar (mean) ///
                  2 "Case-handling quality" ///
                  3 "Legitimacy & reintegration" ///
                  4 "Mentor-readiness proxy") ///
-           rows(2) size(vsmall)) ///
+           rows(2) position(6) ring(1) size(vsmall)) ///
     note("Descriptive baseline comparison only; not a causal effect of previous exposure.", size(vsmall))
 
 graph export "`fig_dir'/fig_32_origin_core_composites.png", width(2600) replace
@@ -2044,16 +2035,17 @@ graph bar (mean) ///
     ylabel(0(.2)1, labsize(small)) ///
     ytitle("Share / mean score") ///
 	scheme(plotplain) ///
-    title("JLOS collaboration and referral pathway by Phase 1 origin", size(medsmall)) ///
+    title("Referral benchmarks by administrative origin", size(medsmall)) ///
     legend(order(1 "Prior formal coordination" ///
-                 2 "Police coordination" ///
-                 3 "Court/formal justice coordination" ///
+                 2 "Perceived ease: police" ///
+                 3 "Perceived ease: courts" ///
                  4 "Confidence: where to refer" ///
                  5 "Confidence: explain referral" ///
                  6 "Feedback after referral" ///
-                 7 "Referral cases recorded") ///
-           rows(3) size(vsmall)) ///
-    note("JLOS = Justice, Law and Order Sector. Descriptive baseline comparison only.", size(vsmall))
+                 7 "Verified referral records") ///
+           cols(2) position(6) ring(1) size(vsmall)) ///
+    note("Selected-list N=`primary_n'; previous-contact N=`legacy_n'; item N varies." ///
+         "Descriptive association, not a causal effect. Verification is conditional on observable records.", size(vsmall) span)
 
 graph export "`fig_dir'/fig_33_origin_jlos_collaboration.png", width(2800) replace
 graph export "`fig_dir'/fig_33_origin_jlos_collaboration.pdf", replace
@@ -2140,7 +2132,7 @@ graph bar (mean) ///
                  4 "Referrals" ///
                  5 "Safeguards" ///
                  6 "Case handling") ///
-           rows(2) size(vsmall)) ///
+           rows(2) position(6) ring(1) size(vsmall)) ///
     note("Higher values indicate larger baseline gaps. Descriptive comparison only.", size(vsmall))
 
 graph export "`fig_dir'/fig_34_origin_priority_gaps.png", width(2800) replace
@@ -2192,7 +2184,7 @@ graph bar (mean) ///
                  2 "High case-handling quality" ///
                  3 "High legitimacy/norms" ///
                  4 "High mentor-readiness proxy") ///
-           rows(2) size(vsmall)) ///
+           rows(2) position(6) ring(1) size(vsmall)) ///
     note("High = score >= 0.75. Mentor-readiness proxy is diagnostic, not final eligibility.", size(vsmall))
 
 graph export "`fig_dir'/fig_35_origin_high_readiness_flags.png", width(2600) replace
@@ -2237,6 +2229,7 @@ postfile `regpost' ///
     double p_value ///
     double mean_selected ///
     double mean_prev ///
+    double df_residual ///
     using `origin_regressions', replace
 
 local regression_outcomes ///
@@ -2263,6 +2256,7 @@ foreach y of local regression_outcomes {
         local b = .
         local se = .
         local p = .
+        local df = .
 
         if `n' > 5 {
             capture quietly regress `y' i.p1_admin_previously_contacted i.district_id, vce(robust)
@@ -2270,6 +2264,8 @@ foreach y of local regression_outcomes {
                 local b = _b[1.p1_admin_previously_contacted]
                 local se = _se[1.p1_admin_previously_contacted]
                 local p = 2 * ttail(e(df_r), abs(`b' / `se'))
+                local n = e(N)
+                local df = e(df_r)
             }
         }
 
@@ -2285,7 +2281,8 @@ foreach y of local regression_outcomes {
             (`se') ///
             (`p') ///
             (`mean0') ///
-            (`mean1')
+            (`mean1') ///
+            (`df')
     }
 }
 
@@ -2294,8 +2291,8 @@ postclose `regpost'
 preserve
     use `origin_regressions', clear
     gen raw_diff_prev_minus_selected = mean_prev - mean_selected
-    gen ci_low = coef_prev_contacted - invttail(n-4, .025)*se
-    gen ci_high = coef_prev_contacted + invttail(n-4, .025)*se
+    gen ci_low = coef_prev_contacted - invttail(df_residual, .025)*se
+    gen ci_high = coef_prev_contacted + invttail(df_residual, .025)*se
     gen model_note = "Cross-sectional baseline associations; not causal estimates."
     format coef_prev_contacted se p_value mean_selected mean_prev raw_diff_prev_minus_selected %9.3f
     order outcome label n mean_selected mean_prev raw_diff_prev_minus_selected coef_prev_contacted se ci_low ci_high p_value model_note
@@ -2414,8 +2411,8 @@ use `primary_cohort', clear
 
 capture label var m4_q02_referral_scope_score "Knows which cases require referral"
 capture label var prior_formal_coordination "Prior coordination with JLOS actors"
-capture label var police_coordination_score "Coordination with police"
-capture label var court_coordination_score "Coordination with courts/formal justice"
+capture label var police_coordination_score "Perceived ease of police coordination"
+capture label var court_coordination_score "Perceived ease of court/formal justice coordination"
 capture label var referral_frequency_score "Referral regularity"
 capture label var referral_documentation_score "Referral documentation"
 capture label var referral_feedback_score "Feedback after referral"
@@ -2480,9 +2477,9 @@ preserve
     local v2  m4_q02_referral_scope_score
     local l2  "Knows cases requiring referral"
     local v3  police_coordination_score
-    local l3  "Coordination with police"
+    local l3  "Perceived ease of police coordination"
     local v4  court_coordination_score
-    local l4  "Coordination with courts"
+    local l4  "Perceived ease of court coordination"
     local v5  referral_frequency_score
     local l5  "Referral regularity"
     local v6  referral_path_conf_score
@@ -2511,30 +2508,21 @@ preserve
     format value %9.1f
 
     gen item_id = order
-    label define jlos_snap_lbl ///
-        1 "Prior formal coordination" ///
-        2 "Knows cases requiring referral" ///
-        3 "Coordination with police" ///
-        4 "Coordination with courts" ///
-        5 "Referral regularity" ///
-        6 "Confidence knowing where to refer" ///
-        7 "Confidence explaining referral" ///
-        8 "Referral documentation" ///
-        9 "Feedback after referral", replace
-    label values item_id jlos_snap_lbl
+    gen str100 indicator_with_n = indicator + " (n=" + strtrim(string(n, "%9.0f")) + ")"
 
     export excel using "`excel_jlos'", sheet("fig36_jlos_snapshot", replace) firstrow(variables)
 
 graph hbar (asis) value, ///
     bar(1, color("32 87 129")) ///
-    over(item_id, label(labsize(vsmall))) ///
+    over(indicator_with_n, sort(order) label(labsize(vsmall))) ///
     blabel(bar, format(%4.1f) size(vsmall)) ///
     ylabel(0(20)100, labsize(small)) ///
     ytitle("") ///
 	scheme(plotplain) ///
     title("JLOS collaboration and referral practice", size(medsmall)) ///
     subtitle("Observed selected-list baseline sample", size(small)) ///
-    note("Values are percentages or 0-1 scores converted to 0-100. JLOS = Justice, Law and Order Sector.", size(vsmall))
+    note("Normalized scores x 100; prior coordination is a respondent share." ///
+         "Item denominators shown. Ease/confidence are perceptions, not verified coordination.", size(vsmall) span)
 
 graph export "`fig_dir'/fig_36_jlos_snapshot.png", width(2800) replace
 graph export "`fig_dir'/fig_36_jlos_snapshot.pdf", replace
@@ -2702,8 +2690,7 @@ restore
 *------------------------------------------------------------------------------*
 **# 19.6 Figure 39: Referral pathway bottleneck
 *------------------------------------------------------------------------------*
-* Recommended slide:
-*   "The referral loop narrows after initial coordination"
+* Separate cross-sectional benchmarks, not a longitudinal conversion funnel.
 *------------------------------------------------------------------------------*
 
 capture drop jlos_coordination_avg
@@ -2712,7 +2699,7 @@ capture drop jlos_closure_avg
 capture drop jlos_verified_record_avg
 
 egen jlos_coordination_avg = rowmean(police_coordination_score court_coordination_score)
-label var jlos_coordination_avg "Average police/court coordination score"
+label var jlos_coordination_avg "Average perceived ease of police/court coordination"
 
 egen jlos_pathway_conf_avg = rowmean(referral_path_conf_score referral_explain_conf_score)
 label var jlos_pathway_conf_avg "Average confidence in referral pathway"
@@ -2734,7 +2721,7 @@ preserve
     local v2  m4_q02_referral_scope_score
     local l2  "Knows cases requiring referral"
     local v3  jlos_coordination_avg
-    local l3  "Police/court coordination"
+    local l3  "Perceived ease of police/court coordination"
     local v4  referral_frequency_score
     local l4  "Referral regularity"
     local v5  jlos_pathway_conf_avg
@@ -2761,28 +2748,21 @@ preserve
     format value %9.1f
 
     gen item_id = order
-    label define jlos_path_lbl ///
-        1 "Prior formal coordination" ///
-        2 "Knows cases requiring referral" ///
-        3 "Police/court coordination" ///
-        4 "Referral regularity" ///
-        5 "Referral pathway confidence" ///
-        6 "Documentation and feedback" ///
-        7 "Verified referral record", replace
-    label values item_id jlos_path_lbl
+    gen str100 stage_with_n = stage + " (n=" + strtrim(string(n, "%9.0f")) + ")"
 
     export excel using "`excel_jlos'", sheet("fig39_referral_loop", replace) firstrow(variables)
 
 graph hbar (asis) value, ///
     bar(1, color("32 87 129")) ///
-    over(item_id, label(labsize(vsmall))) ///
+    over(stage_with_n, sort(order) label(labsize(vsmall))) ///
     blabel(bar, format(%4.1f) size(vsmall)) ///
     ylabel(0(20)100, labsize(small)) ///
     ytitle("") ///
 	scheme(plotplain) ///
-    title("Referral pathway: strong entry, weaker closure", size(medsmall)) ///
-    subtitle("Referral loop indicators, 0-100 scale", size(small)) ///
-    note("Documentation/feedback combines referral documentation and feedback after referral.", size(vsmall))
+    title("Referral pathway baseline benchmarks", size(medsmall)) ///
+    subtitle("Normalized scores x 100; formal coordination is a respondent share", size(small)) ///
+    note("Separate cross-sectional measures; not a longitudinal funnel. Item denominators are shown." ///
+         "Documentation/feedback and verified records are averages of available paired measures.", size(vsmall))
 
 graph export "`fig_dir'/fig_39_jlos_referral_loop.png", width(2800) replace
 graph export "`fig_dir'/fig_39_jlos_referral_loop.pdf", replace
@@ -2851,21 +2831,33 @@ display as text "------------------------------------------------------------"
 * Build the records/committee figure from a compact posting table to retain labels.
 tempfile operations_figure
 tempname of
-postfile `of' str80 measure double mean using `operations_figure', replace
+postfile `of' str80 variable str160 measure str30 evidence_type long n double mean using `operations_figure', replace
 foreach v in case_register_score verified_record_usability_score idx_record_quality active_member_part_score women_participation_score idx_committee_functioning {
     quietly summarize `v', meanonly
     local vl : variable label `v'
-    post `of' (`"`vl'"') (r(mean))
+    local evidence "Self-reported practice"
+    if "`v'" == "verified_record_usability_score" local evidence "Enumerator-observed"
+    if inlist("`v'", "idx_record_quality", "idx_committee_functioning") local evidence "Mixed index"
+    post `of' ("`v'") (`"`vl'"') ("`evidence'") (r(N)) (r(mean))
 }
 postclose `of'
 preserve
     use `operations_figure', clear
-    graph hbar mean, over(measure, sort(mean) descending label(labsize(small))) ///
+    export excel using "`excel_exec'", sheet("fig40_operations", replace) firstrow(variables)
+    replace measure = "Reported case register / case book" if variable == "case_register_score"
+    replace measure = "Enumerator-observed record usability" if variable == "verified_record_usability_score"
+    replace measure = "Record quality (mixed index)" if variable == "idx_record_quality"
+    replace measure = "Reported active member participation" if variable == "active_member_part_score"
+    replace measure = "Reported women's active participation" if variable == "women_participation_score"
+    replace measure = "Committee functioning (mixed index)" if variable == "idx_committee_functioning"
+    replace measure = measure + " (n=" + strtrim(string(n, "%9.0f")) + ")"
+    graph hbar mean, over(measure, sort(mean) descending label(labsize(vsmall))) ///
         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean baseline score (0-1)") ///
         title("Records and committee operational capacity", size(medsmall)) ///
-        note("Verified measures reflect enumerator-observed records or participation where available.", size(vsmall))
+        note("Record usability is enumerator-observed; other measures are reported or mixed indices." ///
+             "Item N shown. Conditional verification does not represent the whole frame.", size(vsmall) span)
     graph export "`fig_dir'/fig_40_records_committee_constraints.png", width(3000) replace
     graph export "`fig_dir'/fig_40_records_committee_constraints.pdf", replace
 restore
@@ -2886,7 +2878,7 @@ preserve
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean baseline score (0-1)") ///
         title("Legitimacy, safeguards, and reintegration", size(medsmall)) ///
-        note("Chairperson-reported baseline measures; higher scores indicate stronger practice or norms.", size(vsmall))
+        note("Legitimacy/reintegration: chairperson perceptions and norms; safeguards also includes scored knowledge.", size(vsmall))
     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.png", width(2800) replace
     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.pdf", replace
 restore
@@ -3567,6 +3559,9 @@ foreach v of local all_indices {
     assert abs(r(sum) - `index_sum`index_counter'') < 1e-10
 }
 
+* Observation-level check also detects offsetting changes hidden by equal sums.
+sort submission_key
+cf `all_indices' using `index_snapshot', all
 copy "`excel_exec'" "`excel_exec_final'", replace
 copy "`excel_items'" "`excel_items_final'", replace
 copy "`excel_origin'" "`excel_origin_final'", replace

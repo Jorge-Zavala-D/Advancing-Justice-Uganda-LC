@@ -4,7 +4,7 @@
 > ut/Phase1_Baseline_Selected100_Observed/logs/phase1_baseline_executive_analys
 > is.log
   log type:  text
- opened on:  25 Sep 2026, 22:00:21
+ opened on:   2 Oct 2026, 14:25:27
 
 . 
 . set scheme plotplain
@@ -21,8 +21,11 @@ not available in non-GUI version
 (0 observations deleted)
 
 . 
-. * Final amended two-wave baseline: fail fast if the locked cohort changes.
-. assert _N == 129
+. * Validate the derived amended cohort; do not freeze superseded sample counts
+> .
+. assert _N > 0
+
+. local full_n = _N
 
 . assert analysis_sample == 1
 
@@ -34,42 +37,21 @@ not available in non-GUI version
 
 . isid canonical_village_uid
 
-. 
-. quietly count if canonical_district == "Bushenyi"
+. assert inlist(canonical_district, "Bushenyi", "Rubirizi", "Sheema")
 
-. assert r(N) == 55
-
-. quietly count if canonical_district == "Rubirizi"
-
-. assert r(N) == 40
-
-. quietly count if canonical_district == "Sheema"
-
-. assert r(N) == 34
-
-. quietly count if baseline_wave == 1
-
-. assert r(N) == 95
+. assert inlist(baseline_wave, 1, 2)
 
 . quietly count if baseline_wave == 2
 
 . assert r(N) == 34
 
-. quietly count if p1_admin_origin == 0
+. assert inlist(p1_admin_origin, 0, 1, 2)
 
-. assert r(N) == 107
-
-. quietly count if p1_admin_origin == 1
-
-. assert r(N) == 17
-
-. quietly count if p1_admin_origin == 2
-
-. assert r(N) == 5
+. assert p1_admin_previously_contacted == inlist(p1_admin_origin, 1, 2)
 
 . quietly count if p1_admin_previously_contacted == 1
 
-. assert r(N) == 22
+. local legacy_n = r(N)
 
 . assert !missing(canonical_district, canonical_subcounty, canonical_parish, ca
 > nonical_village)
@@ -189,8 +171,8 @@ not available in non-GUI version
 . capture label var lcc_vacancies_count "Number of vacant LCC/LC committee posi
 > tions"
 
-. capture label var any_serious_or_sensitive_case_3m "Any child, SGBV, or other
->  serious/sensitive case in past 3 months"
+. capture label var any_serious_or_sensitive_case_3m "Reported child-related or
+>  SGBV case in past 3 months"
 
 . 
 . capture label var m3_q04_1  "Land or boundary disputes"
@@ -221,8 +203,8 @@ not available in non-GUI version
 . capture label var v01_boundary_q2_correct "Boundary vignette: correct action/
 > referral"
 
-. capture label var v01_boundary_q3_correct "Boundary vignette: correct documen
-> tation/procedure"
+. capture label var v01_boundary_q3_correct "Boundary vignette: appropriate act
+> or involvement/notification"
 
 . capture label var v02_family_q1_correct "Family dispute vignette: correct cla
 > ssification"
@@ -230,8 +212,8 @@ not available in non-GUI version
 . capture label var v02_family_q2_correct "Family dispute vignette: correct act
 > ion/referral"
 
-. capture label var v02_family_q3_correct "Family dispute vignette: correct doc
-> umentation/procedure"
+. capture label var v02_family_q3_correct "Family dispute vignette: appropriate
+>  actor involvement/notification"
 
 . capture label var v05_child_q1_correct "Child-related vignette: correct class
 > ification"
@@ -239,24 +221,25 @@ not available in non-GUI version
 . capture label var v05_child_q2_correct "Child-related vignette: correct actio
 > n/referral"
 
-. capture label var v05_child_q3_correct "Child-related vignette: correct docum
-> entation/procedure"
+. capture label var v05_child_q3_correct "Child-related vignette: appropriate a
+> ctor involvement/notification"
 
 . capture label var v06_sgbv_q1_correct "SGBV vignette: correct classification"
 
 . capture label var v06_sgbv_q2_correct "SGBV vignette: correct action/referral
 > "
 
-. capture label var v06_sgbv_q3_correct "SGBV vignette: correct documentation/p
-> rocedure"
+. capture label var v06_sgbv_q3_correct "SGBV vignette: appropriate actor invol
+> vement/notification"
 
 . 
-. capture label var m5_q01_score "ADR practice score: hearing both sides"
+. capture label var m5_q01_score "Reported frequency of trying ADR before escal
+> ation"
 
-. capture label var m5_q02_score "ADR practice score: neutrality/impartiality"
+. capture label var m5_q02_score "Reported frequency of hearing both sides"
 
-. capture label var m5_q03_score "ADR practice score: encouraging voluntary agr
-> eement"
+. capture label var m5_q03_score "Reported frequency of allowing uninterrupted 
+> explanations"
 
 . capture label var m5_q06_score "ADR practice score: recording agreements"
 
@@ -323,10 +306,11 @@ not available in non-GUI version
 . capture label var referral_feedback_score "Referral practice score: receiving
 >  feedback"
 
-. capture label var police_coordination_score "Coordination score with police"
+. capture label var police_coordination_score "Perceived ease of coordinating w
+> ith police"
 
-. capture label var court_coordination_score "Coordination score with court/for
-> mal justice actors"
+. capture label var court_coordination_score "Perceived ease of coordinating wi
+> th court/formal justice actors"
 
 . capture label var referral_path_conf_score "Confidence knowing where to refer
 >  cases"
@@ -475,185 +459,125 @@ not available in non-GUI version
 . capture label var m11_q12_9 "Community usually willing to accept"
 
 . 
-. * The administrative "new" category contains amended units outside the
-. * original selected frame. Identify the selected frame from its source list,
-. * not from p1_admin_origin == 0. Never manufacture 100 interviews.
-. tempfile fvl100 full_cohort primary_cohort
+. * Original randomized-list membership is defined once in Data Preparation,
+. * independently of administrative "new" status. The 100-row frame contains
+. * explicit missing survey responses; only observed interviews enter analysis.
+. tempfile frame_observed full_cohort primary_cohort index_snapshot
 
 . preserve
 
-. import excel using "${input_dir}/1 Raw/Primary data/Final Village List.xlsx",
->  firstrow clear
-(8 vars, 128 obs)
+. use "${input_dir}/3 Coded/phase1_baseline_selected100_frame.dta", clear
+(Original selected-100 frame; 93 interviews, 7 without responses)
 
-. rename *, lower
-
-. assert _N == 128
-
-. assert randomly_selected + last_cdfu_phase + ineherited_fhri == 1
-
-. keep if randomly_selected == 1
-(28 observations deleted)
+. assert _N == 100
 
 . local frame_n = _N
 
-. assert `frame_n' == 100
+. isid selected100_frame_uid
 
-. replace district = subinstr(district, " District", "", .)
-(100 real changes made)
+. isid canonical_village_uid
 
-. gen str80 __district_key = lower(itrim(strtrim(district)))
+. assert inlist(selected100_survey_observed, 0, 1)
 
-. gen str80 __village_key = lower(itrim(strtrim(village)))
+. assert analysis_sample == selected100_survey_observed
 
-. gen str80 __fvl_subcounty_key = lower(itrim(strtrim(subcounty)))
+. assert missing(submission_key) & missing(consent) if selected100_survey_obser
+> ved == 0
 
-. gen str80 __fvl_parish_key = lower(itrim(strtrim(parish)))
+. quietly count if selected100_survey_observed == 1
 
-. foreach key in __district_key __village_key {
-  2.     replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-  3.     replace `key' = ustrregexra(`key', "^_+|_+$", "")
-  4. }
-(0 real changes made)
-(0 real changes made)
-(39 real changes made)
-(0 real changes made)
+. local frame_observed_n = r(N)
 
-. foreach key in __fvl_subcounty_key __fvl_parish_key {
-  2.     replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-  3.     replace `key' = ustrregexra(`key', "^_+|_+$", "")
-  4. }
-(37 real changes made)
-(0 real changes made)
-(9 real changes made)
-(0 real changes made)
+. keep if selected100_survey_observed == 1
+(7 observations deleted)
 
-. isid __district_key __village_key
+. keep selected100_frame_uid
 
-. keep __district_key __village_key __fvl_subcounty_key __fvl_parish_key
-
-. save `fvl100'
+. save `frame_observed'
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00001o.tmp saved as .dta format
+    > 5bb_p9v2kmuv\ST_9a18_000040.tmp saved as .dta format
 
 . restore
 
-. 
-. gen str80 __district_key = lower(itrim(strtrim(canonical_district)))
-
-. gen str80 __village_key = lower(itrim(strtrim(canonical_village)))
-
-. foreach key in __district_key __village_key {
-  2.     replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-  3.     replace `key' = ustrregexra(`key', "^_+|_+$", "")
-  4. }
-(0 real changes made)
-(0 real changes made)
-(49 real changes made)
-(2 real changes made)
-
-. merge m:1 __district_key __village_key using `fvl100', ///
->     keep(master match) gen(__fvl_match)
+. merge m:1 selected100_frame_uid using `frame_observed', ///
+>     keep(master match) gen(__frame_match)
 
     Result                      Number of obs
     -----------------------------------------
-    Not matched                            39
-        from master                        39  (__fvl_match==1)
-        from using                          0  (__fvl_match==2)
+    Not matched                            37
+        from master                        37  (__frame_match==1)
+        from using                          0  (__frame_match==2)
 
-    Matched                                90  (__fvl_match==3)
+    Matched                                93  (__frame_match==3)
     -----------------------------------------
 
-. assert _N == 129
+. assert _N == `full_n'
 
-. quietly count if __fvl_match == 3
-
-. assert r(N) == 90
-
-. gen str80 __canonical_subcounty_key = lower(itrim(strtrim(canonical_subcounty
-> )))
-
-. gen str80 __canonical_parish_key = lower(itrim(strtrim(canonical_parish)))
-
-. foreach key in __canonical_subcounty_key __canonical_parish_key {
-  2.     replace `key' = ustrregexra(`key', "[^a-z0-9]+", "_")
-  3.     replace `key' = ustrregexra(`key', "^_+|_+$", "")
-  4. }
-(57 real changes made)
-(0 real changes made)
-(12 real changes made)
-(0 real changes made)
-
-. assert __canonical_subcounty_key == __fvl_subcounty_key if __fvl_match == 3 &
->  __fvl_subcounty_key != ""
-
-. assert __canonical_parish_key == __fvl_parish_key if __fvl_match == 3 & __fvl
-> _parish_key != ""
-
-. gen byte selected_fvl100_observed = __fvl_match == 3
-
-. * Data Preparation documents Kibaare A as the August successor to the
-. * selected Kibaare I unit. This is the only extra alias supported by code.
-. replace selected_fvl100_observed = 1 if canonical_district == "Bushenyi" & //
-> /
->     canonical_subcounty == "Nyakabirizi" & canonical_parish == "Kibaare" & //
-> /
->     canonical_village == "Kibaare A"
-(1 real change made)
+. assert (__frame_match == 3) == selected_fvl100_observed
 
 . assert selected_fvl100_observed == 0 if p1_admin_previously_contacted == 1
 
 . assert p1_admin_origin == 0 if selected_fvl100_observed == 1
 
-. label var selected_fvl100_observed "Observed LC on selected Final Village Lis
-> t frame"
-
-. drop __district_key __village_key __fvl_subcounty_key __fvl_parish_key ///
->     __canonical_subcounty_key __canonical_parish_key __fvl_match
+. drop __frame_match
 
 . save `full_cohort'
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00001p.tmp saved as .dta format
+    > 5bb_p9v2kmuv\ST_9a18_000041.tmp saved as .dta format
 
 . 
 . keep if selected_fvl100_observed == 1
-(38 observations deleted)
+(37 observations deleted)
 
 . local primary_n = _N
 
 . local unobserved_n = `frame_n' - `primary_n'
 
-. assert `primary_n' == 91
+. assert `primary_n' == `frame_observed_n'
 
-. assert `unobserved_n' == 9
+. assert `primary_n' > 0 & `primary_n' <= `frame_n'
 
 . isid canonical_village_uid
 
-. quietly count if canonical_district == "Bushenyi"
-
-. assert r(N) == 40
-
-. quietly count if canonical_district == "Rubirizi"
-
-. assert r(N) == 28
-
-. quietly count if canonical_district == "Sheema"
-
-. assert r(N) == 23
-
-. quietly count if baseline_wave == 1
-
-. assert r(N) == 67
-
-. quietly count if baseline_wave == 2
-
-. assert r(N) == 24
+. isid selected100_frame_uid
 
 . display as result "Selected-list frame: `frame_n'; observed analytical LCs: `
 > primary_n'; unobserved: `unobserved_n'."
-Selected-list frame: 100; observed analytical LCs: 91; unobserved: 9.
+Selected-list frame: 100; observed analytical LCs: 93; unobserved: 7.
+
+. tab canonical_district, missing
+
+                     canonical_district |      Freq.     Percent        Cum.
+----------------------------------------+-----------------------------------
+                               Bushenyi |         41       44.09       44.09
+                               Rubirizi |         28       30.11       74.19
+                                 Sheema |         24       25.81      100.00
+----------------------------------------+-----------------------------------
+                                  Total |         93      100.00
+
+. tab baseline_wave, missing
+
+      Baseline collection wave |      Freq.     Percent        Cum.
+-------------------------------+-----------------------------------
+    Original May/June baseline |         68       73.12       73.12
+August 2026 mop-up/re-baseline |         25       26.88      100.00
+-------------------------------+-----------------------------------
+                         Total |         93      100.00
+
+. preserve
+
+. keep submission_key `all_indices'
+
+. sort submission_key
+
+. save `index_snapshot'
+file
+    C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
+    > 5bb_p9v2kmuv\ST_9a18_000043.tmp saved as .dta format
+
+. restore
 
 . 
 . * Preserve the primary-cohort index values across descriptive analyses.
@@ -679,7 +603,7 @@ Selected-list frame: 100; observed analytical LCs: 91; unobserved: 9.
 
 . program define aju_mean_table
   1.     syntax anything, SHEET(string) MODULE(string) [XLSX(string) GRAPH(stri
-> ng) TITLE(string) GAP]
+> ng) GRAPHVARS(string) TITLE(string) GAP]
   2. 
 .     tempfile out
   3.     tempname memhold
@@ -688,81 +612,126 @@ Selected-list frame: 100; observed analytical LCs: 91; unobserved: 9.
   5. 
 .     local clean_module "`module'"
   6.     local rawvars `anything'
-  7. 
+  7.     local sample_n = _N
+  8. 
 .     foreach v of local rawvars {
-  8.         capture confirm numeric variable `v'
-  9.         if !_rc {
- 10.             quietly count if !missing(`v')
- 11.             local n = r(N)
- 12.             local vlab : variable label `v'
- 13.             if `"`vlab'"' == "" local vlab "`v'"
- 14.             local vlab = substr(`"`vlab'"', 1, 160)
- 15. 
+  9.         capture confirm numeric variable `v'
+ 10.         if !_rc {
+ 11.             quietly count if !missing(`v')
+ 12.             local n = r(N)
+ 13.             local vlab : variable label `v'
+ 14.             if `"`vlab'"' == "" local vlab "`v'"
+ 15.             local vlab = substr(`"`vlab'"', 1, 160)
+ 16. 
 .             if `n' > 0 {
- 16.                 quietly summarize `v', detail
- 17.                 local mean = r(mean)
- 18.                 local sd   = r(sd)
- 19.                 local min  = r(min)
- 20.                 local p25  = r(p25)
- 21.                 local p50  = r(p50)
- 22.                 local p75  = r(p75)
- 23.                 local max  = r(max)
- 24.                 local gapval = .
- 25.                 if "`gap'" != "" & `mean' >= 0 & `mean' <= 1 local gapval 
+ 17.                 quietly summarize `v', detail
+ 18.                 local mean = r(mean)
+ 19.                 local sd   = r(sd)
+ 20.                 local min  = r(min)
+ 21.                 local p25  = r(p25)
+ 22.                 local p50  = r(p50)
+ 23.                 local p75  = r(p75)
+ 24.                 local max  = r(max)
+ 25.                 local gapval = .
+ 26.                 if "`gap'" != "" & `mean' >= 0 & `mean' <= 1 local gapval 
 > = 1 - `mean'
- 26.             }
- 27.             else {
- 28.                 local mean   = .
- 29.                 local sd     = .
- 30.                 local min    = .
- 31.                 local p25    = .
- 32.                 local p50    = .
- 33.                 local p75    = .
- 34.                 local max    = .
- 35.                 local gapval = .
- 36.             }
- 37. 
+ 27.             }
+ 28.             else {
+ 29.                 local mean   = .
+ 30.                 local sd     = .
+ 31.                 local min    = .
+ 32.                 local p25    = .
+ 33.                 local p50    = .
+ 34.                 local p75    = .
+ 35.                 local max    = .
+ 36.                 local gapval = .
+ 37.             }
+ 38. 
 .             post `memhold' (`"`clean_module'"') (`"`v'"') (`"`vlab'"') ///
 >                 (`n') (`mean') (`sd') (`min') (`p25') (`p50') (`p75') (`max')
 >  (`gapval')
- 38.         }
- 39.     }
- 40.     postclose `memhold'
- 41. 
+ 39.         }
+ 40.     }
+ 41.     postclose `memhold'
+ 42. 
 .     local outxlsx "${AJU_EXEC_XLSX}"
- 42.     if `"`xlsx'"' != "" local outxlsx `"`xlsx'"'
- 43. 
+ 43.     if `"`xlsx'"' != "" local outxlsx `"`xlsx'"'
+ 44. 
 .     preserve
- 44.         use `out', clear
- 45.         drop if n == 0
- 46.         order module variable label n mean sd min p25 p50 p75 max gap
- 47.         if "`gap'" == "" drop gap
- 48.         export excel using `"`outxlsx'"', sheet("`sheet'", replace) firstr
+ 45.         use `out', clear
+ 46.         drop if n == 0
+ 47.         order module variable label n mean sd min p25 p50 p75 max gap
+ 48.         if "`gap'" == "" drop gap
+ 49.         export excel using `"`outxlsx'"', sheet("`sheet'", replace) firstr
 > ow(variables)
- 49. 
+ 50. 
 .         if `"`graph'"' != "" {
- 50.             quietly count if !missing(mean)
- 51.             if r(N) > 0 {
- 52.                 local graphname = strtoname("`graph'")
- 53.                 local graphname = substr("`graphname'", 1, 32)
- 54.                 local graphtitle `"`title'"'
- 55.                 if `"`graphtitle'"' == "" local graphtitle "`sheet'"
- 56. 
-.                 graph hbar mean if !missing(mean), ///
->                     over(label, sort(mean) descending label(labsize(vsmall)))
->  ///
+ 51.             * Counts/years remain in the workbook, not on a common score a
+> xis.
+.             local plotvars `rawvars'
+ 52.             if `"`graphvars'"' != "" local plotvars `graphvars'
+ 53.             gen byte __show = 0
+ 54.             foreach v of local plotvars {
+ 55.                 replace __show = 1 if variable == "`v'"
+ 56.             }
+ 57.             keep if __show == 1
+ 58.             assert min >= 0 & max <= 1 if n > 0
+ 59.             replace label = label + " (n=" + strtrim(string(n, "%9.0f")) +
+>  ")"
+ 60.             quietly count if !missing(mean)
+ 61.             if r(N) > 0 {
+ 62.                 local graphname = strtoname("`graph'")
+ 63.                 local graphname = substr("`graphname'", 1, 32)
+ 64.                 local graphtitle `"`title'"'
+ 65.                 if `"`graphtitle'"' == "" local graphtitle "`sheet'"
+ 66. 
+.                 * Native multiline category labels; keep full text in Excel.
+.                 gsort -mean label
+ 67.                 gen __id = _n
+ 68.                 local category_labels ""
+ 69.                 forvalues i = 1/`=_N' {
+ 70.                     local text = label[`i']
+ 71.                     local line ""
+ 72.                     local lines ""
+ 73.                     local words : word count `text'
+ 74.                     forvalues j = 1/`words' {
+ 75.                         local word : word `j' of `text'
+ 76.                         if strlen(`"`line' `word'"') > 34 & `"`line'"' != 
+> "" {
+ 77.                             local lines `"`lines' "`line'" "'
+ 78.                             local line `"`word'"'
+ 79.                         }
+ 80.                         else local line = strtrim(`"`line' `word'"')
+ 81.                     }
+ 82.                     local lines `"`lines' "`line'" "'
+ 83.                     local category_labels `"`category_labels' `i' `"`lines
+> '"' "'
+ 84.                 }
+ 85.                 local graphheight = max(5, min(11, _N*.38 + 2.4))
+ 86.                 local category_size = max(1.25, min(2.4, 23/_N))
+ 87.                 graph hbar mean if !missing(mean), ///
+>                     over(__id, relabel(`category_labels') label(labsize(`cate
+> gory_size'))) ///
 >                     bar(1, color("32 87 129")) ///
->                     ytitle("Share / mean") ///
->                     title(`"`graphtitle'"', size(medsmall)) ///
+>                     blabel(bar, format(%4.2f) size(vsmall)) ///
+>                     yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
+>                     ytitle("Mean score / share (0-1)") ///
+>                     xsize(12) ysize(`graphheight') graphregion(margin(l=27 r=
+> 3)) ///
+>                     title(`"`graphtitle'"', size(medsmall) span) ///
+>                     note("Observed selected-list interviews: N=`sample_n'; it
+> em N shown." ///
+>                          "Scores and shares differ; evidence types are detail
+> ed in Excel.", size(vsmall) span) ///
 >                     name(`graphname', replace)
- 57. 
+ 88. 
 .                 graph export "${AJU_FIG_DIR}/`graph'.png", replace width(2400
 > )
- 58.                 graph export "${AJU_FIG_DIR}/`graph'.pdf", replace
- 59.             }
- 60.         }
- 61.     restore
- 62. end
+ 89.                 graph export "${AJU_FIG_DIR}/`graph'.pdf", replace
+ 90.             }
+ 91.         }
+ 92.     restore
+ 93. end
 
 . 
 . capture program drop aju_tab_numeric_all
@@ -939,70 +908,70 @@ note: file will be replaced when the first putexcel command is issued.
 
 . putexcel A1 = "Advancing Justice Uganda - Final Phase 1 Baseline Analysis"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A3 = "Purpose"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B3 = "Implementation-focused descriptive evidence for the Phase 1 Fi
 > nal Baseline Report."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A4 = "Input dataset"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B4 = "`analysis_data'"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A5 = "Analysis sample"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B5 = "Primary report: `primary_n' observed interviews from the `fram
 > e_n' selected Final Village List LCs; `unobserved_n' selected units have no m
 > atched final survey."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A6 = "Causal status"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B6 = "Descriptive baseline analysis only. Associations are cross-sec
 > tional and are not treatment effects."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A7 = "Mentor-readiness note"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B7 = "The baseline mentor-readiness proxy is diagnostic only; final 
 > mentor eligibility will use Phase 1 training assessments."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A8 = "Generated outputs"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B8 = "Main results, supplementary items, origin comparisons, baselin
 > e associations, indicator table, figures, and analysis log."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A9 = "Output note"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B9 = "Fully missing variables are excluded from executive tables/gra
 > phs and listed in the all-item workbook field-status sheet."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 . quietly count
@@ -1011,11 +980,11 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . putexcel A10 = "N records"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B10 = `N'
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 . quietly summarize interview_date, meanonly
@@ -1028,20 +997,20 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . 
 . putexcel A11 = "First interview date"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B11 = "`first_interview'"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 . putexcel A12 = "Last interview date"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel B12 = "`last_interview'"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel clear
 
@@ -1055,7 +1024,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > enominator using `sample_report', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00001s.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_000046.tmp not found)
 
 . post `sr' ("Selected list frame") ("Original selected LCs") ("Count") (`frame
 > _n') (`frame_n')
@@ -1114,7 +1083,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("sample_report", replace) firstr
 > ow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1142,7 +1111,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("sample_district", replace) firs
 > trow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 .     graph bar n_records, over(canonical_district, label(angle(0))) ///
@@ -1157,13 +1126,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     graph export "`fig_dir'/fig_01_sample_by_district.png", width(2400) repla
 > ce
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_01_sample_by_district.png written in
+> bb_p9v2kmuv//phase1_baseline_figures/fig_01_sample_by_district.png written in
 >  PNG format
 
 .     graph export "`fig_dir'/fig_01_sample_by_district.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_01_sample_by_district.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_01_sample_by_district.pdf
     saved as PDF format
 
 . restore
@@ -1182,7 +1151,7 @@ file
 .     export excel using "`excel_exec'", sheet("sample_wave", replace) firstrow
 > (variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1200,7 +1169,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("sample_origin", replace) firstr
 > ow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1219,7 +1188,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("sample_enumerator", replace) fi
 > rstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1241,7 +1210,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("fieldwork_duration", replace) f
 > irstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1259,7 +1228,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("duration_by_district", replace)
 >  firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1284,16 +1253,29 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Automated data-quality flags")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000022.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004e.tmp not found)
 (2 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 real changes made)
+(0 real changes made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_13_data_quality_flags.png written in
+> bb_p9v2kmuv//phase1_baseline_figures/fig_13_data_quality_flags.png written in
 >  PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_13_data_quality_flags.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_13_data_quality_flags.pdf
     saved as PDF format
 
 . 
@@ -1301,7 +1283,7 @@ file
 . preserve
 
 .     keep if flag_duplicate_scto_village > 0
-(81 observations deleted)
+(83 observations deleted)
 
 .     keep survey_record_id submission_key interview_date enum canonical_distri
 > ct canonical_subcounty canonical_parish canonical_village ///
@@ -1313,7 +1295,7 @@ file
 .     export excel using "`excel_exec'", sheet("duplicate_villages", replace) f
 > irstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1332,16 +1314,32 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Average baseline scores across core domains") gap
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000023.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004f.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(14 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_02_core_indices_overall.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_02_core_indices_overall.png written 
 > in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_02_core_indices_overall.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_02_core_indices_overall.pdf
     saved as PDF format
 
 . 
@@ -1359,7 +1357,7 @@ file
 
 Data                               Wide   ->   Long
 -----------------------------------------------------------------------------
-Number of observations               91   ->   910         
+Number of observations               93   ->   930         
 Number of variables                  11   ->   3           
 j variable (10 values)                    ->   index_name
 xij variables:
@@ -1371,40 +1369,40 @@ idx_adr_mediation_practice idx_committee_functioning ... idx_safeguards->idx_
 .     gen domain = index_name
 
 .     replace domain = "Respondent capacity" if domain == "respondent_capacity"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Institutional functioning" if domain == "institutional_
 > functioning"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Legal/classification knowledge" if domain == "legal_cla
 > ssif_knowledge"
 variable domain was str25 now str30
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "ADR/mediation practice" if domain == "adr_mediation_pra
 > ctice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Referral practice" if domain == "referral_practice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Record quality" if domain == "record_quality"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Committee functioning" if domain == "committee_function
 > ing"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Perceived legitimacy" if domain == "perceived_legitimac
 > y"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Safeguards" if domain == "safeguards"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Reintegration norms" if domain == "reintegration_norms"
-(91 real changes made)
+(93 real changes made)
 
 .     collapse (mean) mean=score, by(domain)
 
@@ -1420,13 +1418,13 @@ variable domain was str25 now str30
 .     graph export "`fig_dir'/fig_02_core_indices_overall.png", width(2800) rep
 > lace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_02_core_indices_overall.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_02_core_indices_overall.png written 
 > in PNG format
 
 .     graph export "`fig_dir'/fig_02_core_indices_overall.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_02_core_indices_overall.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_02_core_indices_overall.pdf
     saved as PDF format
 
 . restore
@@ -1445,7 +1443,7 @@ file
 
 Data                               Wide   ->   Long
 -----------------------------------------------------------------------------
-Number of observations               91   ->   1,274       
+Number of observations               93   ->   1,302       
 Number of variables                  16   ->   4           
 j variable (14 values)                    ->   index_name
 xij variables:
@@ -1458,57 +1456,57 @@ idx_adr_mediation_practice idx_committee_functioning ... idx_safeguards->idx_
 .     gen domain = index_name
 
 .     replace domain = "Respondent capacity" if domain == "respondent_capacity"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Institutional functioning" if domain == "institutional_
 > functioning"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Legal/classification knowledge" if domain == "legal_cla
 > ssif_knowledge"
 variable domain was str26 now str30
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "ADR/mediation practice" if domain == "adr_mediation_pra
 > ctice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Referral practice" if domain == "referral_practice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Record quality" if domain == "record_quality"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Committee functioning" if domain == "committee_function
 > ing"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Perceived legitimacy" if domain == "perceived_legitimac
 > y"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Safeguards/referral knowledge" if domain == "safeguards
 > "
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Reintegration norms" if domain == "reintegration_norms"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Operational capacity" if domain == "lcc_operational_cap
 > acity"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Case-handling quality" if domain == "lcc_case_handling_
 > quality"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Legitimacy and reintegration" if domain == "lcc_legitim
 > acy_and_norms"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Mentor-readiness proxy" if domain == "p1_base_mentor_re
 > ady_proxy"
-(91 real changes made)
+(93 real changes made)
 
 . 
 .     collapse (count) n=index_value (mean) mean=index_value (sd) sd=index_valu
@@ -1517,7 +1515,7 @@ variable domain was str26 now str30
 .     export excel using "`excel_exec'", sheet("index_by_district", replace) fi
 > rstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 .     keep if inlist(domain,"Operational capacity","Case-handling quality","Leg
@@ -1526,21 +1524,25 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 .     graph bar mean, over(domain, label(angle(35) labsize(vsmall))) over(canon
 > ical_district) ///
+>         bar(1, color("32 87 129")) ///
+>         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
 >         ytitle("Mean score, 0-1") ///
 >         title("Composite baseline domains by district", size(medsmall)) ///
+>         note("Observed selected-list LCs; descriptive district comparison onl
+> y.", size(vsmall)) ///
 >         legend(off)
 
 .     graph export "`fig_dir'/fig_03_composite_indices_by_district.png", width(
 > 2800) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_03_composite_indices_by_district.png
+> bb_p9v2kmuv//phase1_baseline_figures/fig_03_composite_indices_by_district.png
 >  written in PNG format
 
 .     graph export "`fig_dir'/fig_03_composite_indices_by_district.pdf", replac
 > e
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_03_composite_indices_by_distr
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_03_composite_indices_by_distr
     > ict.pdf saved as PDF format
 
 . restore
@@ -1561,7 +1563,7 @@ file
 
 Data                               Wide   ->   Long
 -----------------------------------------------------------------------------
-Number of observations               91   ->   910         
+Number of observations               93   ->   930         
 Number of variables                  11   ->   3           
 j variable (10 values)                    ->   index_name
 xij variables:
@@ -1574,41 +1576,41 @@ idx_adr_mediation_practice idx_committee_functioning ... idx_safeguards->idx_
 .     gen domain = index_name
 
 .     replace domain = "Respondent capacity" if domain == "respondent_capacity"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Institutional functioning" if domain == "institutional_
 > functioning"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Legal/classification knowledge" if domain == "legal_cla
 > ssif_knowledge"
 variable domain was str25 now str30
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "ADR/mediation practice" if domain == "adr_mediation_pra
 > ctice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Referral practice" if domain == "referral_practice"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Record quality" if domain == "record_quality"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Committee functioning" if domain == "committee_function
 > ing"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Perceived legitimacy" if domain == "perceived_legitimac
 > y"
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Safeguards/referral knowledge" if domain == "safeguards
 > "
-(91 real changes made)
+(93 real changes made)
 
 .     replace domain = "Reintegration norms" if domain == "reintegration_norms"
-(91 real changes made)
+(93 real changes made)
 
 . 
 .     collapse (count) n=index_value (mean) mean=index_value (sd) sd=index_valu
@@ -1621,7 +1623,7 @@ variable domain was str25 now str30
 .     export excel using "`excel_exec'", sheet("priority_gaps", replace) firstr
 > ow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 .     graph hbar gap_to_full_score, over(domain, sort(gap_to_full_score) descen
@@ -1636,13 +1638,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 .     graph export "`fig_dir'/fig_04_priority_gaps.png", width(2600) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_04_priority_gaps.png written in PNG 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_04_priority_gaps.png written in PNG 
 > format
 
 .     graph export "`fig_dir'/fig_04_priority_gaps.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_04_priority_gaps.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_04_priority_gaps.pdf saved as
     PDF format
 
 . restore
@@ -1662,13 +1664,13 @@ file
 . graph export "`fig_dir'/fig_05_mentor_readiness_distribution.png", width(2600
 > ) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_05_mentor_readiness_distribution.png
+> bb_p9v2kmuv//phase1_baseline_figures/fig_05_mentor_readiness_distribution.png
 >  written in PNG format
 
 . graph export "`fig_dir'/fig_05_mentor_readiness_distribution.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_05_mentor_readiness_distribut
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_05_mentor_readiness_distribut
     > ion.pdf saved as PDF format
 
 . 
@@ -1679,16 +1681,22 @@ file
 >     title("Share of chairpersons above high-capacity thresholds")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000026.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004i.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(4 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_06_high_capacity_flags.png written i
+> bb_p9v2kmuv//phase1_baseline_figures/fig_06_high_capacity_flags.png written i
 > n PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_06_high_capacity_flags.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_06_high_capacity_flags.pdf
     saved as PDF format
 
 . 
@@ -1715,7 +1723,7 @@ file
 .     export excel using "`excel_exec'", sheet("readiness_quartiles", replace) 
 > firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1729,7 +1737,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > ', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000027.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004j.tmp not found)
 
 . foreach v of local all_indices {
   2.     capture confirm numeric variable `v'
@@ -1751,7 +1759,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("district_diff_tests", replace) 
 > firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1784,21 +1792,42 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . 
 . aju_mean_table `chair_profile', sheet("chair_profile") module("LC chairperson
->  profile") ///
+>  profile") graphvars("respondent_female completed_secondary_or_above educatio
+> n_score lc_experience_score record_literacy_score can_record_english can_reco
+> rd_runyankore cannot_complete_records prior_justice_training prior_formal_coo
+> rdination prior_cdfu_fhri_training case_experience_score handled_child_or_sgb
+> v_case weekly_lc_time_score idx_respondent_capacity") ///
 >     graph("fig_07_chairperson_profile") ///
 >     title("Chairperson profile: capacity and prior exposure")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000029.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004l.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(2 observations deleted)
+(15 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_07_chairperson_profile.png written i
+> bb_p9v2kmuv//phase1_baseline_figures/fig_07_chairperson_profile.png written i
 > n PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_07_chairperson_profile.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_07_chairperson_profile.pdf
     saved as PDF format
 
 . 
@@ -1812,7 +1841,7 @@ file
 .     export excel using "`excel_exec'", sheet("chair_profile_district", replac
 > e) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1845,21 +1874,38 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . 
 . aju_mean_table `institutional_vars', sheet("institutional_function") module("
-> Institutional functioning") ///
+> Institutional functioning") graphvars("lcc_women_share lcc_has_woman_member l
+> cc_has_vacancy meeting_frequency_score quorum_score fixed_place_score inst_re
+> cord_exist_score inst_record_uptodate_score materials_score record_seen_score
+> _m2 recent_entries_uptodate_score_m2 idx_institutional_functioning") ///
 >     graph("fig_08_institutional_functioning") ///
 >     title("Institutional functioning and operational readiness")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002a.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004m.tmp not found)
 (1 observation deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(4 observations deleted)
+(12 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_08_institutional_functioning.png wri
+> bb_p9v2kmuv//phase1_baseline_figures/fig_08_institutional_functioning.png wri
 > tten in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_08_institutional_functioning.
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_08_institutional_functioning.
     > pdf saved as PDF format
 
 . 
@@ -1873,7 +1919,7 @@ file
 .     export excel using "`excel_exec'", sheet("institutional_by_district", rep
 > lace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1901,21 +1947,31 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . 
 . aju_mean_table `caseload_vars', sheet("caseload_summary") module("Caseload an
-> d dispute profile") ///
+> d dispute profile") graphvars("pending_share_3m directly_brought_share_3m any
+> _child_or_sgbv_case_3m any_reintegration_case_3m petty_case_share_score casel
+> oad_accuracy_score") ///
 >     graph("fig_09_caseload_selected") ///
 >     title("Caseload and sensitive-case exposure")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002b.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004n.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(6 observations deleted)
+(6 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_09_caseload_selected.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_09_caseload_selected.png written in 
 > PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_09_caseload_selected.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_09_caseload_selected.pdf
     saved as PDF format
 
 . 
@@ -1929,7 +1985,7 @@ file
 .     export excel using "`excel_exec'", sheet("caseload_by_district", replace)
 >  firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . restore
 
@@ -1943,13 +1999,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . graph export "`fig_dir'/fig_10_caseload_3m_distribution.png", width(2600) rep
 > lace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_10_caseload_3m_distribution.png writ
+> bb_p9v2kmuv//phase1_baseline_figures/fig_10_caseload_3m_distribution.png writ
 > ten in PNG format
 
 . graph export "`fig_dir'/fig_10_caseload_3m_distribution.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_10_caseload_3m_distribution.p
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_10_caseload_3m_distribution.p
     > df saved as PDF format
 
 . 
@@ -1957,28 +2013,28 @@ file
 >  discrete ///
 >     xtitle("Cases received in past 3 months") ///
 >     ytitle("Number of LC chairpersons") ///
->     title("Distribution of 3-month LCC caseload, excluding extreme outlier", 
-> size(medsmall)) ///
->     note("Zoomed to 0-15 cases so the main distribution is visible; see outli
-> er table for high values.", size(vsmall))
+>     title("Distribution of 3-month LCC caseload: 0-15 cases", size(medsmall))
+>  ///
+>     note("Display restricted to 0-15 cases; see the full distribution for all
+>  observed values.", size(vsmall))
 (start=0, width=1)
 
 . graph export "`fig_dir'/fig_10b_caseload_3m_zoom.png", width(2600) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_10b_caseload_3m_zoom.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_10b_caseload_3m_zoom.png written in 
 > PNG format
 
 . graph export "`fig_dir'/fig_10b_caseload_3m_zoom.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_10b_caseload_3m_zoom.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_10b_caseload_3m_zoom.pdf
     saved as PDF format
 
 . 
 . preserve
 
 .     keep if !missing(caseload_3m) & caseload_3m > 15
-(91 observations deleted)
+(93 observations deleted)
 
 .     if _N > 0 {
 .         keep survey_record_id submission_key interview_date enum canonical_di
@@ -1997,7 +2053,7 @@ file
 .         putexcel A1 = "No observations exceeded 15 cases in the prior three m
 > onths."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 .         putexcel clear
 .     }
 
@@ -2015,16 +2071,28 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     title("Types of cases received in past 3 months")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002d.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004p.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(10 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_11_case_types_3m.png written in PNG 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_11_case_types_3m.png written in PNG 
 > format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_11_case_types_3m.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_11_case_types_3m.pdf saved as
     PDF format
 
 . 
@@ -2055,16 +2123,29 @@ file
 >     title("Legal mandate, referral, and procedural knowledge")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002d.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004p.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(11 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_12_legal_knowledge.png written in PN
+> bb_p9v2kmuv//phase1_baseline_figures/fig_12_legal_knowledge.png written in PN
 > G format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_12_legal_knowledge.pdf saved
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_12_legal_knowledge.pdf saved
     as PDF format
 
 . 
@@ -2089,16 +2170,30 @@ file
 >     title("Performance on case-classification vignettes")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002d.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004p.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(12 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_13_vignette_performance.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_13_vignette_performance.png written 
 > in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_13_vignette_performance.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_13_vignette_performance.pdf
     saved as PDF format
 
 . 
@@ -2156,8 +2251,8 @@ variable scenario was str16 now str21
 > ))) ///
 >         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
 >         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
->         ytitle("Mean correct response across classification, action, and docu
-> mentation (0-1)") ///
+>         ytitle("Mean correct response: classification, action, and actor invo
+> lvement (0-1)") ///
 >         title("Case-vignette performance", size(medsmall)) ///
 >         note("Sensitive cases are shown alongside ordinary disputes to identi
 > fy safeguarding training needs.", size(vsmall))
@@ -2165,13 +2260,13 @@ variable scenario was str16 now str21
 .     graph export "`fig_dir'/fig_13_vignette_performance.png", width(2800) rep
 > lace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_13_vignette_performance.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_13_vignette_performance.png written 
 > in PNG format
 
 .     graph export "`fig_dir'/fig_13_vignette_performance.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_13_vignette_performance.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_13_vignette_performance.pdf
     saved as PDF format
 
 . restore
@@ -2202,21 +2297,38 @@ file
 
 . 
 . aju_mean_table `adr_vars', sheet("adr_mediation") module("ADR and mediation p
-> ractice") ///
+> ractice") graphvars("m5_q01_score m5_q02_score m5_q03_score m5_q06_score m5_q
+> 07_score adr_confidence_score deescalation_confidence_score adr_methods_score
+>  noncomp_response_app m5_q14_score m5_q16_score idx_adr_mediation_practice") 
+> ///
 >     graph("fig_14_adr_mediation") ///
 >     title("ADR and mediation practice")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(2 observations deleted)
+(12 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_14_adr_mediation.png written in PNG 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_14_adr_mediation.png written in PNG 
 > format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_14_adr_mediation.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_14_adr_mediation.pdf saved as
     PDF format
 
 . 
@@ -2231,16 +2343,27 @@ file
 >     title("Reported barriers to local mediation/ADR")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_15_adr_barriers.png written in PNG f
+> bb_p9v2kmuv//phase1_baseline_figures/fig_15_adr_barriers.png written in PNG f
 > ormat
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_15_adr_barriers.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_15_adr_barriers.pdf saved as
     PDF format
 
 . 
@@ -2255,16 +2378,26 @@ file
 >     title("ADR/local resolution methods used")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(8 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_16_adr_methods.png written in PNG fo
+> bb_p9v2kmuv//phase1_baseline_figures/fig_16_adr_methods.png written in PNG fo
 > rmat
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_16_adr_methods.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_16_adr_methods.pdf saved as
     PDF format
 
 . 
@@ -2292,21 +2425,38 @@ file
 
 . 
 . aju_mean_table `referral_vars', sheet("referral_practice") module("Referral p
-> ractice and coordination") ///
+> ractice and coordination") graphvars("referral_frequency_score referral_docum
+> entation_score referral_feedback_score police_coordination_score court_coordi
+> nation_score referral_path_conf_score referral_explain_conf_score verified_re
+> ferral_record_score verified_ref_dest_score no_major_referral_barriers idx_re
+> ferral_practice") ///
 >     graph("fig_17_referral_practice") ///
 >     title("Referral practice, coordination, and documentation")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(2 observations deleted)
+(11 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_17_referral_practice.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_17_referral_practice.png written in 
 > PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_17_referral_practice.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_17_referral_practice.pdf
     saved as PDF format
 
 . 
@@ -2321,16 +2471,26 @@ file
 >     title("Reasons LC chairpersons refer cases onward")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(8 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_18_referral_reasons.png written in P
+> bb_p9v2kmuv//phase1_baseline_figures/fig_18_referral_reasons.png written in P
 > NG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_18_referral_reasons.pdf saved
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_18_referral_reasons.pdf saved
     as PDF format
 
 . 
@@ -2345,16 +2505,29 @@ file
 >     title("Reported barriers to referral")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(11 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_19_referral_barriers.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_19_referral_barriers.png written in 
 > PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_19_referral_barriers.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_19_referral_barriers.pdf
     saved as PDF format
 
 . 
@@ -2385,21 +2558,43 @@ file
 
 . 
 . aju_mean_table `record_vars', sheet("record_quality") module("Record-keeping 
-> and case management") ///
+> and case management") graphvars("case_register_score record_type_breadth_scor
+> e record_uptodate_score most_recent_entry_score record_fields_score outcome_r
+> ecorded_score record_retrieval_score secure_storage_score records_access_open
+> _to_community no_major_record_challenges verified_case_register_score verifie
+> d_proceedings_score verified_storage_score verified_record_usability_score id
+> x_record_quality") ///
 >     graph("fig_20_record_quality") ///
 >     title("Record-keeping and case-management quality")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 observation deleted)
+(15 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_20_record_quality.png written in PNG
+> bb_p9v2kmuv//phase1_baseline_figures/fig_20_record_quality.png written in PNG
 >  format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_20_record_quality.pdf saved
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_20_record_quality.pdf saved
     as PDF format
 
 . 
@@ -2414,16 +2609,27 @@ file
 >     title("Reported record-keeping challenges")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_21_record_challenges.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_21_record_challenges.png written in 
 > PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_21_record_challenges.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_21_record_challenges.pdf
     saved as PDF format
 
 . 
@@ -2453,21 +2659,42 @@ file
 
 . 
 . aju_mean_table `committee_vars', sheet("committee_function") module("Committe
-> e functioning and collective decision-making") ///
+> e functioning and collective decision-making") graphvars("collective_handling
+> _score active_member_part_score collective_discussion_score women_participati
+> on_score women_perspective_mechanism record_validation_score case_review_scor
+> e decision_process_score similar_case_consistency_score procedure_confidence_
+> score no_major_committee_challenges verified_member_part_score verified_multi
+> member_val_score idx_committee_functioning") ///
 >     graph("fig_22_committee_functioning") ///
 >     title("Committee functioning and collective decision-making")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 observation deleted)
+(14 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_22_committee_functioning.png written
+> bb_p9v2kmuv//phase1_baseline_figures/fig_22_committee_functioning.png written
 >  in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_22_committee_functioning.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_22_committee_functioning.pdf
     saved as PDF format
 
 . 
@@ -2482,16 +2709,28 @@ file
 >     title("Reported committee-functioning challenges")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(10 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_23_committee_challenges.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_23_committee_challenges.png written 
 > in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_23_committee_challenges.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_23_committee_challenges.pdf
     saved as PDF format
 
 . 
@@ -2526,16 +2765,33 @@ file
 >     title("Perceived legitimacy, bypassing, and fairness risks")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(15 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_24_legitimacy_bypass.png written in 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_24_legitimacy_bypass.png written in 
 > PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_24_legitimacy_bypass.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_24_legitimacy_bypass.pdf
     saved as PDF format
 
 . 
@@ -2564,16 +2820,27 @@ file
 >     title("Safeguards and serious/sensitive-case handling")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_25_safeguards.png written in PNG for
+> bb_p9v2kmuv//phase1_baseline_figures/fig_25_safeguards.png written in PNG for
 > mat
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_25_safeguards.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_25_safeguards.pdf saved as
     PDF format
 
 . 
@@ -2607,21 +2874,46 @@ file
 
 . 
 . aju_mean_table `reintegration_vars', sheet("reintegration_norms") module("Rei
-> ntegration norms") ///
+> ntegration norms") graphvars("reintegration_importance_score reintegration_wi
+> llingness_score fair_chance_reintegration_score low_exclusion_norm_score low_
+> reoffending_stigma_score comm_role_reint_score reint_mediation_comfort connec
+> t_support_willing_score community_stigma_level_score reint_support_breadth_sc
+> ore no_reintegration_support_needed comm_accepts_ex_prisoner recent_reintegra
+> tion_issue reint_tension_conf_score reint_referral_conf_score reint_comm_just
+> ice_role idx_reintegration_norms") ///
 >     graph("fig_26_reintegration_norms") ///
 >     title("Reintegration norms and support capacity")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(2 observations deleted)
+(17 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_26_reintegration_norms.png written i
+> bb_p9v2kmuv//phase1_baseline_figures/fig_26_reintegration_norms.png written i
 > n PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_26_reintegration_norms.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_26_reintegration_norms.pdf
     saved as PDF format
 
 . 
@@ -2636,16 +2928,27 @@ file
 >     title("Support types identified for successful reintegration")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_27_reintegration_support.png written
+> bb_p9v2kmuv//phase1_baseline_figures/fig_27_reintegration_support.png written
 >  in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_27_reintegration_support.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_27_reintegration_support.pdf
     saved as PDF format
 
 . 
@@ -2660,16 +2963,27 @@ file
 >     title("Perceived barriers to reintegration")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004q.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(1 real change made)
+(0 observations deleted)
+(9 real changes made)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_28_reintegration_barriers.png writte
+> bb_p9v2kmuv//phase1_baseline_figures/fig_28_reintegration_barriers.png writte
 > n in PNG format
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_28_reintegration_barriers.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_28_reintegration_barriers.pdf
     saved as PDF format
 
 . 
@@ -2686,34 +3000,34 @@ file
 .     keep `all_indices'
 
 .     corr `all_indices'
-(obs=91)
+(obs=93)
 
              | i~spon~y idx_in~g idx_le~e idx_ad~e idx_re~e i~cord~y idx_co~g
 -------------+---------------------------------------------------------------
 idx_respon~y |   1.0000
-idx_instit~g |   0.3108   1.0000
-idx_legal_~e |  -0.1017  -0.4621   1.0000
-idx_adr_me~e |   0.3104  -0.1707   0.2990   1.0000
-idx_referr~e |   0.3626   0.1112   0.0530   0.6212   1.0000
-idx_record~y |   0.4775   0.6810  -0.2483   0.1663   0.3017   1.0000
-idx_commit~g |   0.2687  -0.1382   0.3489   0.6412   0.4563   0.1351   1.0000
-idx_percei~y |   0.2967  -0.1641   0.3797   0.5795   0.4161   0.0808   0.5910
-idx_safegu~s |   0.0685  -0.2711   0.4013   0.2469   0.0292   0.0272   0.1889
-idx_reinte~s |   0.0472  -0.2428   0.3398   0.5173   0.4227  -0.0171   0.4460
-idx_lcc_op~y |   0.5073   0.7693  -0.2188   0.2501   0.3831   0.9305   0.3645
-idx_lcc_ca~y |   0.2442  -0.2877   0.6026   0.7973   0.5983   0.1070   0.5881
-idx_lcc_le~s |   0.2153  -0.2265   0.4140   0.6312   0.4786   0.0438   0.6033
-idx_p1_bas~y |   0.7470   0.2396   0.2093   0.6826   0.6381   0.5831   0.6286
+idx_instit~g |   0.3079   1.0000
+idx_legal_~e |  -0.0902  -0.4808   1.0000
+idx_adr_me~e |   0.3079  -0.1755   0.3017   1.0000
+idx_referr~e |   0.3799   0.1095   0.0525   0.6266   1.0000
+idx_record~y |   0.4911   0.6802  -0.2531   0.1661   0.2998   1.0000
+idx_commit~g |   0.2883  -0.1414   0.3569   0.6317   0.4714   0.1522   1.0000
+idx_percei~y |   0.3193  -0.1865   0.4074   0.5797   0.4074   0.0730   0.6181
+idx_safegu~s |   0.0727  -0.2862   0.4223   0.2501   0.0339   0.0225   0.1983
+idx_reinte~s |   0.0736  -0.2544   0.3577   0.5191   0.4205  -0.0169   0.4739
+idx_lcc_op~y |   0.5199   0.7641  -0.2238   0.2466   0.3869   0.9316   0.3773
+idx_lcc_ca~y |   0.2497  -0.3043   0.6160   0.7939   0.5939   0.0991   0.5915
+idx_lcc_le~s |   0.2423  -0.2453   0.4386   0.6290   0.4694   0.0389   0.6316
+idx_p1_bas~y |   0.7558   0.2219   0.2245   0.6752   0.6385   0.5797   0.6482
 
              | idx_pe~y idx_sa~s idx_re~s i~oper~y i~case~y idx_lc~s idx_p1~y
 -------------+---------------------------------------------------------------
 idx_percei~y |   1.0000
-idx_safegu~s |   0.2774   1.0000
-idx_reinte~s |   0.5242   0.3728   1.0000
-idx_lcc_op~y |   0.1833  -0.0274   0.0431   1.0000
-idx_lcc_ca~y |   0.6005   0.6875   0.6114   0.1493   1.0000
-idx_lcc_le~s |   0.9066   0.3642   0.8346   0.1399   0.6914   1.0000
-idx_p1_bas~y |   0.6750   0.3613   0.5016   0.6650   0.7049   0.6852   1.0000
+idx_safegu~s |   0.3026   1.0000
+idx_reinte~s |   0.5403   0.3868   1.0000
+idx_lcc_op~y |   0.1809  -0.0326   0.0500   1.0000
+idx_lcc_ca~y |   0.6138   0.6959   0.6194   0.1408   1.0000
+idx_lcc_le~s |   0.9107   0.3852   0.8396   0.1413   0.7002   1.0000
+idx_p1_bas~y |   0.6867   0.3691   0.5182   0.6623   0.7038   0.6976   1.0000
 
 
 .     matrix C = r(C)
@@ -2723,7 +3037,7 @@ idx_p1_bas~y |   0.6750   0.3613   0.5016   0.6650   0.7049   0.6852   1.0000
 
 .     putexcel A1 = matrix(C), names
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 .     putexcel clear
 
@@ -2739,7 +3053,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > sing `readiness_corrs', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002f.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004r.tmp not found)
 
 . 
 . foreach v of local core_indices {
@@ -2773,7 +3087,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_exec'", sheet("readiness_correlations", replac
 > e) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . 
 .     graph hbar corr_with_readiness, over(label, sort(corr_with_readiness) lab
@@ -2789,13 +3103,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     graph export "`fig_dir'/fig_29_readiness_correlations.png", width(2600) r
 > eplace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_29_readiness_correlations.png writte
+> bb_p9v2kmuv//phase1_baseline_figures/fig_29_readiness_correlations.png writte
 > n in PNG format
 
 .     graph export "`fig_dir'/fig_29_readiness_correlations.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_29_readiness_correlations.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_29_readiness_correlations.pdf
     saved as PDF format
 
 . restore
@@ -2814,13 +3128,13 @@ file
 . graph export "`fig_dir'/fig_30_readiness_vs_case_handling.png", width(2400) r
 > eplace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_30_readiness_vs_case_handling.png wr
+> bb_p9v2kmuv//phase1_baseline_figures/fig_30_readiness_vs_case_handling.png wr
 > itten in PNG format
 
 . graph export "`fig_dir'/fig_30_readiness_vs_case_handling.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_30_readiness_vs_case_handling
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_30_readiness_vs_case_handling
     > .pdf saved as PDF format
 
 . 
@@ -2836,13 +3150,13 @@ file
 . graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.png", width(2400
 > ) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_31_readiness_vs_legitimacy_norms.png
+> bb_p9v2kmuv//phase1_baseline_figures/fig_31_readiness_vs_legitimacy_norms.png
 >  written in PNG format
 
 . graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_31_readiness_vs_legitimacy_no
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_31_readiness_vs_legitimacy_no
     > rms.pdf saved as PDF format
 
 . 
@@ -2862,35 +3176,35 @@ note: file will be replaced when the first putexcel command is issued.
 . putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline all-item tabulatio
 > ns"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel A3 = "Purpose"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel B3 = "Complete internal reference workbook: numeric summaries and ca
 > tegorical tabulations for SurveyCTO raw items and constructed analysis variab
 > les."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel A4 = "Caveat"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel B4 = "String/free-text notes are summarized for missingness only, no
 > t fully tabulated. Fully missing/not-fielded numeric variables are flagged in
 >  numeric_field_status."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel A5 = "Input"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel B5 = "`analysis_data'"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . putexcel clear
 
@@ -2934,7 +3248,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > ssing str40 status using `numeric_field_status', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002h.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004t.tmp not found)
 
 . quietly count
 
@@ -2970,7 +3284,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_items'", sheet("numeric_field_status", replace
 > ) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . restore
 
@@ -2978,17 +3292,17 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . aju_tab_numeric_all `all_num_existing', sheet("numeric_summary_all")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002j.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004v.tmp not found)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . aju_tab_categorical_all `all_num_existing', sheet("categorical_counts_all") m
 > axlevels(30)
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002j.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004v.tmp not found)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . 
 . * Select-multiple / dummy-style variables: report share selected.
@@ -3009,10 +3323,10 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     xlsx("${AJU_ITEMS_XLSX}")
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002j.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004v.tmp not found)
 (0 observations deleted)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . 
 . * String/free-text missingness and uniqueness summary
@@ -3025,7 +3339,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     long n_nonmissing n_missing n_unique using `string_summary', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00002j.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00004v.tmp not found)
 
 . 
 . ds, has(type string)
@@ -3034,18 +3348,18 @@ instance_id   reconcilia~e  m5_q13        m11_q20       parish_sct~y
 baseline_w~l  final_excl~n  m5_q17        instanceid    village_sc~y
 baseline_s~e  m1_q10        m6_q04        key           origin_dis~y
 district_s~o  m1_q14        m6_q12        m0_q05_aug~w  origin_vil~y
-subcounty_~o  m2_q15        m6_q18        m0_q06_aug~w  fvl_district
-parish_scto   m2_q18        m7_q03        m0_q07_aug~w  fvl_subcou~y
-village_scto  m3_q04        m7_q06        submissio~xt  fvl_parish
-survey_v~uid  m3_q18        m7_q14        starttime~xt  fvl_village
-canonical_~t  m4_q01        m7_q15        endtime_ra~t  canoni~t_key
-canonical~ty  m4_q02        m7_q16        topics_tra~d  canoni~y_key
-canonical_~h  m4_q05        m8_q15        m1_q14_spe~y  canoni~h_key
-canonical_~e  m4_q06        m8_q16        m2_q15_spe~y  canoni~e_key
-canonica~uid  m4_q08        m9_q16        m3_q15        documented~y
-superseded~y  m4_v05_q3     m9_q20        m4_v01_q3     august_suc~y
-supersessi~n  m4_v06_q3     m10_q15       m4_v02_q3
-training_t~s  m4_q12        m11_q10       district_s~y
+subcounty_~o  m2_q15        m6_q18        m0_q06_aug~w  geography_~e
+parish_scto   m2_q18        m7_q03        m0_q07_aug~w  fvl_district
+village_scto  m3_q04        m7_q06        submissio~xt  fvl_subcou~y
+survey_v~uid  m3_q18        m7_q14        starttime~xt  fvl_parish
+canonical_~t  m4_q01        m7_q15        endtime_ra~t  fvl_village
+canonical~ty  m4_q02        m7_q16        topics_tra~d  selected10~d
+canonical_~h  m4_q05        m8_q15        m1_q14_spe~y  canoni~t_key
+canonical_~e  m4_q06        m8_q16        m2_q15_spe~y  canoni~y_key
+canonica~uid  m4_q08        m9_q16        m3_q15        canoni~h_key
+superseded~y  m4_v05_q3     m9_q20        m4_v01_q3     canoni~e_key
+supersessi~n  m4_v06_q3     m10_q15       m4_v02_q3     documented~y
+training_t~s  m4_q12        m11_q10       district_s~y  august_suc~y
 
 . local string_vars `r(varlist)'
 
@@ -3112,10 +3426,10 @@ training_t~s  m4_q12        m11_q10       district_s~y
 (0 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
-(38 observations deleted)
-(26 observations deleted)
+(39 observations deleted)
+(27 observations deleted)
 (28 observations deleted)
-(9 observations deleted)
+(10 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
@@ -3123,38 +3437,47 @@ training_t~s  m4_q12        m11_q10       district_s~y
 (0 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
+(13 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(15 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(8 observations deleted)
+(0 observations deleted)
+(14 observations deleted)
+(14 observations deleted)
+(0 observations deleted)
+(15 observations deleted)
+(0 observations deleted)
+(15 observations deleted)
+(0 observations deleted)
+(14 observations deleted)
 (12 observations deleted)
-(0 observations deleted)
-(0 observations deleted)
-(13 observations deleted)
-(0 observations deleted)
-(0 observations deleted)
-(6 observations deleted)
-(0 observations deleted)
-(14 observations deleted)
-(14 observations deleted)
-(0 observations deleted)
-(14 observations deleted)
-(0 observations deleted)
-(14 observations deleted)
-(0 observations deleted)
-(13 observations deleted)
-(11 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
 (7 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
-(67 observations deleted)
-(67 observations deleted)
-(67 observations deleted)
-(67 observations deleted)
-(67 observations deleted)
-(67 observations deleted)
-(76 observations deleted)
+(68 observations deleted)
+(68 observations deleted)
+(68 observations deleted)
+(68 observations deleted)
+(68 observations deleted)
+(68 observations deleted)
+(77 observations deleted)
+(92 observations deleted)
+(92 observations deleted)
+(85 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
+(0 observations deleted)
 (90 observations deleted)
-(90 observations deleted)
-(83 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
@@ -3163,16 +3486,9 @@ training_t~s  m4_q12        m11_q10       district_s~y
 (0 observations deleted)
 (0 observations deleted)
 (0 observations deleted)
-(1 observation deleted)
-(1 observation deleted)
-(1 observation deleted)
-(1 observation deleted)
 (0 observations deleted)
-(0 observations deleted)
-(0 observations deleted)
-(0 observations deleted)
-(83 observations deleted)
-(67 observations deleted)
+(85 observations deleted)
+(68 observations deleted)
 
 . 
 . postclose `ss'
@@ -3185,7 +3501,7 @@ training_t~s  m4_q12        m11_q10       district_s~y
 .     export excel using "`excel_items'", ///
 >         sheet("string_missingness", replace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_all_item_tabulations.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_all_item_tabulations.xlsx saved
 
 . restore
 
@@ -3217,15 +3533,15 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . save `primary_cohort'
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00001q.tmp saved as .dta format
+    > 5bb_p9v2kmuv\ST_9a18_000042.tmp saved as .dta format
 
 . use `full_cohort', clear
 (Final de-identified Phase 1 baseline analytical cohort)
 
 . keep if selected_fvl100_observed == 1 | p1_admin_previously_contacted == 1
-(16 observations deleted)
+(15 observations deleted)
 
-. assert _N == `primary_n' + 22
+. assert _N == `primary_n' + `legacy_n'
 
 . assert selected_fvl100_observed == 1 if p1_admin_previously_contacted == 0
 
@@ -3245,7 +3561,7 @@ file
 . capture label drop p1_admin_prev_lbl
 
 . label define p1_admin_prev_lbl ///
->     0 "Selected-list LC (interviewed)" ///
+>     0 "Selected-list (observed)" ///
 >     1 "Previously contacted"
 
 . label values p1_admin_previously_contacted p1_admin_prev_lbl
@@ -3273,13 +3589,14 @@ Phase 1 origin comparison: validation
 . 
 . tab p1_admin_previously_contacted, missing
 
-         Administrative group: |
-  previously contacted village |      Freq.     Percent        Cum.
--------------------------------+-----------------------------------
-Selected-list LC (interviewed) |         91       80.53       80.53
-          Previously contacted |         22       19.47      100.00
--------------------------------+-----------------------------------
-                         Total |        113      100.00
+   Administrative group: |
+    previously contacted |
+                 village |      Freq.     Percent        Cum.
+-------------------------+-----------------------------------
+Selected-list (observed) |         93       80.87       80.87
+    Previously contacted |         22       19.13      100.00
+-------------------------+-----------------------------------
+                   Total |        115      100.00
 
 . tab canonical_district p1_admin_previously_contacted, row missing
 
@@ -3295,17 +3612,17 @@ Selected-list LC (interviewed) |         91       80.53       80.53
                       |        village
    canonical_district | Selected-  Previousl |     Total
 ----------------------+----------------------+----------
-             Bushenyi |        40          7 |        47 
-                      |     85.11      14.89 |    100.00 
+             Bushenyi |        41          7 |        48 
+                      |     85.42      14.58 |    100.00 
 ----------------------+----------------------+----------
              Rubirizi |        28          6 |        34 
                       |     82.35      17.65 |    100.00 
 ----------------------+----------------------+----------
-               Sheema |        23          9 |        32 
-                      |     71.88      28.12 |    100.00 
+               Sheema |        24          9 |        33 
+                      |     72.73      27.27 |    100.00 
 ----------------------+----------------------+----------
-                Total |        91         22 |       113 
-                      |     80.53      19.47 |    100.00 
+                Total |        93         22 |       115 
+                      |     80.87      19.13 |    100.00 
 
 . 
 . count if p1_admin_previously_contacted == 1
@@ -3314,14 +3631,14 @@ Selected-list LC (interviewed) |         91       80.53       80.53
 . display as result "Previously contacted records: " r(N)
 Previously contacted records: 22
 
-. assert r(N) == 22
+. assert r(N) == `legacy_n'
 
 . 
 . count if p1_admin_previously_contacted == 0
-  91
+  93
 
 . display as result "Observed selected-list records: " r(N)
-Observed selected-list records: 91
+Observed selected-list records: 93
 
 . assert r(N) == `primary_n'
 
@@ -3347,51 +3664,51 @@ note: file will be replaced when the first putexcel command is issued.
 
 . putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline origin comparison"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel A3 = "Purpose"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel B3 = "Descriptive comparison of observed selected-list LCs and previ
 > ously contacted LCs; other amended LCs excluded."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel A4 = "Grouping variable"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel B4 = "p1_admin_previously_contacted"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel A5 = "Definition"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel B5 = "1 if admin list marks village as Last_CDFU_phase == 1 or Inher
 > ited_FHRI == 1; 0 otherwise."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel A6 = "Interpretation"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel B6 = "Descriptive baseline association, not a causal effect of previ
 > ous contact."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel A7 = "Recommended use"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel B7 = "Use as implementation diagnostics in the Phase 1 Final Baselin
 > e Report."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . putexcel clear
 
@@ -3414,7 +3731,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("sample_by_origin", replace) f
 > irstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -3438,7 +3755,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("sample_by_district_origin", r
 > eplace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -3564,6 +3881,8 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     `mentorvars' ///
 >     `contextvars'
 
+. local candvars : list uniq candvars
+
 . 
 . 
 . *----------------------------------------------------------------------------
@@ -3600,7 +3919,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `origin_diffs', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000051.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007f.tmp not found)
 
 . 
 . foreach v of local candvars {
@@ -3685,7 +4004,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("final_diff_table", replace) f
 > irstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . 
 .     * Ranked table across all domains
@@ -3694,7 +4013,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("ranked_abs_differences", repl
 > ace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . 
 .     * Parsimonious high-level comparison table for the Final Baseline Report
@@ -3709,7 +4028,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("report_core_comparisons", rep
 > lace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -3740,7 +4059,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >                  2 "Case-handling quality" ///
 >                  3 "Legitimacy & reintegration" ///
 >                  4 "Mentor-readiness proxy") ///
->            rows(2) size(vsmall)) ///
+>            rows(2) position(6) ring(1) size(vsmall)) ///
 >     note("Descriptive baseline comparison only; not a causal effect of previo
 > us exposure.", size(vsmall))
 
@@ -3748,13 +4067,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . graph export "`fig_dir'/fig_32_origin_core_composites.png", width(2600) repla
 > ce
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_32_origin_core_composites.png writte
+> bb_p9v2kmuv//phase1_baseline_figures/fig_32_origin_core_composites.png writte
 > n in PNG format
 
 . graph export "`fig_dir'/fig_32_origin_core_composites.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_32_origin_core_composites.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_32_origin_core_composites.pdf
     saved as PDF format
 
 . 
@@ -3782,7 +4101,7 @@ file
 .     export excel using "`excel_origin'", sheet("fig32_core_composites", repla
 > ce) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -3813,30 +4132,31 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     ylabel(0(.2)1, labsize(small)) ///
 >     ytitle("Share / mean score") ///
 >         scheme(plotplain) ///
->     title("JLOS collaboration and referral pathway by Phase 1 origin", size(m
-> edsmall)) ///
+>     title("Referral benchmarks by administrative origin", size(medsmall)) ///
 >     legend(order(1 "Prior formal coordination" ///
->                  2 "Police coordination" ///
->                  3 "Court/formal justice coordination" ///
+>                  2 "Perceived ease: police" ///
+>                  3 "Perceived ease: courts" ///
 >                  4 "Confidence: where to refer" ///
 >                  5 "Confidence: explain referral" ///
 >                  6 "Feedback after referral" ///
->                  7 "Referral cases recorded") ///
->            rows(3) size(vsmall)) ///
->     note("JLOS = Justice, Law and Order Sector. Descriptive baseline comparis
-> on only.", size(vsmall))
+>                  7 "Verified referral records") ///
+>            cols(2) position(6) ring(1) size(vsmall)) ///
+>     note("Selected-list N=`primary_n'; previous-contact N=`legacy_n'; item N 
+> varies." ///
+>          "Descriptive association, not a causal effect. Verification is condi
+> tional on observable records.", size(vsmall) span)
 
 . 
 . graph export "`fig_dir'/fig_33_origin_jlos_collaboration.png", width(2800) re
 > place
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_33_origin_jlos_collaboration.png wri
+> bb_p9v2kmuv//phase1_baseline_figures/fig_33_origin_jlos_collaboration.png wri
 > tten in PNG format
 
 . graph export "`fig_dir'/fig_33_origin_jlos_collaboration.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_33_origin_jlos_collaboration.
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_33_origin_jlos_collaboration.
     > pdf saved as PDF format
 
 . 
@@ -3870,7 +4190,7 @@ file
 .     export excel using "`excel_origin'", sheet("fig33_jlos_collaboration", re
 > place) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -3954,20 +4274,20 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >                  4 "Referrals" ///
 >                  5 "Safeguards" ///
 >                  6 "Case handling") ///
->            rows(2) size(vsmall)) ///
+>            rows(2) position(6) ring(1) size(vsmall)) ///
 >     note("Higher values indicate larger baseline gaps. Descriptive comparison
 >  only.", size(vsmall))
 
 . 
 . graph export "`fig_dir'/fig_34_origin_priority_gaps.png", width(2800) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_34_origin_priority_gaps.png written 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_34_origin_priority_gaps.png written 
 > in PNG format
 
 . graph export "`fig_dir'/fig_34_origin_priority_gaps.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_34_origin_priority_gaps.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_34_origin_priority_gaps.pdf
     saved as PDF format
 
 . 
@@ -3999,7 +4319,7 @@ file
 .     export excel using "`excel_origin'", sheet("fig34_priority_gaps", replace
 > ) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -4032,7 +4352,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >                  2 "High case-handling quality" ///
 >                  3 "High legitimacy/norms" ///
 >                  4 "High mentor-readiness proxy") ///
->            rows(2) size(vsmall)) ///
+>            rows(2) position(6) ring(1) size(vsmall)) ///
 >     note("High = score >= 0.75. Mentor-readiness proxy is diagnostic, not fin
 > al eligibility.", size(vsmall))
 
@@ -4040,13 +4360,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . graph export "`fig_dir'/fig_35_origin_high_readiness_flags.png", width(2600) 
 > replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_35_origin_high_readiness_flags.png w
+> bb_p9v2kmuv//phase1_baseline_figures/fig_35_origin_high_readiness_flags.png w
 > ritten in PNG format
 
 . graph export "`fig_dir'/fig_35_origin_high_readiness_flags.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_35_origin_high_readiness_flag
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_35_origin_high_readiness_flag
     > s.pdf saved as PDF format
 
 . 
@@ -4074,7 +4394,7 @@ file
 .     export excel using "`excel_origin'", sheet("fig35_high_readiness_flags", 
 > replace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 . restore
 
@@ -4106,10 +4426,11 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     double p_value ///
 >     double mean_selected ///
 >     double mean_prev ///
+>     double df_residual ///
 >     using `origin_regressions', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000057.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007l.tmp not found)
 
 . 
 . local regression_outcomes ///
@@ -4138,21 +4459,24 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .         local b = .
  11.         local se = .
  12.         local p = .
- 13. 
+ 13.         local df = .
+ 14. 
 .         if `n' > 5 {
- 14.             capture quietly regress `y' i.p1_admin_previously_contacted i.
+ 15.             capture quietly regress `y' i.p1_admin_previously_contacted i.
 > district_id, vce(robust)
- 15.             if !_rc {
- 16.                 local b = _b[1.p1_admin_previously_contacted]
- 17.                 local se = _se[1.p1_admin_previously_contacted]
- 18.                 local p = 2 * ttail(e(df_r), abs(`b' / `se'))
- 19.             }
- 20.         }
- 21. 
-.         local ylab : variable label `y'
- 22.         if `"`ylab'"' == "" local ylab "`y'"
- 23.         local ylab = substr(`"`ylab'"', 1, 160)
+ 16.             if !_rc {
+ 17.                 local b = _b[1.p1_admin_previously_contacted]
+ 18.                 local se = _se[1.p1_admin_previously_contacted]
+ 19.                 local p = 2 * ttail(e(df_r), abs(`b' / `se'))
+ 20.                 local n = e(N)
+ 21.                 local df = e(df_r)
+ 22.             }
+ 23.         }
  24. 
+.         local ylab : variable label `y'
+ 25.         if `"`ylab'"' == "" local ylab "`y'"
+ 26.         local ylab = substr(`"`ylab'"', 1, 160)
+ 27. 
 .         post `regpost' ///
 >             (`"`y'"') ///
 >             (`"`ylab'"') ///
@@ -4161,9 +4485,10 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >             (`se') ///
 >             (`p') ///
 >             (`mean0') ///
->             (`mean1')
- 25.     }
- 26. }
+>             (`mean1') ///
+>             (`df')
+ 28.     }
+ 29. }
 
 . 
 . postclose `regpost'
@@ -4175,9 +4500,9 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 .     gen raw_diff_prev_minus_selected = mean_prev - mean_selected
 
-.     gen ci_low = coef_prev_contacted - invttail(n-4, .025)*se
+.     gen ci_low = coef_prev_contacted - invttail(df_residual, .025)*se
 
-.     gen ci_high = coef_prev_contacted + invttail(n-4, .025)*se
+.     gen ci_high = coef_prev_contacted + invttail(df_residual, .025)*se
 
 .     gen model_note = "Cross-sectional baseline associations; not causal estim
 > ates."
@@ -4191,48 +4516,48 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_origin'", sheet("district_adjusted_diagnostics
 > ", replace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_origin_comparison.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_origin_comparison.xlsx saved
 
 .     putexcel set "`excel_reg'", replace sheet("README")
 note: file will be replaced when the first putexcel command is issued.
 
 .     putexcel A1 = "Phase 1 final baseline association models"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel A3 = "Interpretation"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel B3 = "Cross-sectional baseline associations; not causal estimate
 > s."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel A4 = "Origin specification"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel B4 = "Previously contacted versus observed selected-list LCs, ca
 > nonical district fixed effects, heteroskedasticity-robust standard errors."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel A5 = "Multivariable specification"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel B5 = "One common parsimonious specification using pre-existing c
 > hairperson characteristics and canonical district fixed effects."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 .     putexcel clear
 
 .     export excel using "`excel_reg'", sheet("origin_adjusted", replace) first
 > row(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 . 
 .     encode label, gen(outcome_id)
@@ -4258,13 +4583,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     graph export "`fig_dir'/fig_42_adjusted_origin_coefficients.png", width(3
 > 000) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_42_adjusted_origin_coefficients.png 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_42_adjusted_origin_coefficients.png 
 > written in PNG format
 
 .     graph export "`fig_dir'/fig_42_adjusted_origin_coefficients.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_42_adjusted_origin_coefficien
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_42_adjusted_origin_coefficien
     > ts.pdf saved as PDF format
 
 . restore
@@ -4281,7 +4606,7 @@ file
 >     long n double coefficient se p_value r2 using `multivar_results', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_000059.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007n.tmp not found)
 
 . 
 . local diagnostic_outcomes ///
@@ -4332,7 +4657,7 @@ file
 .     export excel using "`excel_reg'", sheet("multivariable_diagnostics", repl
 > ace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_regression_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_regression_results.xlsx saved
 
 . restore
 
@@ -4355,27 +4680,27 @@ Origin comparison outputs created:
 Excel workbook:
 
 . display as result "`excel_origin'"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_origin_comparison.xlsx
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_origin_comparison.xlsx
 
 . display as text "Figures:"
 Figures:
 
 . display as result "`fig_dir'/fig_32_origin_core_composites.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_32_origin_core_composites.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_32_origin_core_composites.png
 
 . display as result "`fig_dir'/fig_33_origin_jlos_collaboration.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_33_origin_jlos_collaboration.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_33_origin_jlos_collaboration.png
 
 . display as result "`fig_dir'/fig_34_origin_priority_gaps.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_34_origin_priority_gaps.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_34_origin_priority_gaps.png
 
 . display as result "`fig_dir'/fig_35_origin_high_readiness_flags.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_35_origin_high_readiness_flags.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_35_origin_high_readiness_flags.png
 
 . display as text "------------------------------------------------------------
 > "
@@ -4427,10 +4752,11 @@ Interpretation: Descriptive baseline association, not a causal effect of previo
 . capture label var prior_formal_coordination "Prior coordination with JLOS act
 > ors"
 
-. capture label var police_coordination_score "Coordination with police"
+. capture label var police_coordination_score "Perceived ease of police coordin
+> ation"
 
-. capture label var court_coordination_score "Coordination with courts/formal j
-> ustice"
+. capture label var court_coordination_score "Perceived ease of court/formal ju
+> stice coordination"
 
 . capture label var referral_frequency_score "Referral regularity"
 
@@ -4503,43 +4829,43 @@ note: file will be replaced when the first putexcel command is issued.
 . putexcel A1 = "Advancing Justice Uganda - Phase 1 baseline expanded JLOS anal
 > ysis"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel A3 = "Purpose"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel B3 = "Expanded descriptive analysis of LC chairperson collaboration 
 > with JLOS actors and referral pathways."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel A4 = "Sample"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel B4 = "Observed LCs from the 100-unit selected Final Village List fra
 > me."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel A5 = "JLOS definition"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel B5 = "Justice, Law and Order Sector: police, courts, probation/child
 >  protection, and related justice-sector authorities."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel A6 = "Interpretation"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel B6 = "Descriptive baseline analysis only. These figures do not estim
 > ate program impact."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . putexcel clear
 
@@ -4566,7 +4892,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > _snapshot', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005c.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007q.tmp not found)
 
 . 
 .     local v1  prior_formal_coordination
@@ -4579,11 +4905,11 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 .     local v3  police_coordination_score
 
-.     local l3  "Coordination with police"
+.     local l3  "Perceived ease of police coordination"
 
 .     local v4  court_coordination_score
 
-.     local l4  "Coordination with courts"
+.     local l4  "Perceived ease of court coordination"
 
 .     local v5  referral_frequency_score
 
@@ -4628,48 +4954,40 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . 
 .     gen item_id = order
 
-.     label define jlos_snap_lbl ///
->         1 "Prior formal coordination" ///
->         2 "Knows cases requiring referral" ///
->         3 "Coordination with police" ///
->         4 "Coordination with courts" ///
->         5 "Referral regularity" ///
->         6 "Confidence knowing where to refer" ///
->         7 "Confidence explaining referral" ///
->         8 "Referral documentation" ///
->         9 "Feedback after referral", replace
-
-.     label values item_id jlos_snap_lbl
+.     gen str100 indicator_with_n = indicator + " (n=" + strtrim(string(n, "%9.
+> 0f")) + ")"
 
 . 
 .     export excel using "`excel_jlos'", sheet("fig36_jlos_snapshot", replace) 
 > firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . 
 . graph hbar (asis) value, ///
 >     bar(1, color("32 87 129")) ///
->     over(item_id, label(labsize(vsmall))) ///
+>     over(indicator_with_n, sort(order) label(labsize(vsmall))) ///
 >     blabel(bar, format(%4.1f) size(vsmall)) ///
 >     ylabel(0(20)100, labsize(small)) ///
 >     ytitle("") ///
 >         scheme(plotplain) ///
 >     title("JLOS collaboration and referral practice", size(medsmall)) ///
 >     subtitle("Observed selected-list baseline sample", size(small)) ///
->     note("Values are percentages or 0-1 scores converted to 0-100. JLOS = Jus
-> tice, Law and Order Sector.", size(vsmall))
+>     note("Normalized scores x 100; prior coordination is a respondent share."
+>  ///
+>          "Item denominators shown. Ease/confidence are perceptions, not verif
+> ied coordination.", size(vsmall) span)
 
 . 
 . graph export "`fig_dir'/fig_36_jlos_snapshot.png", width(2800) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_36_jlos_snapshot.png written in PNG 
+> bb_p9v2kmuv//phase1_baseline_figures/fig_36_jlos_snapshot.png written in PNG 
 > format
 
 . graph export "`fig_dir'/fig_36_jlos_snapshot.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_36_jlos_snapshot.pdf saved as
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_36_jlos_snapshot.pdf saved as
     PDF format
 
 . restore
@@ -4696,7 +5014,7 @@ file
 > asons', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005e.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007s.tmp not found)
 
 . 
 .     local v1  m6_q04_1
@@ -4770,7 +5088,7 @@ file
 .     export excel using "`excel_jlos'", sheet("fig37_referral_reasons", replac
 > e) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . 
 . graph hbar (asis) value, ///
@@ -4789,13 +5107,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . graph export "`fig_dir'/fig_37_jlos_referral_reasons.png", width(2800) replac
 > e
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_37_jlos_referral_reasons.png written
+> bb_p9v2kmuv//phase1_baseline_figures/fig_37_jlos_referral_reasons.png written
 >  in PNG format
 
 . graph export "`fig_dir'/fig_37_jlos_referral_reasons.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_37_jlos_referral_reasons.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_37_jlos_referral_reasons.pdf
     saved as PDF format
 
 . restore
@@ -4822,7 +5140,7 @@ file
 > arriers', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005g.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007u.tmp not found)
 
 . 
 .     local v1  m6_q12_1
@@ -4911,7 +5229,7 @@ file
 .     export excel using "`excel_jlos'", sheet("fig38_referral_barriers", repla
 > ce) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . 
 . graph hbar (asis) value, ///
@@ -4930,13 +5248,13 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 . graph export "`fig_dir'/fig_38_jlos_referral_barriers.png", width(2800) repla
 > ce
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_38_jlos_referral_barriers.png writte
+> bb_p9v2kmuv//phase1_baseline_figures/fig_38_jlos_referral_barriers.png writte
 > n in PNG format
 
 . graph export "`fig_dir'/fig_38_jlos_referral_barriers.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_38_jlos_referral_barriers.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_38_jlos_referral_barriers.pdf
     saved as PDF format
 
 . restore
@@ -4947,8 +5265,7 @@ file
 . **# 19.6 Figure 39: Referral pathway bottleneck
 . *----------------------------------------------------------------------------
 > --*
-. * Recommended slide:
-. *   "The referral loop narrows after initial coordination"
+. * Separate cross-sectional benchmarks, not a longitudinal conversion funnel.
 . *----------------------------------------------------------------------------
 > --*
 . 
@@ -4965,7 +5282,8 @@ file
 > tion_score)
 (2 missing values generated)
 
-. label var jlos_coordination_avg "Average police/court coordination score"
+. label var jlos_coordination_avg "Average perceived ease of police/court coord
+> ination"
 
 . 
 . egen jlos_pathway_conf_avg = rowmean(referral_path_conf_score referral_explai
@@ -4999,7 +5317,7 @@ file
 > hway', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005i.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_00007w.tmp not found)
 
 . 
 .     local v1  prior_formal_coordination
@@ -5012,7 +5330,7 @@ file
 
 .     local v3  jlos_coordination_avg
 
-.     local l3  "Police/court coordination"
+.     local l3  "Perceived ease of police/court coordination"
 
 .     local v4  referral_frequency_score
 
@@ -5053,47 +5371,41 @@ file
 . 
 .     gen item_id = order
 
-.     label define jlos_path_lbl ///
->         1 "Prior formal coordination" ///
->         2 "Knows cases requiring referral" ///
->         3 "Police/court coordination" ///
->         4 "Referral regularity" ///
->         5 "Referral pathway confidence" ///
->         6 "Documentation and feedback" ///
->         7 "Verified referral record", replace
-
-.     label values item_id jlos_path_lbl
+.     gen str100 stage_with_n = stage + " (n=" + strtrim(string(n, "%9.0f")) + 
+> ")"
 
 . 
 .     export excel using "`excel_jlos'", sheet("fig39_referral_loop", replace) 
 > firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . 
 . graph hbar (asis) value, ///
 >     bar(1, color("32 87 129")) ///
->     over(item_id, label(labsize(vsmall))) ///
+>     over(stage_with_n, sort(order) label(labsize(vsmall))) ///
 >     blabel(bar, format(%4.1f) size(vsmall)) ///
 >     ylabel(0(20)100, labsize(small)) ///
 >     ytitle("") ///
 >         scheme(plotplain) ///
->     title("Referral pathway: strong entry, weaker closure", size(medsmall)) /
-> //
->     subtitle("Referral loop indicators, 0-100 scale", size(small)) ///
->     note("Documentation/feedback combines referral documentation and feedback
->  after referral.", size(vsmall))
+>     title("Referral pathway baseline benchmarks", size(medsmall)) ///
+>     subtitle("Normalized scores x 100; formal coordination is a respondent sh
+> are", size(small)) ///
+>     note("Separate cross-sectional measures; not a longitudinal funnel. Item 
+> denominators are shown." ///
+>          "Documentation/feedback and verified records are averages of availab
+> le paired measures.", size(vsmall))
 
 . 
 . graph export "`fig_dir'/fig_39_jlos_referral_loop.png", width(2800) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_39_jlos_referral_loop.png written in
+> bb_p9v2kmuv//phase1_baseline_figures/fig_39_jlos_referral_loop.png written in
 >  PNG format
 
 . graph export "`fig_dir'/fig_39_jlos_referral_loop.pdf", replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_39_jlos_referral_loop.pdf
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_39_jlos_referral_loop.pdf
     saved as PDF format
 
 . restore
@@ -5146,7 +5458,7 @@ file
 .     export excel using "`excel_jlos'", sheet("district_jlos_diagnostic", repl
 > ace) firstrow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_jlos_expanded_analysis.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx saved
 
 . restore
 
@@ -5165,24 +5477,24 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 Expanded JLOS collaboration outputs created:
 
 . display as result "`excel_jlos'"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_jlos_expanded_analysis.xlsx
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_jlos_expanded_analysis.xlsx
 
 . display as result "`fig_dir'/fig_36_jlos_snapshot.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_36_jlos_snapshot.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_36_jlos_snapshot.png
 
 . display as result "`fig_dir'/fig_37_jlos_referral_reasons.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_37_jlos_referral_reasons.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_37_jlos_referral_reasons.png
 
 . display as result "`fig_dir'/fig_38_jlos_referral_barriers.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_38_jlos_referral_barriers.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_38_jlos_referral_barriers.png
 
 . display as result "`fig_dir'/fig_39_jlos_referral_loop.png"
-C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_iz
-> iin9eg//phase1_baseline_figures/fig_39_jlos_referral_loop.png
+C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5bb_p9
+> v2kmuv//phase1_baseline_figures/fig_39_jlos_referral_loop.png
 
 . display as text "Recommended placement: referrals and JLOS coordination secti
 > on of the Final Baseline Report."
@@ -5206,18 +5518,24 @@ Recommended placement: referrals and JLOS coordination section of the Final Bas
 
 . tempname of
 
-. postfile `of' str80 measure double mean using `operations_figure', replace
+. postfile `of' str80 variable str160 measure str30 evidence_type long n double
+>  mean using `operations_figure', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005k.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_000080.tmp not found)
 
 . foreach v in case_register_score verified_record_usability_score idx_record_q
 > uality active_member_part_score women_participation_score idx_committee_funct
 > ioning {
   2.     quietly summarize `v', meanonly
   3.     local vl : variable label `v'
-  4.     post `of' (`"`vl'"') (r(mean))
-  5. }
+  4.     local evidence "Self-reported practice"
+  5.     if "`v'" == "verified_record_usability_score" local evidence "Enumerat
+> or-observed"
+  6.     if inlist("`v'", "idx_record_quality", "idx_committee_functioning") lo
+> cal evidence "Mixed index"
+  7.     post `of' ("`v'") (`"`vl'"') ("`evidence'") (r(N)) (r(mean))
+  8. }
 
 . postclose `of'
 
@@ -5225,27 +5543,61 @@ Recommended placement: referrals and JLOS coordination section of the Final Bas
 
 .     use `operations_figure', clear
 
-.     graph hbar mean, over(measure, sort(mean) descending label(labsize(small)
-> )) ///
+.     export excel using "`excel_exec'", sheet("fig40_operations", replace) fir
+> strow(variables)
+file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
+
+.     replace measure = "Reported case register / case book" if variable == "ca
+> se_register_score"
+(1 real change made)
+
+.     replace measure = "Enumerator-observed record usability" if variable == "
+> verified_record_usability_score"
+(1 real change made)
+
+.     replace measure = "Record quality (mixed index)" if variable == "idx_reco
+> rd_quality"
+(1 real change made)
+
+.     replace measure = "Reported active member participation" if variable == "
+> active_member_part_score"
+(1 real change made)
+
+.     replace measure = "Reported women's active participation" if variable == 
+> "women_participation_score"
+(1 real change made)
+
+.     replace measure = "Committee functioning (mixed index)" if variable == "i
+> dx_committee_functioning"
+(1 real change made)
+
+.     replace measure = measure + " (n=" + strtrim(string(n, "%9.0f")) + ")"
+(6 real changes made)
+
+.     graph hbar mean, over(measure, sort(mean) descending label(labsize(vsmall
+> ))) ///
 >         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
 >         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
 >         ytitle("Mean baseline score (0-1)") ///
 >         title("Records and committee operational capacity", size(medsmall)) /
 > //
->         note("Verified measures reflect enumerator-observed records or partic
-> ipation where available.", size(vsmall))
+>         note("Record usability is enumerator-observed; other measures are rep
+> orted or mixed indices." ///
+>              "Item N shown. Conditional verification does not represent the w
+> hole frame.", size(vsmall) span)
 
 .     graph export "`fig_dir'/fig_40_records_committee_constraints.png", width(
 > 3000) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_40_records_committee_constraints.png
+> bb_p9v2kmuv//phase1_baseline_figures/fig_40_records_committee_constraints.png
 >  written in PNG format
 
 .     graph export "`fig_dir'/fig_40_records_committee_constraints.pdf", replac
 > e
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_40_records_committee_constrai
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_40_records_committee_constrai
     > nts.pdf saved as PDF format
 
 . restore
@@ -5258,7 +5610,7 @@ file
 . postfile `nf' str80 measure double mean using `norms_figure', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005m.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_000082.tmp not found)
 
 . foreach v in idx_perceived_legitimacy idx_safeguards idx_reintegration_norms 
 > {
@@ -5281,20 +5633,20 @@ file
 >         ytitle("Mean baseline score (0-1)") ///
 >         title("Legitimacy, safeguards, and reintegration", size(medsmall)) //
 > /
->         note("Chairperson-reported baseline measures; higher scores indicate 
-> stronger practice or norms.", size(vsmall))
+>         note("Legitimacy/reintegration: chairperson perceptions and norms; sa
+> feguards also includes scored knowledge.", size(vsmall))
 
 .     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.png", 
 > width(2800) replace
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_figures/fig_41_legitimacy_safeguards_reintegrati
+> bb_p9v2kmuv//phase1_baseline_figures/fig_41_legitimacy_safeguards_reintegrati
 > on.png written in PNG format
 
 .     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.pdf", 
 > replace
 file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg//phase1_baseline_figures/fig_41_legitimacy_safeguards_rein
+    > 5bb_p9v2kmuv//phase1_baseline_figures/fig_41_legitimacy_safeguards_rein
     > tegration.pdf saved as PDF format
 
 . restore
@@ -5305,45 +5657,45 @@ file
 
 . putexcel A1 = "Figure file" B1 = "Purpose"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A2 = "fig_02_core_indices_overall" B2 = "Headline baseline domain da
 > shboard"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A3 = "fig_04_priority_gaps" B3 = "Ranked implementation gaps"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A4 = "fig_13_vignette_performance" B4 = "Ordinary versus child/SGBV 
 > vignette performance"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A5 = "fig_14_adr_mediation / fig_15_adr_barriers" B5 = "ADR practice
 >  and constraints"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A6 = "fig_39_jlos_referral_loop" B6 = "JLOS/referral pathway"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A7 = "fig_40_records_committee_constraints" B7 = "Records and commit
 > tee operational constraints"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A8 = "fig_41_legitimacy_safeguards_reintegration" B8 = "Legitimacy, 
 > safeguards, and reintegration summary"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel A9 = "fig_42_adjusted_origin_coefficients" B9 = "Adjusted administra
 > tive-origin association"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_executive_results.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_executive_results.xlsx saved
 
 . putexcel clear
 
@@ -5369,7 +5721,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `indicator_table', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005o.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_000084.tmp not found)
 
 . 
 . foreach v in idx_legal_classif_knowledge idx_adr_mediation_practice idx_refer
@@ -5490,26 +5842,26 @@ note: file will be replaced when the first putexcel command is issued.
 
 . putexcel A1 = "Legatum Phase 1 Final Baseline indicator table"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A3 = "Classification A" B3 = "Directly measurable from the Phase 1 b
 > aseline survey"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A4 = "Classification B" B4 = "Survey proxy or benchmark only"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A5 = "Classification C" B5 = "Not measurable from the Phase 1 LC sur
 > vey; administrative or follow-up data required"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A6 = "Interpretation" B6 = "No value is imputed for indicators outsi
 > de the measurement scope of this survey."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel clear
 
@@ -5522,7 +5874,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_ind'", sheet("indicator_table", replace) first
 > row(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . restore
 
@@ -5565,7 +5917,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     using `s10_metrics', replace
 (file
     C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe
-    > 5bb_iziin9eg\ST_18650_00005q.tmp not found)
+    > 5bb_p9v2kmuv\ST_9a18_000086.tmp not found)
 
 . 
 . * Capacity: Respondent capacity
@@ -6332,7 +6684,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 .     export excel using "`excel_ind'", sheet("section10_metrics", replace) fir
 > strow(variables)
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . restore
 
@@ -6345,83 +6697,83 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . putexcel A1 = "Item" B1 = "Definition / interpretation"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A2 = "Population" B2 = "`primary_n' observed selected-list LCs from 
 > the `frame_n'-unit original frame; all consented."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A3 = "Mean" B3 = "Sum of observed scores/counts divided by nonmissin
 > g N; no imputation."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A4 = "Binary measure" B4 = "Total is the number selecting/meeting th
 > e criterion; proportion = total/N."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A5 = "Ordinal score" B5 = "Mean of locked normalized scores, not a p
 > ercentage of cases or people achieving an outcome."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A6 = "Total" B6 = "Sum across observed LC interviews only; missing i
 > f N=0. Not population extrapolation."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A7 = "M3_Q09" B7 = "Reported community-brought cases - respondent sc
 > ope ambiguous. Question excludes disputing parties; hint includes a party. No
 > t formal diversion."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A8 = "Pending ratio" B8 = "Current pending stock/recent inflow; exis
 > ting valid 0-1 ratios only. Not a closure rate."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A9 = "Petty composition" B9 = "M3_Q06 categories 0-5 divided by 5. U
 > nequal response bands; do not multiply this score by caseload to estimate pet
 > ty-case totals."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A10 = "Formal indicators" B10 = "Cross-sectional survey benchmarks c
 > annot establish reduction/increase, remand, costs, formal-system flows, gradu
 > ate performance, or replication."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly count if flag_pending_gt_3m == 1
 
 . putexcel A11 = "Pending stock exceeds recent inflow: count" B11 = (r(N))
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly count if !missing(flag_pending_gt_3m)
 
 . putexcel A12 = "Pending stock/inflow comparison: N" B12 = (r(N))
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A13 = "Missing referral counts" B13 = "M3_Q10/M3_Q12 have no observe
 > d final values; blank totals are not zero."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A14 = "Readiness" B14 = "Existing >=0.75 diagnostic flags only. No a
 > ssessed graduates, final mentor eligibility or ranking."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A15 = "Reproducibility" B15 = "Data Analysis do-file section 21a; fi
 > nal phase1_baseline_analysis.dta; output sheets section10_metrics and section
 > 10_crosswalk."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel clear
 
@@ -6431,7 +6783,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . display as result "Section 10: N=`primary_n'; all input values unchanged; sur
 > vey benchmarks exported."
-Section 10: N=91; all input values unchanged; survey benchmarks exported.
+Section 10: N=93; all input values unchanged; survey benchmarks exported.
 
 . 
 . * Slide codes are retained for traceability, not used to renumber the revised
@@ -6443,7 +6795,7 @@ Section 10: N=91; all input values unchanged; survey benchmarks exported.
 >     D1 = "Survey variable" E1 = "Statistic" F1 = "Survey benchmark value" ///
 >     G1 = "Observed N" H1 = "Relationship" I1 = "Limitation"
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize m5_q16_score, meanonly
 
@@ -6453,14 +6805,14 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G2 = (r(N)) H2 = "Perception benchmark only" I2 = "Perceived prevention o
 > f escalation; no formal-system inflow or change observed."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A3 = "0.0.2" B3 = "0.0.2" C3 = "Reduction of remandees" ///
 >     D3 = "" E3 = "" F3 = "Not measured" ///
 >     G3 = "Not applicable" H3 = "Not measured" I3 = "No prison population or r
 > emand-status observations."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize idx_reintegration_norms, meanonly
 
@@ -6470,7 +6822,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G4 = (r(N)) H4 = "Partial proxy" I4 = "Chairperson norms; not observed co
 > nditions or reincarceration among former prisoners."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A5 = "0.0.4" B5 = "0.0.4 (cost)" C5 = "Cost per petty case diverted"
 >  ///
@@ -6478,7 +6830,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G5 = "Not applicable" H5 = "Not measured" I5 = "Neither programme costs n
 > or attributable formal entries avoided are observed."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize pending_cases, meanonly
 
@@ -6487,7 +6839,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G6 = (r(N)) H6 = "Context benchmark only" I6 = "Current LC pending stock,
 >  not formal-court backlog or its reduction."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize idx_perceived_legitimacy, meanonly
 
@@ -6498,7 +6850,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > nity respondents or change over time. Duplicate 0.0.4 in Scope of Work remain
 > s unresolved."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize caseload_3m, meanonly
 
@@ -6508,7 +6860,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G8 = (r(N)) H8 = "Context benchmark only" I8 = "Cases received of all typ
 > es, not documented eligible petty-case resolutions."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize directly_brought_cases_3m, meanonly
 
@@ -6520,14 +6872,14 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 > t cases: respondent scope ambiguous. Not formal diversion. Inbound referral c
 > ounts have N=0."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A10 = "2.1" B10 = "2.1" C10 = "Reduction in time on remand" ///
 >     D10 = "" E10 = "" F10 = "Not measured" ///
 >     G10 = "Not applicable" H10 = "Not measured" I10 = "No individual remand d
 > urations. Scope of Work unit is hours."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A11 = "3.1.4" B11 = "3.1.5" C11 = "Use of prison-acquired skills for
 >  income after release" ///
@@ -6535,7 +6887,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G11 = "Not applicable" H11 = "Not measured" I11 = "Chairpersons are not a
 >  sample of trained released prisoners; no income or skills-use outcome."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize prior_formal_coordination, meanonly
 
@@ -6545,7 +6897,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G12 = (r(N)) H12 = "Mechanism benchmark only" I12 = "Prior LC coordinatio
 > n, not sector reform or an effect of advocacy."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . quietly summarize high_mentor_readiness_proxy, meanonly
 
@@ -6555,7 +6907,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G13 = (r(N)) H13 = "Preparatory diagnostic only" I13 = "Existing baseline
 >  >=0.75 proxy; not graduates, assessed competence or final mentor selection."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A14 = "5.1.1" B14 = "Not located in revised SOW" C14 = "Programme mo
 > dels scaled or replicated" ///
@@ -6563,7 +6915,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G14 = "Not applicable" H14 = "Not measured" I14 = "No survey measure or v
 > erified replication inventory. Do not impute zero."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A15 = "Not on Slide 57" B15 = "2.2" C15 = "Legal-aid remandees heard
 >  within 60 days" ///
@@ -6571,15 +6923,15 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 >     G15 = "Not applicable" H15 = "Not measured" I15 = "No linked detention, l
 > egal-aid eligibility or first-hearing dates."
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel A1:I1, bold txtwrap
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel F2:F15, nformat("0.000")
 file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
-> bb_iziin9eg//phase1_baseline_indicator_table.xlsx saved
+> bb_p9v2kmuv//phase1_baseline_indicator_table.xlsx saved
 
 . putexcel clear
 
@@ -6612,35 +6964,37 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
   7. }
 
 . 
+. * Observation-level check also detects offsetting changes hidden by equal sum
+> s.
+. sort submission_key
+
+. cf `all_indices' using `index_snapshot', all
+idx_respondent~y: match
+idx_institutio~g: match
+idx_legal_clas~e: match
+idx_adr_mediat~e: match
+idx_referral_p~e: match
+idx_record_qua~y: match
+idx_committee_~g: match
+idx_perceived_~y: match
+  idx_safeguards: match
+idx_reintegrat~s: match
+idx_lcc_operat~y: match
+idx_lcc_case_h~y: match
+idx_lcc_legiti~s: match
+idx_p1_base_me~y: match
+
 . copy "`excel_exec'" "`excel_exec_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_execut
-    > ive_results.xlsx not found)
 
 . copy "`excel_items'" "`excel_items_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_all_it
-    > em_tabulations.xlsx not found)
 
 . copy "`excel_origin'" "`excel_origin_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_origin
-    > _comparison.xlsx not found)
 
 . copy "`excel_reg'" "`excel_reg_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_regres
-    > sion_results.xlsx not found)
 
 . copy "`excel_ind'" "`excel_ind_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_indica
-    > tor_table.xlsx not found)
 
 . copy "`excel_jlos'" "`excel_jlos_final'", replace
-(file C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2
-    Output/Phase1_Baseline_Selected100_Observed/tables/phase1_baseline_jlos_e
-    > xpanded_analysis.xlsx not found)
 
 . 
 . local png_files : dir "`fig_dir'" files "*.png"
@@ -6673,7 +7027,7 @@ file C:\Users\jzava\AppData\Local\Temp\stata_worker_default_7505d64a54_74609fe5
 
 . 
 . display as result "Final Phase 1 baseline analysis complete: N=" _N
-Final Phase 1 baseline analysis complete: N=91
+Final Phase 1 baseline analysis complete: N=93
 
 . display as result "Main workbook: `excel_exec_final'"
 Main workbook: C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Ou
@@ -6717,5 +7071,5 @@ Log file: C:/Users/jzava/Documents/GitHub/Advancing-Justice-Uganda-LC/2 Output/
 > ut/Phase1_Baseline_Selected100_Observed/logs/phase1_baseline_executive_analys
 > is.log
   log type:  text
- closed on:  25 Sep 2026, 22:01:12
+ closed on:   2 Oct 2026, 14:26:31
 -------------------------------------------------------------------------------

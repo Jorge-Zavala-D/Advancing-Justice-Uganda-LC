@@ -1499,12 +1499,58 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 			replace origin_`v'_key = ustrregexra(origin_`v'_key, "^_+|_+$", "")
 		}
 		isid origin_district_key origin_village_key
+		assert _N == 128
+		assert randomly_selected + last_cdfu_phase + ineherited_fhri == 1
+		quietly count if randomly_selected == 1
+		assert r(N) == 100
+		gen str244 selected100_frame_uid = ""
+		foreach v in district subcounty parish village {
+			gen str80 __fvl_`v'_key = lower(itrim(strtrim(fvl_`v')))
+			replace __fvl_`v'_key = ustrregexra(__fvl_`v'_key, "[^a-z0-9]+", "_")
+			replace __fvl_`v'_key = ustrregexra(__fvl_`v'_key, "^_+|_+$", "")
+		}
+		replace selected100_frame_uid = __fvl_district_key + "_" + __fvl_subcounty_key + "_" + ///
+			__fvl_parish_key + "_" + __fvl_village_key if randomly_selected == 1
+		bysort selected100_frame_uid: assert _N == 1 if randomly_selected == 1
+		drop __fvl_*
 		tempfile final_village_list
 		save `final_village_list'
 	restore
 
-	gen str80 origin_district_key = district_scto_key
-	gen str80 origin_village_key = village_scto_key
+	* Normalize both sides of the administrative lookup identically. The raw
+	* SurveyCTO key removes periods, whereas the FVL key separates them (K.I.U).
+	foreach v in district village {
+		gen str80 origin_`v'_key = lower(itrim(strtrim(`v'_scto)))
+		replace origin_`v'_key = ustrregexra(origin_`v'_key, "[^a-z0-9]+", "_")
+		replace origin_`v'_key = ustrregexra(origin_`v'_key, "^_+|_+$", "")
+	}
+	gen str100 geography_correction_source = ""
+	* Record-specific identity corrections, not global village-name aliases.
+	* Nyabwina: unique raw code tuple and matching pre/post-election admin
+	* identity. The genuine Kitagata/Bwoma interview remains a separate LC.
+	quietly count if baseline_wave == 1 & m0_q04 == 3 & m0_q05 == 73 & m0_q06 == 83 & m0_q07 == 81
+	assert r(N) == 1
+	replace origin_village_key = "nyabwina" if baseline_wave == 1 & ///
+		m0_q04 == 3 & m0_q05 == 73 & m0_q06 == 83 & m0_q07 == 81
+	replace geography_correction_source = "2026-10-02 documentary identity review: Nyabwina" if origin_village_key == "nyabwina"
+	* Jorge's field confirmation on 2026-10-02 resolves the tracker ambiguity:
+	* the Bumbaire/Kibaare II interview represents selected Nyabubare B.
+	quietly count if baseline_wave == 1 & district_scto_key == "bushenyi" & ///
+		subcounty_scto_key == "bumbaire" & village_scto_key == "kibaare_ii"
+	assert r(N) == 1
+	replace origin_village_key = "nyabubare_b" if baseline_wave == 1 & ///
+		district_scto_key == "bushenyi" & subcounty_scto_key == "bumbaire" & village_scto_key == "kibaare_ii"
+	replace geography_correction_source = "2026-10-02 field confirmation: Nyabubare B" if origin_village_key == "nyabubare_b"
+	* The original Kyenzaza/Kirugu IB and August Kirugu/Kirugu 1B interviews
+	* represent the same LC (field confirmation, 2026-10-02). August takes precedence.
+	quietly count if baseline_wave == 2 & district_scto_key == "rubirizi" & ///
+		subcounty_scto_key == "kirugu" & parish_scto_key == "kirugu" & village_scto_key == "kirugu_1b"
+	assert r(N) == 1
+	replace origin_village_key = "kirugu_ib" if baseline_wave == 2 & ///
+		district_scto_key == "rubirizi" & subcounty_scto_key == "kirugu" & ///
+		parish_scto_key == "kirugu" & village_scto_key == "kirugu_1b"
+	replace geography_correction_source = "2026-10-02 field confirmation: Kirugu IB succession" if ///
+		baseline_wave == 2 & origin_village_key == "kirugu_ib"
 	* Source-supported aliases/corrections. These affect canonical matching only;
 	* the raw and common SurveyCTO geography remain unchanged.
 	replace origin_village_key = "kibaare_i" if district_scto_key == "bushenyi" & ///
@@ -1523,6 +1569,13 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	merge m:1 origin_district_key origin_village_key using `final_village_list', ///
 		gen(merge_final_village_list) keep(master match)
+	assert merge_final_village_list == 3 if geography_correction_source != ""
+	* Retain raw-versus-list higher-geography disagreement for inspection.
+	* This is not an exclusion: historical geographic corrections remain intact.
+	gen byte flag_origin_geo_discordance = merge_final_village_list == 3 & ///
+		(lower(itrim(strtrim(subcounty_scto))) != lower(itrim(strtrim(fvl_subcounty))) | ///
+		 lower(itrim(strtrim(parish_scto))) != lower(itrim(strtrim(fvl_parish))))
+	label var flag_origin_geo_discordance "Raw/list higher-geography disagreement; audit only"
 
 	gen str40 canonical_district = district_scto
 	gen str60 canonical_subcounty = subcounty_scto
@@ -1538,6 +1591,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		subcounty_scto_key == "nyakabirizi" & inlist(village_scto_key, "kibaare_a", "kibaare_i")
 
 	foreach v in district subcounty parish village {
+		assert !missing(canonical_`v')
 		gen str80 canonical_`v'_key = lower(itrim(strtrim(canonical_`v')))
 		replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "[^a-z0-9]+", "_")
 		replace canonical_`v'_key = ustrregexra(canonical_`v'_key, "^_+|_+$", "")
@@ -1552,7 +1606,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	gen byte p1_admin_new = cond(merge_final_village_list == 3, 1 - p1_admin_previously_contacted, .)
 	gen byte p1_admin_origin = cond(p1_admin_last_cdfu == 1, 1, cond(p1_admin_inherited_fhri == 1, 2, ///
 		cond(merge_final_village_list == 3, 0, .)))
-	label define p1_admin_origin_lbl 0 "New / randomly selected" 1 "Last CDFU phase" 2 "Inherited FHRI", replace
+	label define p1_admin_origin_lbl 0 "New / no documented previous contact" 1 "Last CDFU phase" 2 "Inherited FHRI", replace
 	label values p1_admin_origin p1_admin_origin_lbl
 	label values p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new yesno
 
@@ -1656,6 +1710,23 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	gen str24 training_timing_status = cond(final_baseline_record == 1, "assumed_pre_training", "not_selected")
 	replace analysis_sample = final_baseline_record
+	gen byte selected_fvl100_observed = final_baseline_record == 1 & ///
+		merge_final_village_list == 3 & randomly_selected == 1
+	label var selected_fvl100_observed "Observed selected LC on original 100-unit Final Village List"
+	assert !missing(selected100_frame_uid) if selected_fvl100_observed == 1
+	assert p1_admin_previously_contacted == 0 if selected_fvl100_observed == 1
+	bysort selected100_frame_uid: egen byte __n_selected_frame = total(selected_fvl100_observed)
+	assert __n_selected_frame == 1 if selected_fvl100_observed == 1
+	drop __n_selected_frame
+	* Runnable identity checks protect both recovered interviews and succession.
+	assert canonical_village == "Nyabwina" & final_baseline_record == 1 if ///
+		baseline_wave == 1 & m0_q04 == 3 & m0_q05 == 73 & m0_q06 == 83 & m0_q07 == 81
+	assert canonical_village == "Bwoma" & final_baseline_record == 1 if ///
+		baseline_wave == 1 & m0_q04 == 3 & m0_q05 == 81 & m0_q06 == 81 & m0_q07 == 81
+	assert canonical_village == "Nyabubare B" & final_baseline_record == 1 if ///
+		geography_correction_source == "2026-10-02 field confirmation: Nyabubare B"
+	assert final_baseline_record == (baseline_wave == 2) if ///
+		canonical_village_uid == "rubirizi_kirugu_kyenzaza_kirugu_ib"
 	gen str80 final_exclusion_reason = ""
 	replace final_exclusion_reason = "original_chairperson_voted_out" if baseline_wave == 1 & election_voted_out == 1
 	replace final_exclusion_reason = "superseded_by_august" if baseline_wave == 1 & has_august_submission == 1 & election_voted_out == 0
@@ -1919,10 +1990,16 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	label var referred_onward_share_3m "Cases referred onward as share of 3-month caseload"
 
 	egen n_case_types_received_3m = rowtotal(m3_q04_1 m3_q04_2 m3_q04_3 m3_q04_4 m3_q04_5 ///
-		m3_q04_6 m3_q04_7 m3_q04_8 m3_q04_9 m3_q04_10)
+		m3_q04_6 m3_q04_7 m3_q04_8 m3_q04_9 m3_q04_10), missing
+	* M3_Q04 is asked only when three-month caseload is positive. A confirmed
+	* zero caseload implies zero types; unknown caseload plus no answers does not.
+	replace n_case_types_received_3m = 0 if caseload_3m == 0
 	gen byte any_child_or_sgbv_case_3m = (m3_q04_7 == 1 | m3_q04_8 == 1) if !missing(n_case_types_received_3m)
 	gen byte any_reintegration_case_3m = m3_q04_10 == 1 if !missing(m3_q04_10)
-	gen byte any_serious_or_sensitive_case_3m = any_child_or_sgbv_case_3m == 1
+	gen byte any_serious_or_sensitive_case_3m = any_child_or_sgbv_case_3m if !missing(any_child_or_sgbv_case_3m)
+	assert missing(n_case_types_received_3m, any_child_or_sgbv_case_3m) if ///
+		missing(caseload_3m) & missing(m3_q04_1, m3_q04_2, m3_q04_3, m3_q04_4, m3_q04_5, ///
+		m3_q04_6, m3_q04_7, m3_q04_8, m3_q04_9, m3_q04_10)
 	gen double petty_case_share_score = m3_q06 / 5 if inrange(m3_q06,0,5)
 	gen double caseload_accuracy_score = (m3_q17 - 1) / 4 if inrange(m3_q17,1,5)
 	label var n_case_types_received_3m "Number of case/dispute types received in past 3 months"
@@ -2027,6 +2104,14 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	*-------------------------------*
 	foreach v in m5_q01 m5_q02 m5_q03 m5_q06 m5_q07 m5_q14 m5_q16 {
 		gen double `v'_score = `v' / 4 if inrange(`v',0,4)
+	}
+	label var m5_q01_score "Reported frequency of trying ADR before escalation"
+	label var m5_q02_score "Reported frequency of hearing both sides"
+	label var m5_q03_score "Reported frequency of allowing uninterrupted explanations"
+	label var m5_q14_score "Reported frequency of compliance with mediated agreements"
+	label var m5_q16_score "Perceived prevention of escalation to police or courts"
+	foreach scenario in v01_boundary v02_family v05_child v06_sgbv {
+		label var `scenario'_q3_correct "Vignette: appropriate actor involvement/notification"
 	}
 	gen double adr_confidence_score = m5_q09 / 4 if inrange(m5_q09,0,4)
 	gen double deescalation_confidence_score = m5_q10 / 4 if inrange(m5_q10,0,4)
@@ -2566,12 +2651,13 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 
 	* Save the complete record ledger and both all-record cleaned aliases.
 	preserve
-		keep submission_key baseline_wave baseline_source_file interview_date formdef_version ///
+		keep submission_key baseline_wave baseline_source_file baseline_source_row interview_date formdef_version ///
 			district_scto subcounty_scto parish_scto village_scto ///
 			canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
 			election_voted_out respondent_still_relevant superseded_record superseded_by_submission_key supersession_reason ///
 			replacement_village originally_not_visited operational_exclusion invalid_geographic_unit chairperson_deceased ///
 			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
+			selected100_frame_uid selected_fvl100_observed geography_correction_source flag_origin_geo_discordance ///
 			training_timing_status final_baseline_record analysis_sample final_exclusion_reason ///
 			reconciliation_status reconciliation_note
 		isid submission_key
@@ -2600,6 +2686,53 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 			}
 		}
 		save "${input_dir}/3 Coded/phase1_baseline_analysis.dta", replace
+		* Reproduce the user-approved 100-row selection frame separately from the
+		* observed-interview cohort. Unobserved rows contain no survey responses.
+		keep if selected_fvl100_observed == 1
+		tempfile selected100_interviews selected100_frame
+		save `selected100_interviews'
+		use `final_village_list', clear
+		keep if randomly_selected == 1
+		rename (fvl_district fvl_subcounty fvl_parish fvl_village) ///
+			(selected100_district selected100_subcounty selected100_parish selected100_village)
+		keep selected100_frame_uid selected100_district selected100_subcounty selected100_parish selected100_village
+		assert _N == 100
+		isid selected100_frame_uid
+		save `selected100_frame'
+		use `selected100_interviews', clear
+		merge 1:1 selected100_frame_uid using `selected100_frame', gen(__selected100_match)
+		assert inlist(__selected100_match, 2, 3)
+		gen byte selected100_frame = 1
+		gen byte selected100_survey_observed = __selected100_match == 3
+		replace selected_fvl100_observed = selected100_survey_observed
+		replace analysis_sample = 0 if selected100_survey_observed == 0
+		replace final_baseline_record = 0 if selected100_survey_observed == 0
+		* Original-list provenance is known even where survey responses are absent.
+		replace p1_admin_origin = 0 if selected100_survey_observed == 0
+		replace p1_admin_new = 1 if selected100_survey_observed == 0
+		foreach v in p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted {
+			replace `v' = 0 if selected100_survey_observed == 0
+		}
+		foreach v of local indexvars {
+			assert missing(`v') if selected100_survey_observed == 0
+		}
+		foreach v in district subcounty parish village {
+			replace canonical_`v' = selected100_`v' if selected100_survey_observed == 0
+		}
+		replace canonical_village_uid = selected100_frame_uid if selected100_survey_observed == 0
+		assert missing(submission_key) & missing(consent) if selected100_survey_observed == 0
+		assert _N == 100
+		isid selected100_frame_uid
+		isid canonical_village_uid
+		quietly count if selected100_survey_observed == 1
+		local selected100_n = r(N)
+		local selected100_missing = 100 - `selected100_n'
+		label data "Original selected-100 frame; `selected100_n' interviews, `selected100_missing' without responses"
+		label var selected100_frame "Member of original 100-unit selection frame; not interview status"
+		label var selected100_survey_observed "Selected baseline interview available for this frame LC"
+		label values selected100_frame selected100_survey_observed yesno
+		drop __selected100_match
+		save "${input_dir}/3 Coded/phase1_baseline_selected100_frame.dta", replace
 	restore
 
 	* Calculate sample-flow values from the data rather than fixing the final N.
@@ -2651,7 +2784,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	capture erase "`recon_file'"
 	preserve
 		clear
-		set obs 18
+		set obs 21
 		gen str50 stage = ""
 		gen long n = .
 		replace stage = "Original submissions" in 1
@@ -2690,6 +2823,12 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace n = 128 in 17
 		replace stage = "Observed difference from planning expectation" in 18
 		replace n = `n_final' - 128 in 18
+		replace stage = "Original selected village frame" in 19
+		replace n = 100 in 19
+		replace stage = "Selected-frame LCs with analytical interview" in 20
+		replace n = `selected100_n' in 20
+		replace stage = "Selected-frame LCs without analytical interview" in 21
+		replace n = `selected100_missing' in 21
 		export excel using "`recon_file'", sheet("sample_flow", replace) firstrow(variables)
 	restore
 
@@ -2717,6 +2856,13 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 			canonical_village_uid unresolved_identity operational_exclusion chairperson_deceased ///
 			invalid_geographic_unit final_baseline_record reconciliation_status reconciliation_note
 		export excel using "`recon_file'", sheet("audit_flags", modify) firstrow(variables)
+	restore
+	preserve
+		keep if flag_origin_geo_discordance == 1 | geography_correction_source != ""
+		keep baseline_wave baseline_source_row district_scto subcounty_scto parish_scto village_scto ///
+			canonical_district canonical_subcounty canonical_parish canonical_village ///
+			geography_correction_source flag_origin_geo_discordance final_baseline_record selected_fvl100_observed
+		export excel using "`recon_file'", sheet("geography_identity_audit", modify) firstrow(variables)
 	restore
 	preserve
 		contract canonical_district if final_baseline_record == 1
@@ -2756,7 +2902,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		replace passed = 1 in 9
 		replace release_check = "Final N derived without hard-coded selection" in 10
 		replace passed = 1 in 10
-		replace detail = "Observed N=`n_final'; planning N=128 differs because only `n_election_superseded' of 13 VOTED OUT rows have originals" in 10
+		replace detail = "Observed N=`n_final'; selection frame=100; observed frame interviews=`selected100_n'" in 10
 		export excel using "`recon_file'", sheet("release_checks", modify) firstrow(variables)
 	restore
 
@@ -2765,6 +2911,8 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	file write release_status "READY" _n
 	file write release_status "Final analytical dataset: phase1_baseline_analysis.dta." _n
 	file write release_status "Final N: `n_final' unique canonical LCs (`n_final_original' original; `n_final_august' August)." _n
+	file write release_status "Original selected frame: 100 LCs; `selected100_n' interviews; `selected100_missing' without responses." _n
+	file write release_status "READY refers to automated selection/score checks, not complete selected-frame coverage or Phase 2 mentor eligibility." _n
 	file write release_status "All 34 August surveys are retained; all 11 original surveys linked to VOTED OUT administrative rows are excluded." _n
 	file write release_status "The other two of 13 VOTED OUT administrative rows (Nyarutuntu and Kirugu 2 A) have no original survey record to remove." _n
 	file close release_status
@@ -2780,7 +2928,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	dis as result "Final retained original records: " `n_final_original'
 	dis as result "Final retained August records: " `n_final_august'
 	dis as result "Final analytical records / unique LCs: " `n_final'
-	if `n_final' != 128 dis as text "Expected-N diagnostic: only 11 of 13 VOTED OUT admin rows have original surveys to remove."
+	dis as result "Original selected frame: 100; observed: `selected100_n'; without responses: `selected100_missing'."
 	tab canonical_district if final_baseline_record == 1, missing
 	tab baseline_wave if final_baseline_record == 1, missing
 	tab p1_admin_origin if final_baseline_record == 1, missing
