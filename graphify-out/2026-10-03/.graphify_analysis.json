@@ -1,0 +1,795 @@
+{
+  "communities": {
+    "0": [
+      "1_code_build_dropbox_corpus_snapshot_module",
+      "dropbox_asset_0_admin_baseline_evaluation_workplan_02042026_xlsx",
+      "dropbox_asset_0_admin_contract_jorge_signed_docx",
+      "dropbox_asset_0_admin_scope_of_work_outline_docx",
+      "dropbox_asset_1_literature_ai_podcast_transcript_docx",
+      "dropbox_asset_1_literature_cdfu_docs_cdfu_lccs_checklist_for_maturity_revised_may_2025_1_doc",
+      "dropbox_asset_1_literature_cdfu_docs_desktop_ini",
+      "dropbox_asset_1_literature_cdfu_docs_lc_courts_training_manual_1_doc",
+      "dropbox_asset_1_literature_literature_review_docx",
+      "dropbox_asset_1_literature_uganda_advancing_justice_bib",
+      "dropbox_asset_1_literature_uganda_advancing_justice_csv",
+      "dropbox_asset_2_design_instruments_0_archive_phase_1_baseline_xlsx",
+      "dropbox_asset_2_design_instruments_advancing_justice_uganda_questionnaire_structure_docx",
+      "dropbox_asset_2_design_instruments_advancing_justice_uganda_questionnaires_xlsx",
+      "dropbox_asset_2_design_instruments_kii_police_judiciary_final_version_1_docx",
+      "dropbox_asset_2_design_instruments_kii_police_judiciary_final_version_doc",
+      "dropbox_asset_2_design_instruments_kii_police_judiciary_final_version_docx",
+      "dropbox_asset_2_design_instruments_kii_prisions_docx",
+      "dropbox_asset_2_design_instruments_phase_1_baseline_runyankore_printable_html",
+      "dropbox_asset_2_design_instruments_phase_1_baseline_version_2_xlsx",
+      "dropbox_asset_2_design_instruments_phase_1_baseline_version_runyankore_edited_1_xlsx",
+      "dropbox_asset_2_design_instruments_phase_1_baseline_version_runyankore_edited_xlsx",
+      "dropbox_asset_2_design_intervention_cdfu_lc_courts_training_manual_revised_22_july_2026_doc",
+      "dropbox_asset_2_design_intervention_phase1_lc_training_manual_evidence_informed_revisions_cdfu_docx",
+      "dropbox_asset_3_data_1_raw_primary_data_final_village_list_xlsx",
+      "dropbox_asset_3_data_1_raw_primary_data_phase_1_baseline_runyankore_wide_new_submissions_csv",
+      "dropbox_asset_3_data_1_raw_primary_data_phase_1_baseline_runyankore_wide_xlsx",
+      "dropbox_asset_3_data_1_raw_primary_data_tracking_form_final_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_bushenyi_updated_admn_units_as_at_1st_june_2024_1_xls",
+      "dropbox_asset_3_data_1_raw_secondary_data_list_of_lcs_mapped_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_number_of_cases_by_village_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_number_of_cases_per_sub_county_jan_dec_2025_cleaned_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_number_of_cases_per_subcounty_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_rubirizi_admin_data_xlsx",
+      "dropbox_asset_3_data_1_raw_secondary_data_sheema_administrative_units_doc",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_shp_zip",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin0_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin0_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin0_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin0_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin0_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin1_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin1_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin1_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin1_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin1_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin2_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin2_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin2_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin2_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin2_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin3_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin3_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin3_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin3_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin3_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_coord_dta",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_data_dta",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_admin4_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminlines_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminlines_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminlines_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminlines_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminlines_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminpoints_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminpoints_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminpoints_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminpoints_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_admin_boundaries_uga_adminpoints_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_coor_dta",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_cpg",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_data_dta",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_sbn",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_sbx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_uga_villages_jan_2009_pcodedb_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_pcodedb_zip",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_coor_dta",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_cst",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_dbf",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_prj",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_shp",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_uga_villages_jan_2009_shx",
+      "dropbox_asset_3_data_1_raw_secondary_data_uga_villages_jan_2009_zip",
+      "dropbox_asset_3_data_2_working_phase1_baseline_clean_dta",
+      "dropbox_asset_3_data_2_working_phase1_replacements_dta",
+      "dropbox_asset_3_data_2_working_phase1_sampling_frame_full_dta",
+      "dropbox_asset_3_data_2_working_phase1_selected_100_dta",
+      "dropbox_asset_3_data_2_working_phase1_tracking_form_clean_dta",
+      "dropbox_asset_3_data_2_working_village_cases_2025_clean_dta",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_analysis_dta",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_data_quality_xlsx",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_check_summary_dta",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_issues_csv",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_issues_dta",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_log",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_record_flags_dta",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_release_status_txt",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_report_xlsx",
+      "dropbox_asset_3_data_3_coded_phase1_baseline_qa_phase1_baseline_dq_tagged_dta",
+      "dropbox_asset_3_data_3_coded_phase1_sampling_randomization_xlsx",
+      "dropbox_asset_4_deliverables_and_presentations_advancing_justice_uganda_evaluation_of_lc_justive_system_for_diversion_program_inception_report_docx",
+      "dropbox_asset_4_deliverables_and_presentations_advancing_justice_uganda_impact_evaluation_technical_proposal_docx",
+      "dropbox_asset_4_deliverables_and_presentations_advancing_justice_uganda_phase_1_baseline_high_level_results_pptx",
+      "dropbox_asset_4_deliverables_and_presentations_inception_report_shorter_version_26042025_docx",
+      "dropbox_asset_4_deliverables_and_presentations_legatum_baseline_scope_of_work_revised_1_docx",
+      "dropbox_asset_4_deliverables_and_presentations_legatum_inception_meeting_08042026_pptx",
+      "dropbox_asset_desktop_ini",
+      "dropbox_corpus_snapshot_2026_08_31"
+    ],
+    "1": [
+      "converted_advancing_justice_uganda_evaluation_of_lc_justive_system_for_diversion_program_inception_report_30b233b1_document",
+      "converted_advancing_justice_uganda_evaluation_of_lc_justive_system_for_diversion_program_inception_report_30b233b1_local_council_courts",
+      "converted_advancing_justice_uganda_evaluation_of_lc_justive_system_for_diversion_program_inception_report_30b233b1_mentor_diffusion_rct",
+      "converted_advancing_justice_uganda_impact_evaluation_technical_proposal_7c0f7c97_document",
+      "converted_advancing_justice_uganda_questionnaire_structure_1b408918_administrative_primary_outcomes",
+      "converted_advancing_justice_uganda_questionnaire_structure_1b408918_document",
+      "converted_advancing_justice_uganda_questionnaire_structure_1b408918_lc_survey_core",
+      "converted_advancing_justice_uganda_questionnaires_1f591e1d_document",
+      "converted_advancing_justice_uganda_questionnaires_1f591e1d_questionnaire_provenance_risk",
+      "converted_ai_podcast_transcript_ccff2f95_document",
+      "converted_baseline_evaluation_workplan_02042026_5ec9f074_document",
+      "converted_contract_jorge_signed_a32da508_document",
+      "converted_inception_report_shorter_version_26042025_00235ebe_document",
+      "converted_kii_police_judiciary_final_version_1_921c9fcc_document",
+      "converted_kii_police_judiciary_final_version_5bc6ec0e_document",
+      "converted_kii_prisions_09f706f7_document",
+      "converted_legatum_baseline_scope_of_work_revised_1_d8b2f3e2_document",
+      "converted_literature_review_e8d8af1a_ariel_et_al_2018",
+      "converted_literature_review_e8d8af1a_document",
+      "converted_literature_review_e8d8af1a_macdonald_et_al_2022",
+      "converted_literature_review_e8d8af1a_takahashi_otsuka_2023",
+      "converted_phase1_lc_training_manual_evidence_informed_revisions_cdfu_0a51042a_document",
+      "converted_phase1_lc_training_manual_evidence_informed_revisions_cdfu_0a51042a_domestic_violence_safeguards",
+      "converted_phase1_lc_training_manual_evidence_informed_revisions_cdfu_0a51042a_procedural_justice",
+      "converted_phase1_lc_training_manual_evidence_informed_revisions_cdfu_0a51042a_safe_diversion_and_referral",
+      "converted_phase_1_baseline_runyankore_wide_250e821b_document"
+    ],
+    "2": [
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district_phase_1_baseline_sample_by_district",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_average_baseline_scores_across_core_domains",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_composite_baseline_domains_by_district",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_training_priority_gaps_by_baseline_domain",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_institutional_functioning_and_operational_readiness",
+      "2_output_phase1_baseline_executive_figures_fig_12_legal_knowledge_adr_and_sensitive_case_knowledge_gap",
+      "2_output_phase1_baseline_executive_figures_fig_12_legal_knowledge_legal_mandate_referral_and_procedural_knowledge",
+      "2_output_phase1_baseline_executive_figures_fig_12_legal_knowledge_mandate_and_referral_knowledge",
+      "2_output_phase1_baseline_executive_figures_fig_13_vignette_performance_case_classification_vignette_performance",
+      "2_output_phase1_baseline_executive_figures_fig_14_adr_mediation_adr_and_mediation_practice",
+      "2_output_phase1_baseline_executive_figures_fig_14_adr_mediation_adr_readiness_gaps",
+      "2_output_phase1_baseline_executive_figures_fig_14_adr_mediation_core_adr_practices",
+      "2_output_phase1_baseline_executive_figures_fig_14_adr_mediation_local_resolution_methods_and_barriers",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_local_mediation_adr_barriers",
+      "2_output_phase1_baseline_executive_figures_fig_16_adr_methods_adr_local_resolution_methods",
+      "2_output_phase1_baseline_executive_figures_fig_17_referral_practice_police_court_and_record_coordination",
+      "2_output_phase1_baseline_executive_figures_fig_17_referral_practice_referral_closure_gap",
+      "2_output_phase1_baseline_executive_figures_fig_17_referral_practice_referral_practice_coordination_and_documentation",
+      "2_output_phase1_baseline_executive_figures_fig_17_referral_practice_referral_reasons_and_barriers",
+      "2_output_phase1_baseline_executive_figures_fig_18_referral_reasons_reasons_for_onward_referral",
+      "2_output_phase1_baseline_executive_figures_fig_19_referral_barriers_referral_barriers",
+      "2_output_phase1_baseline_executive_figures_fig_20_record_quality_record_completeness_and_breadth_gap",
+      "2_output_phase1_baseline_executive_figures_fig_20_record_quality_record_confidentiality_and_access_control",
+      "2_output_phase1_baseline_executive_figures_fig_20_record_quality_record_keeping_and_case_management_quality",
+      "2_output_phase1_baseline_executive_figures_fig_20_record_quality_record_management_capabilities"
+    ],
+    "3": [
+      "1_literature_cdfu_docs_leaflet_lc_training_1__document",
+      "1_literature_maru_2010_access_to_justice_and_legal_empowerment_a_review_of_world_bank_practice__access_to_justice",
+      "1_literature_maru_2010_access_to_justice_and_legal_empowerment_a_review_of_world_bank_practice__paper",
+      "1_literature_mccart_etal_2022_randomized_trial_of_a_diversion_program_for_property_offenders_with_drug_use__paper",
+      "1_literature_menkel_meadow_2007_restorative_justice_what_is_it_and_does_it_work__paper",
+      "1_literature_paluck_and_green_2009_deference_dissent_and_dispute_resolution_an_experimental_intervention_using_mass_media_to_change__paper",
+      "1_literature_pavlich_1996_the_power_of_community_mediation_government_and_formation_of_self_identity__paper",
+      "1_literature_read_and_michelson_2018_village_dispute_mediation_in_china_2002_10_an_enduring_institution_amid_rural_change__paper",
+      "1_literature_rockowitz_etal_2024_a_systematic_review_of_criminal_justice_initiatives_to_strengthen_the_criminal_investigation_and_pro__paper",
+      "1_literature_sherman_etal_2015_twelve_experiments_in_restorative_justice_the_jerry_lee_program_of_randomized_trials_of_restorative__paper",
+      "1_literature_sherman_etal_2015_twelve_experiments_in_restorative_justice_the_jerry_lee_program_of_randomized_trials_of_restorative__restorative_justice_conferences",
+      "1_literature_stephens_2009_the_commission_on_legal_empowerment_of_the_poor_an_opportunity_missed__paper",
+      "1_literature_swenson_2018_the_promise_and_peril_of_paralegal_aid__paper",
+      "1_literature_swenson_2018_the_promise_and_peril_of_paralegal_aid__paralegal_aid",
+      "1_literature_takahashi_and_otsuka_2023_the_role_of_extension_in_the_green_revolution__paper",
+      "1_literature_tyler_1988_what_is_procedural_justice_criteria_used_by_citizens_to_assess_the_fairness_of_legal_procedures__paper",
+      "1_literature_tyler_1988_what_is_procedural_justice_criteria_used_by_citizens_to_assess_the_fairness_of_legal_procedures__procedural_justice",
+      "1_literature_tyler_2017_procedural_justice_and_policing_a_rush_to_judgment__paper",
+      "1_literature_worden_and_mclean_2018_measuring_managing_and_enhancing_procedural_justice_in_policing_promise_and_pitfalls__paper",
+      "1_literature_wright_2024_mediation_and_the_structural_interdict_as_legal_options_to_resolve_service_delivery_failures_in_sout__paper",
+      "2_design_instruments_phase_1_baseline_runyankore_printable_1__community_reintegration",
+      "2_design_instruments_phase_1_baseline_runyankore_printable_1__document",
+      "2_design_instruments_phase_1_baseline_runyankore_printable_1__local_council_capacity"
+    ],
+    "4": [
+      "converted_phase1_baseline_data_quality_0fff4d41_baseline_data_quality_output",
+      "converted_phase1_baseline_data_quality_0fff4d41_lcc_baseline_indices",
+      "converted_phase1_baseline_data_quality_0fff4d41_record_level_quality_flags",
+      "converted_phase1_baseline_dq_report_10765247_baseline_data_quality_report",
+      "converted_phase1_baseline_dq_report_10765247_release_blocking_quality_checks",
+      "converted_phase_1_baseline_bf189e82_baseline_survey_instrument",
+      "converted_phase_1_baseline_bf189e82_lcc_baseline_measurement_modules",
+      "converted_phase_1_baseline_version_2_a201723a_lcc_baseline_measurement_modules",
+      "converted_phase_1_baseline_version_2_a201723a_revised_baseline_survey_instrument",
+      "converted_phase_1_baseline_version_runyankore_edited_1_20ce2e11_runyankore_baseline_survey_instrument",
+      "converted_phase_1_baseline_version_runyankore_edited_1_20ce2e11_runyankore_localization",
+      "converted_phase_1_baseline_version_runyankore_edited_74c9ad4c_runyankore_baseline_survey_instrument",
+      "converted_phase_1_baseline_version_runyankore_edited_74c9ad4c_updated_runyankore_localization",
+      "converted_scope_of_work_outline_ad339e8f_cost_effectiveness_analysis",
+      "converted_scope_of_work_outline_ad339e8f_local_council_prevention_pathway",
+      "converted_scope_of_work_outline_ad339e8f_randomized_phase_in",
+      "converted_scope_of_work_outline_ad339e8f_scope_of_work",
+      "converted_tracking_form_final_db284fac_phase1_sampling_frame",
+      "converted_tracking_form_final_db284fac_tracking_form"
+    ],
+    "5": [
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_at_least_one_woman_member",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_basic_materials_availability_score",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_committee_has_vacancies",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_current_committee_members",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_enumerator_saw_records_score_m2",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_fixed_regular_hearing_place_score",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_index",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_meeting_sitting_frequency_score",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_missing_or_insufficient_basic_materials",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_quorum_achievement_score",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_recent_entries_up_to_date_score",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_record_existence_score_m2",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_record_up_to_date_score_m2",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_share_mean",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_share_members_who_are_women",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_sittings_hearings_past_12_months",
+      "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning_women_committee_members"
+    ],
+    "6": [
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_adr_mediation_practice",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_baseline_mentor_readiness_proxy",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_case_handling_quality",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_committee_functioning",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_institutional_functioning",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_legal_classification_knowledge",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_legitimacy_and_reintegration",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_operational_capacity",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_perceived_legitimacy",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_record_quality",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_referral_practice",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_reintegration_norms",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_respondent_capacity",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_safeguards_referral_knowledge",
+      "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall_share_mean"
+    ],
+    "7": [
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_95_percent_confidence_intervals",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_adjusted_difference_percentage_points",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_case_handling_quality",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_contact_contrast",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_descriptive_not_causal",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_district_fixed_effects",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_legitimacy_and_reintegration",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_mentor_readiness_proxy",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_operational_capacity",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_prior_administrative_contact_coefficients",
+      "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients_standard_errors_clustered_by_village",
+      "2_output_phase1_baseline_qa_presentation_phase1_baseline_qa_presentation_baseline_release_blocked",
+      "2_output_phase1_baseline_qa_presentation_phase1_baseline_qa_presentation_guarded_release_and_analysis_protocol",
+      "2_output_phase1_baseline_qa_presentation_phase1_baseline_qa_presentation_phase_1_baseline_qa_html",
+      "2_output_phase1_baseline_qa_presentation_phase1_baseline_qa_presentation_phase_1_baseline_qa_quarto_source"
+    ],
+    "8": [
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_adr_mediation_practice_0_34",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_committee_functioning_0_25",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_gap_to_full_score_1_minus_mean",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_higher_values_more_room_for_improvement",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_institutional_functioning_0_19",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_legal_classification_knowledge_0_32",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_perceived_legitimacy_0_41",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_record_quality_0_40",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_referral_practice_0_35",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_reintegration_norms_0_39",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_respondent_capacity_0_36",
+      "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps_safeguards_referral_knowledge_0_35"
+    ],
+    "9": [
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_case_outside_lcc_mandate",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_conflict_too_intense_or_parties_too_angry",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_fear_of_retaliation_or_community_pressure",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_lack_of_records_forms_or_materials",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_lcc_members_need_more_training",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_parties_do_not_trust_the_lcc",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_parties_refuse_to_attend_or_participate",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_power_imbalance_between_parties",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_share_mean",
+      "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers_weak_cooperation_from_formal_authorities"
+    ],
+    "10": [
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_difficulty_writing_required_language",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_hard_to_record_sensitive_cases",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_limited_time_for_records",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_need_training_on_case_records",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_no_major_record_keeping_challenges",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_no_pens_basic_stationery",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_no_registers_books_forms_paper",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_record_holder_often_unavailable",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_records_lost_damaged_insecure",
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_share_mean"
+    ],
+    "11": [
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_family_community_acceptance",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_family_community_mediation",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_lc_community_leaders",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_legal_administrative_support",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_livelihood_or_income",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_no_support_needed_manage_alone",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_psychosocial_emotional_support",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_religious_clan_cultural_leaders",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_share_mean",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_skills_training_education"
+    ],
+    "12": [
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_confidence_explain_referral",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_confidence_where_to_refer",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_court_formal_justice_coordination",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_descriptive_baseline_comparison_only",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_feedback_after_referral",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_jlos_definition",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_police_coordination",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_prior_formal_coordination",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_referral_cases_recorded",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_share_mean_score"
+    ],
+    "13": [
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_bushenyi",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_case_handling_quality",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_legitimacy_and_reintegration",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_mean_score_0_1",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_mentor_readiness_proxy",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_operational_capacity",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_rubirizi",
+      "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district_sheema"
+    ],
+    "14": [
+      "1_literature_aronow_and_samii_2017_estimating_average_causal_effects_under_general_interference_with_application_to_a_social_network_e_general_interference",
+      "1_literature_aronow_and_samii_2017_estimating_average_causal_effects_under_general_interference_with_application_to_a_social_network_e_paper",
+      "1_literature_baird_et_al_2018_optimal_design_of_experiments_in_the_presence_of_interference_paper",
+      "1_literature_baird_et_al_2018_optimal_design_of_experiments_in_the_presence_of_interference_randomized_saturation_design",
+      "1_literature_callaway_and_santanna_2021_difference_in_differences_with_multiple_time_periods_paper",
+      "1_literature_callaway_and_santanna_2021_difference_in_differences_with_multiple_time_periods_staggered_did",
+      "1_literature_hussey_and_hughes_2007_design_and_analysis_of_stepped_wedge_cluster_randomized_trials_paper",
+      "1_literature_hussey_and_hughes_2007_design_and_analysis_of_stepped_wedge_cluster_randomized_trials_stepped_wedge_design"
+    ],
+    "15": [
+      "2_output_phase1_baseline_executive_figures_fig_25_safeguards_safeguards_and_serious_sensitive_case_handling",
+      "2_output_phase1_baseline_executive_figures_fig_36_jlos_snapshot_jlos_collaboration_and_referral_practice",
+      "2_output_phase1_baseline_executive_figures_fig_37_jlos_referral_reasons_reasons_for_referring_cases_onward",
+      "2_output_phase1_baseline_executive_figures_fig_38_jlos_referral_barriers_distance_and_transport_constraints",
+      "2_output_phase1_baseline_executive_figures_fig_38_jlos_referral_barriers_party_resistance_and_expected_costs",
+      "2_output_phase1_baseline_executive_figures_fig_38_jlos_referral_barriers_referral_barriers_are_widespread",
+      "2_output_phase1_baseline_executive_figures_fig_38_jlos_referral_barriers_reported_barriers_to_referral",
+      "2_output_phase1_baseline_executive_figures_fig_39_jlos_referral_loop_referral_pathway_strong_entry_weaker_closure"
+    ],
+    "16": [
+      "converted_final_village_list_9f5c463f_document",
+      "converted_list_of_lcs_mapped_433512fb_document",
+      "converted_number_of_cases_by_village_2289807c_document",
+      "converted_number_of_cases_per_sub_county_jan_dec_2025_cleaned_87ca8263_document",
+      "converted_number_of_cases_per_subcounty_79e50594_document",
+      "converted_phase1_sampling_randomization_c4b35d05_document",
+      "converted_rubirizi_admin_data_f471676f_document"
+    ],
+    "17": [
+      "1_literature_creutzfeldt_and_bradford_2016_dispute_resolution_outside_of_courts_procedural_justice_and_decision_acceptance_among_users_of_ombu_paper",
+      "1_literature_creutzfeldt_and_bradford_2016_dispute_resolution_outside_of_courts_procedural_justice_and_decision_acceptance_among_users_of_ombu_procedural_justice",
+      "1_literature_jackson_2018_norms_normativity_and_the_legitimacy_of_justice_institutions_international_perspectives_justice_institution_legitimacy",
+      "1_literature_jackson_2018_norms_normativity_and_the_legitimacy_of_justice_institutions_international_perspectives_paper",
+      "baseline_reconciliation_and_analytical_guidance_aug2026_document",
+      "baseline_reconciliation_and_analytical_guidance_aug2026_reconciled_phase1_baseline"
+    ],
+    "18": [
+      "1_literature_grajzl_et_al_2026_does_court_annexed_mediation_facilitate_case_disposition_evidence_from_civil_and_commercial_lawsuit_court_annexed_mediation",
+      "1_literature_grajzl_et_al_2026_does_court_annexed_mediation_facilitate_case_disposition_evidence_from_civil_and_commercial_lawsuit_paper",
+      "1_literature_grande_1999_alternative_dispute_resolution_africa_and_the_structure_of_law_and_power_the_horn_in_context_adr_power_structure",
+      "1_literature_grande_1999_alternative_dispute_resolution_africa_and_the_structure_of_law_and_power_the_horn_in_context_paper",
+      "1_literature_maraire_2025_the_pursuit_of_an_appropriate_dispute_resolution_philosophy_for_africa_african_adr_philosophy",
+      "1_literature_maraire_2025_the_pursuit_of_an_appropriate_dispute_resolution_philosophy_for_africa_paper"
+    ],
+    "19": [
+      "2_output_phase1_baseline_executive_figures_fig_21_record_challenges_reported_record_keeping_challenges",
+      "2_output_phase1_baseline_executive_figures_fig_22_committee_functioning_committee_functioning_and_collective_decision_making",
+      "2_output_phase1_baseline_executive_figures_fig_23_committee_challenges_member_absence_and_time_constraints",
+      "2_output_phase1_baseline_executive_figures_fig_23_committee_challenges_reported_committee_functioning_challenges",
+      "2_output_phase1_baseline_executive_figures_fig_23_committee_challenges_training_and_resource_constraints",
+      "2_output_phase1_baseline_executive_figures_fig_24_legitimacy_bypass_perceived_legitimacy_bypassing_and_fairness_risks"
+    ],
+    "20": [
+      "2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_acceptance_stigma_and_reoffending_norms",
+      "2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_local_leadership_reintegration_role",
+      "2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_reintegration_norms_and_support_capacity",
+      "2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_support_breadth_and_referral_capacity_gap",
+      "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_support_types_for_successful_reintegration",
+      "2_output_phase1_baseline_executive_figures_fig_28_reintegration_barriers_perceived_barriers_to_reintegration"
+    ],
+    "21": [
+      "2_output_phase1_baseline_executive_figures_fig_32_origin_core_composites_core_baseline_composites_by_phase_1_origin",
+      "2_output_phase1_baseline_executive_figures_fig_32_origin_core_composites_descriptive_not_causal",
+      "2_output_phase1_baseline_executive_figures_fig_32_origin_core_composites_previously_contacted_baseline_advantage",
+      "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration_jlos_collaboration_by_phase_1_origin",
+      "2_output_phase1_baseline_executive_figures_fig_34_origin_priority_gaps_priority_implementation_gaps_by_phase_1_origin",
+      "2_output_phase1_baseline_executive_figures_fig_35_origin_high_readiness_flags_high_capacity_and_mentor_readiness_flags_by_origin"
+    ],
+    "22": [
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority",
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority_error_105",
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority_high_review_3",
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority_pass_8",
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority_records",
+      "2_output_phase1_baseline_qa_presentation_assets_record_priority_review_17"
+    ],
+    "23": [
+      "1_literature_mennen_2010_lessons_from_yambio_legal_pluralism_and_customary_justice_reform_in_southern_sudan__customary_justice",
+      "1_literature_mennen_2010_lessons_from_yambio_legal_pluralism_and_customary_justice_reform_in_southern_sudan__paper",
+      "1_literature_owor_2012_creating_an_independent_traditional_court_a_study_of_jopadhola_clan_courts_in_uganda__paper",
+      "1_literature_pimentel_2010_rule_of_law_reform_without_cultural_imperialism_reinforcing_customary_justice_through_collateral_review__paper",
+      "1_literature_woodman_1996_legal_pluralism_and_the_search_for_justice__paper"
+    ],
+    "24": [
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district",
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district_bushenyi_55_interviews",
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district_number_of_interviews",
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district_rubirizi_42_interviews",
+      "2_output_phase1_baseline_executive_figures_fig_01_sample_by_district_sheema_36_interviews"
+    ],
+    "25": [
+      "2_output_phase1_baseline_executive_figures_fig_13_data_quality_flags_automated_data_quality_flags",
+      "readme_advancing_justice_uganda_lc",
+      "readme_analytical_release_gate",
+      "readme_local_council_training_program",
+      "readme_phase_1_baseline_audit_pipeline"
+    ],
+    "26": [
+      "2_output_phase1_baseline_executive_figures_fig_29_readiness_correlations_baseline_domains_and_mentor_readiness",
+      "2_output_phase1_baseline_executive_figures_fig_29_readiness_correlations_diagnostic_composite_warning",
+      "2_output_phase1_baseline_executive_figures_fig_30_readiness_vs_case_handling_mentor_readiness_and_case_handling_quality",
+      "2_output_phase1_baseline_executive_figures_fig_30_readiness_vs_case_handling_positive_readiness_quality_association",
+      "2_output_phase1_baseline_executive_figures_fig_31_readiness_vs_legitimacy_norms_mentor_readiness_and_legitimacy_norms"
+    ],
+    "27": [
+      "1_literature_banik_2009_legal_empowerment_as_a_conceptual_and_operational_tool_in_poverty_eradication_legal_empowerment",
+      "1_literature_banik_2009_legal_empowerment_as_a_conceptual_and_operational_tool_in_poverty_eradication_paper",
+      "1_literature_khair_2009_evaluating_legal_empowerment_problems_of_analysis_and_measurement_legal_empowerment_measurement",
+      "1_literature_khair_2009_evaluating_legal_empowerment_problems_of_analysis_and_measurement_paper"
+    ],
+    "28": [
+      "1_literature_beckman_et_al_2024_reducing_re_arrest_through_community_led_police_initiated_restorative_justice_diversion_tailored_fo_paper",
+      "1_literature_beckman_et_al_2024_reducing_re_arrest_through_community_led_police_initiated_restorative_justice_diversion_tailored_fo_restorative_justice_diversion",
+      "1_literature_factor_et_al_2026_the_effect_of_community_courts_on_recidivism_a_quasi_experimental_study_community_courts",
+      "1_literature_factor_et_al_2026_the_effect_of_community_courts_on_recidivism_a_quasi_experimental_study_paper"
+    ],
+    "29": [
+      "1_literature_cooper_knock_and_macdonald_2020_a_summons_to_the_magistrates_courts_in_south_africa_and_uganda_paper",
+      "1_literature_cooper_knock_and_macdonald_2020_a_summons_to_the_magistrates_courts_in_south_africa_and_uganda_trifactor_citizen_engagement",
+      "1_literature_macdonald_et_al_2022_maybe_we_should_take_the_legal_ways_citizen_engagement_with_lower_state_courts_in_post_war_northe_lower_state_court_engagement",
+      "1_literature_macdonald_et_al_2022_maybe_we_should_take_the_legal_ways_citizen_engagement_with_lower_state_courts_in_post_war_northe_paper"
+    ],
+    "30": [
+      "1_literature_engle_merry_1988_legal_pluralism_legal_pluralism",
+      "1_literature_engle_merry_1988_legal_pluralism_paper",
+      "1_literature_krakowski_and_kursani_2024_why_do_people_use_informal_justice_experimental_evidence_from_kosovo_informal_justice_choice",
+      "1_literature_krakowski_and_kursani_2024_why_do_people_use_informal_justice_experimental_evidence_from_kosovo_paper"
+    ],
+    "31": [
+      "2_output_phase1_baseline_executive_figures_fig_09_caseload_selected_caseload_and_sensitive_case_exposure",
+      "2_output_phase1_baseline_executive_figures_fig_10_caseload_3m_distribution_three_month_lcc_caseload_distribution",
+      "2_output_phase1_baseline_executive_figures_fig_10b_caseload_3m_zoom_three_month_lcc_caseload_distribution_zoom",
+      "2_output_phase1_baseline_executive_figures_fig_11_case_types_3m_three_month_case_type_distribution"
+    ],
+    "32": [
+      "2_output_phase1_baseline_executive_figures_fig_35_origin_high_readiness_flags_diagnostic_threshold",
+      "2_output_phase1_baseline_executive_figures_fig_35_origin_high_readiness_flags_high_capacity_and_mentor_readiness_flags_by_phase_1_origin",
+      "2_output_phase1_baseline_executive_figures_fig_35_origin_high_readiness_flags_legitimacy_norms_bottleneck",
+      "2_output_phase1_baseline_executive_figures_fig_35_origin_high_readiness_flags_previously_contacted_high_capacity_concentration"
+    ],
+    "33": [
+      "2_output_phase1_baseline_qa_presentation_assets_duration_distribution_duration_qa_thresholds",
+      "2_output_phase1_baseline_qa_presentation_assets_duration_distribution_interview_duration_distribution",
+      "2_output_phase1_baseline_qa_presentation_assets_duration_distribution_long_duration_outliers",
+      "2_output_phase1_baseline_qa_presentation_assets_duration_distribution_typical_interview_duration"
+    ],
+    "34": [
+      "2_output_phase1_baseline_qa_presentation_assets_failed_error_checks_duplicate_villages_and_interview_overlaps",
+      "2_output_phase1_baseline_qa_presentation_assets_failed_error_checks_failed_error_severity_checks",
+      "2_output_phase1_baseline_qa_presentation_assets_failed_error_checks_smaller_logic_and_metadata_errors",
+      "2_output_phase1_baseline_qa_presentation_assets_failed_error_checks_vacancy_count_systematic_omission"
+    ],
+    "35": [
+      "2_output_phase1_baseline_qa_presentation_assets_regression_coefficients_baseline_differences_by_prior_administrative_contact",
+      "2_output_phase1_baseline_qa_presentation_assets_regression_coefficients_descriptive_regression_design",
+      "2_output_phase1_baseline_qa_presentation_assets_regression_coefficients_positive_operational_case_handling_and_readiness_gaps",
+      "2_output_phase1_baseline_qa_presentation_assets_regression_coefficients_uncertain_legitimacy_reintegration_gap"
+    ],
+    "36": [
+      "2_output_phase1_baseline_executive_figures_fig_05_mentor_readiness_distribution_baseline_mentor_readiness_distribution",
+      "2_output_phase1_baseline_executive_figures_fig_06_high_capacity_flags_high_capacity_threshold_flags",
+      "2_output_phase1_baseline_executive_figures_fig_07_chairperson_profile_chairperson_capacity_and_prior_exposure"
+    ],
+    "37": [
+      "2_output_phase1_baseline_executive_figures_fig_10b_caseload_3m_zoom_low_volume_right_skewed_caseload",
+      "2_output_phase1_baseline_executive_figures_fig_10b_caseload_3m_zoom_three_month_lcc_caseload_distribution",
+      "2_output_phase1_baseline_executive_figures_fig_10b_caseload_3m_zoom_zoomed_view_rationale"
+    ],
+    "38": [
+      "1_literature_albezreh_et_al_2022_multiyear_multisectoral_training_program_in_kenya_to_enhance_medical_legal_processes_in_response_to_multisectoral_sgbv_training",
+      "1_literature_albezreh_et_al_2022_multiyear_multisectoral_training_program_in_kenya_to_enhance_medical_legal_processes_in_response_to_paper"
+    ],
+    "39": [
+      "1_literature_blattman_et_al_2014_how_to_promote_order_and_property_rights_under_weak_rule_of_law_an_experiment_in_changing_dispute_r_dispute_resolution_reform",
+      "1_literature_blattman_et_al_2014_how_to_promote_order_and_property_rights_under_weak_rule_of_law_an_experiment_in_changing_dispute_r_paper"
+    ],
+    "40": [
+      "1_literature_braithwaite_2021_street_level_meta_strategies_evidence_on_restorative_justice_and_responsive_regulation_paper",
+      "1_literature_braithwaite_2021_street_level_meta_strategies_evidence_on_restorative_justice_and_responsive_regulation_responsive_regulation"
+    ],
+    "41": [
+      "1_literature_esposito_and_wright_2025_public_policies_for_peace_paper",
+      "1_literature_esposito_and_wright_2025_public_policies_for_peace_violence_prevention_policy"
+    ],
+    "42": [
+      "1_literature_oluoch_2009_legitimacy_of_the_east_african_community__paper"
+    ],
+    "43": [
+      "2_output_phase1_baseline_executive_figures_fig_05_mentor_readiness_distribution_baseline_mentor_readiness_proxy_distribution"
+    ],
+    "44": [
+      "2_output_phase1_baseline_executive_figures_fig_06_high_capacity_flags_chairpersons_above_high_capacity_thresholds"
+    ],
+    "45": [
+      "2_output_phase1_baseline_executive_figures_fig_09_caseload_selected_lcc_caseload_and_sensitive_case_exposure"
+    ],
+    "46": [
+      "2_output_phase1_baseline_executive_figures_fig_11_case_types_3m_three_month_lcc_case_type_distribution"
+    ],
+    "47": [
+      "2_output_phase1_baseline_executive_figures_fig_13_data_quality_flags_automated_baseline_data_quality_flags"
+    ],
+    "48": [
+      "2_output_phase1_baseline_executive_figures_fig_19_referral_barriers_reported_referral_barriers"
+    ],
+    "49": [
+      "2_output_phase1_baseline_executive_figures_fig_25_safeguards_safeguards_and_sensitive_case_handling"
+    ],
+    "50": [
+      "2_output_phase1_baseline_executive_figures_fig_28_reintegration_barriers_perceived_reintegration_barriers"
+    ],
+    "51": [
+      "2_output_phase1_baseline_executive_figures_fig_29_readiness_correlations_baseline_domain_correlations_with_mentor_readiness"
+    ],
+    "52": [
+      "2_output_phase1_baseline_executive_figures_fig_31_readiness_vs_legitimacy_norms_mentor_readiness_and_legitimacy_norms_association"
+    ],
+    "53": [
+      "2_output_phase1_baseline_executive_figures_fig_37_jlos_referral_reasons_jlos_onward_referral_reasons"
+    ],
+    "54": [
+      "2_output_phase1_baseline_executive_figures_fig_39_jlos_referral_loop_jlos_referral_pathway"
+    ],
+    "55": [
+      "2_output_phase1_baseline_qa_presentation_assets_enumerator_error_rate_error_burden_across_field_teams"
+    ],
+    "56": [
+      "2_output_phase1_baseline_qa_presentation_assets_failed_warning_checks_instrument_and_timing_problems"
+    ],
+    "57": [
+      "2_output_phase1_baseline_qa_presentation_assets_issue_severity_audit_review_items_by_severity"
+    ]
+  },
+  "cohesion": {
+    "0": 0.017391304347826087,
+    "1": 0.07692307692307693,
+    "2": 0.08,
+    "3": 0.08695652173913043,
+    "4": 0.10526315789473684,
+    "5": 0.1111111111111111,
+    "6": 0.125,
+    "7": 0.125,
+    "8": 0.16666666666666666,
+    "9": 0.18181818181818182,
+    "10": 0.18181818181818182,
+    "11": 0.18181818181818182,
+    "12": 0.18181818181818182,
+    "13": 0.5555555555555556,
+    "14": 0.25,
+    "15": 0.25,
+    "16": 0.2857142857142857,
+    "17": 0.3333333333333333,
+    "18": 0.3333333333333333,
+    "19": 0.3333333333333333,
+    "20": 0.3333333333333333,
+    "21": 0.3333333333333333,
+    "22": 0.3333333333333333,
+    "23": 0.4,
+    "24": 0.4,
+    "25": 0.4,
+    "26": 0.4,
+    "27": 0.5,
+    "28": 0.5,
+    "29": 0.5,
+    "30": 0.5,
+    "31": 0.5,
+    "32": 0.5,
+    "33": 0.5,
+    "34": 0.5,
+    "35": 0.5,
+    "36": 0.6666666666666666,
+    "37": 0.6666666666666666,
+    "38": 1.0,
+    "39": 1.0,
+    "40": 1.0,
+    "41": 1.0,
+    "42": 1.0,
+    "43": 1.0,
+    "44": 1.0,
+    "45": 1.0,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0
+  },
+  "gods": [
+    {
+      "id": "dropbox_corpus_snapshot_2026_08_31",
+      "label": "Dropbox corpus snapshot 31 August 2026",
+      "degree": 115
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_08_institutional_functioning",
+      "label": "Institutional functioning and operational readiness",
+      "degree": 17
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall",
+      "label": "Average baseline scores across core domains",
+      "degree": 15
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps",
+      "label": "Training priority gaps by baseline domain",
+      "degree": 12
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_21_record_challenges",
+      "label": "Reported record-keeping challenges",
+      "degree": 10
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support",
+      "label": "Support types identified for successful reintegration",
+      "degree": 10
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration",
+      "label": "JLOS collaboration and referral pathway by Phase 1 origin",
+      "degree": 10
+    },
+    {
+      "id": "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients",
+      "label": "Baseline differences by prior administrative contact",
+      "degree": 10
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers",
+      "label": "Reported barriers to local mediation/ADR",
+      "degree": 10
+    },
+    {
+      "id": "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district",
+      "label": "Composite baseline domains by district",
+      "degree": 8
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Village Dispute Mediation in China, 2002-10: An Enduring Institution amid Rural Change",
+      "target": "Local Council justice capacity",
+      "source_files": [
+        "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/Read and Michelson - 2018 - Village Dispute Mediation in China, 2002–10 An Enduring Institution amid Rural Change.pdf",
+        "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/2 Design/Instruments/phase_1_baseline_Runyankore_printable (1).html"
+      ],
+      "confidence": "INFERRED",
+      "relation": "semantically_similar_to",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (paper ↔ doc); semantically similar concepts with no structural link"
+    },
+    {
+      "source": "Standalone Stata 19 Phase 1 Baseline Audit Pipeline",
+      "target": "Automated Data-Quality Flags",
+      "source_files": [
+        "README.md",
+        "2 Output/Phase1_Baseline_Executive/figures/fig_13_data_quality_flags.pdf"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (doc ↔ paper); connects across different repos/directories"
+    },
+    {
+      "source": "Dropbox corpus snapshot builder",
+      "target": "Dropbox corpus snapshot 31 August 2026",
+      "source_files": [
+        "1 Code/build_dropbox_corpus_snapshot.py",
+        "project_context/DROPBOX_CONTEXT_2026-08-31.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "generates",
+      "why": "crosses file types (code ↔ doc); connects across different repos/directories; peripheral node `Dropbox corpus snapshot builder` unexpectedly reaches hub `Dropbox corpus snapshot 31 August 2026`"
+    },
+    {
+      "source": "Phase 1 baseline reconciliation and analytical guidance",
+      "target": "Dropbox corpus snapshot 31 August 2026",
+      "source_files": [
+        "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/BASELINE_RECONCILIATION_AND_ANALYTICAL_GUIDANCE_AUG2026.md",
+        "project_context/DROPBOX_CONTEXT_2026-08-31.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "governs",
+      "why": "connects across different repos/directories; bridges separate communities; peripheral node `Phase 1 baseline reconciliation and analytical guidance` unexpectedly reaches hub `Dropbox corpus snapshot 31 August 2026`"
+    },
+    {
+      "source": "Guarded Release and Analysis Protocol: Adjudicate, Preserve Origin, Rerun QA, and Avoid Causal Claims",
+      "target": "District-Adjusted Baseline Differences by Prior Administrative Contact with Village-Clustered Confidence Intervals",
+      "source_files": [
+        "2 Output/Phase1_Baseline_QA_Presentation/phase1_baseline_qa_presentation.qmd",
+        "2 Output/Phase1_Baseline_Key_Regressions/key_baseline_regression_coefficients.pdf"
+      ],
+      "confidence": "INFERRED",
+      "relation": "conceptually_related_to",
+      "why": "inferred connection - not explicitly stated in source; crosses file types (doc ↔ paper)"
+    }
+  ],
+  "questions": [
+    {
+      "type": "ambiguous_edge",
+      "question": "What is the exact relationship between `The Power of Community Mediation: Government and Formation of Self-Identity` and `Restorative justice conferences`?",
+      "why": "Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low."
+    },
+    {
+      "type": "ambiguous_edge",
+      "question": "What is the exact relationship between `Randomized trial of a diversion program for property offenders with drug use` and `Restorative justice conferences`?",
+      "why": "Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Dropbox corpus snapshot 31 August 2026` connect `Restorative Justice Evidence` to `Baseline Reconciliation`?",
+      "why": "High betweenness centrality (0.065) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Baseline Reconciliation` to `Restorative Justice Evidence`?",
+      "why": "High betweenness centrality (0.005) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Phase 1 Baseline QA Quarto Source and Reproducible Evidence Chain`, `Macdonald et al. (2022) citizen engagement with lower courts`, `Beckman et al. (2024) restorative justice diversion` to the rest of the system?",
+      "why": "240 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Restorative Justice Evidence` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Procedural Justice Evidence` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected."
+    }
+  ]
+}
