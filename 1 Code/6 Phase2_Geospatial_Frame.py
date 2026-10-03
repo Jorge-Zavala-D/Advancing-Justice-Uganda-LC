@@ -1,4 +1,4 @@
-"""Milestones 2-4 geographic source conversion and review, called from Stata.
+"""Milestones 2-6 geographic source conversion and review, called from Stata.
 
 Raw responses, archives and derived geography stay in Dropbox. This companion
 does not select mentors, approve final neighbor eligibility, or allocate treatment. Stata owns
@@ -310,6 +310,8 @@ def worker_args():
     cmd = [uv, "run", "--python", "3.12"]
     for p in GIS_PACKAGES:
         cmd += ["--with", p]
+    if "--verification" in sys.argv:
+        cmd += ["--with", "osmium==4.3.1"]
     cmd += ["python", str(Path(__file__).resolve()), *sys.argv[1:], "--worker"]
     return cmd
 
@@ -410,7 +412,7 @@ def acquire_coverage(root):
     print(f"Milestone 5 source audit: {len(pages)} complete catalog pages, {len(items)} unique items, {len(layers)} village/settlement layers", flush=True)
 
 
-def review_workbook(root, inspect_only=False, reconcile_mode=False, neighbors_mode=False, coverage_mode=False):
+def review_workbook(root, inspect_only=False, reconcile_mode=False, neighbors_mode=False, coverage_mode=False, verification_mode=False):
     # Presentation formatting only; input values have already passed Stata.
     runtime = Path(os.environ.get("CODEX_RUNTIME_DEPENDENCIES", str(Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies")))
     node = runtime / "node/bin/node.exe"
@@ -425,10 +427,10 @@ def review_workbook(root, inspect_only=False, reconcile_mode=False, neighbors_mo
     assert module_path.resolve() == packages.resolve(), "Unexpected staging dependency target"
     builder = staging / "6 Phase2_Geospatial_Review.mjs"
     shutil.copyfile(Path(__file__).with_name(builder.name), builder)
-    cmd = [str(node), str(builder), str(root)] + (["--inspect"] if inspect_only else []) + (["--reconcile"] if reconcile_mode else []) + (["--neighbors"] if neighbors_mode else []) + (["--coverage"] if coverage_mode else [])
+    cmd = [str(node), str(builder), str(root)] + (["--inspect"] if inspect_only else []) + (["--reconcile"] if reconcile_mode else []) + (["--neighbors"] if neighbors_mode else []) + (["--coverage"] if coverage_mode else []) + (["--verification"] if verification_mode else [])
     r = subprocess.run(cmd, capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     _, out = folders(root)
-    (out / ("phase2_coverage_workbook.log" if coverage_mode else "phase2_neighbor_workbook.log" if neighbors_mode else "phase2_reconciliation_workbook.log" if reconcile_mode else "phase2_geographic_workbook.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
+    (out / ("phase2_verification_workbook.log" if verification_mode else "phase2_coverage_workbook.log" if coverage_mode else "phase2_neighbor_workbook.log" if neighbors_mode else "phase2_reconciliation_workbook.log" if reconcile_mode else "phase2_geographic_workbook.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
     print(r.stdout + r.stderr, flush=True)
     r.check_returncode()
 
@@ -1910,6 +1912,500 @@ and native/file checks do not constitute field certification or assignment relea
     print("Milestone 5 native columns/shapes, source pins and 22 accepted workbook tabs verified. Current LC geometry remains incomplete.", flush=True)
 
 
+def verification(root):
+    """M6: dated OSM acquisition and editable local-verification packet.
+
+    No OSM name/point is promoted to a canonical LC, no candidate is declared
+    eligible, and no responses are invented. Earlier accepted products stay
+    immutable. Local decisions are collected in the existing census workbook.
+    """
+    import geopandas as gpd
+    import pandas as pd
+    import shapely
+    import osmium
+    import importlib.metadata
+    raw, out = folders(root)
+    source_dir = raw / "milestone6"
+    source_dir.mkdir(exist_ok=True)
+    workbook = root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx"
+    path = out / "phase2_verification_manifest.json"
+    prior = json.loads((out / "phase2_coverage_manifest.json").read_text(encoding="utf-8"))
+    old = json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+    pins = dict(prior["input_sha256"])
+    pins.update({"DROPBOX/" + str(p).replace("\\", "/"): h for p, h in prior["product_sha256"].items()})
+    pins["DROPBOX/" + (out / "phase2_coverage_manifest.json").relative_to(root).as_posix()] = sha(out / "phase2_coverage_manifest.json")
+    for p, h in pins.items():
+        assert sha(saved_path(root, p)) == h, f"Accepted source/product changed: {p}"
+    before = workbook_cells(workbook)
+    if old:
+        assert all(before[n] == v for n, v in old["accepted_workbook_sheets"].items()), "Accepted worksheet changed"
+        before = old["accepted_workbook_sheets"]
+    else:
+        assert sha(workbook) == prior["review_workbook_sha256"], "Review workbook changed since accepted M5"
+    protected = protected_inputs(root)
+    # Use an immutable dated extract, not a moving 'latest' endpoint.
+    urls = {
+        "uganda-261002.osm.pbf.md5": "https://download.geofabrik.de/africa/uganda-261002.osm.pbf.md5",
+        "uganda-261002.osm.pbf": "https://download.geofabrik.de/africa/uganda-261002.osm.pbf",
+        "geofabrik_uganda.html": "https://download.geofabrik.de/africa/uganda.html",
+        "osm_license.html": "https://www.openstreetmap.org/copyright",
+        "osmium_geometry_documentation.html": "https://docs.osmcode.org/pyosmium/4.3.1/user_manual/03-Working-with-Geometries/",
+        "osmium_geometry_current_documentation.html": "https://docs.osmcode.org/pyosmium/latest/user_manual/03-Working-with-Geometries/",
+        "osmium_filter_documentation.html": "https://docs.osmcode.org/pyosmium/latest/reference/Filters/",
+        "ubos_contact.html": "https://www.ubos.org/contact-us-2/",
+        "bushenyi_planning.html": "https://bushenyi.go.ug/dept/planning",
+        "bushenyi_client_charter_20260908.pdf": "https://bushenyi.go.ug/sites/default/files/media/Bushenyi%20District%20Local%20Government%20Cleint%20Charter%20_0.pdf",
+        "rubirizi_planning.html": "https://rubirizi.go.ug/dept/planning-department",
+        "sheema_contact.html": "https://www.sheema.go.ug/contact",
+    }
+    for name, url in urls.items():
+        fetch(root, name, url, required=name.endswith((".pbf", ".md5")), raw_subdir="milestone6")
+    pbf = source_dir / "uganda-261002.osm.pbf"
+    expected_md5 = (source_dir / "uganda-261002.osm.pbf.md5").read_text().split()[0]
+    assert re.fullmatch(r"[0-9a-fA-F]{32}", expected_md5)
+    with pbf.open("rb") as f:
+        assert hashlib.file_digest(f, "md5").hexdigest() == expected_md5.lower(), "Provider MD5 mismatch"
+    with osmium.io.Reader(str(pbf)) as reader:
+        osm_timestamp = reader.header().get("osmosis_replication_timestamp")
+    assert osm_timestamp and osm_timestamp.startswith("2026-10-02"), "Unexpected OSM snapshot date"
+    sources = json.loads((source_dir / "download_manifest.json").read_text(encoding="utf-8"))
+    for name, r in sources.items():
+        if r["status"] == "downloaded":
+            pins["DROPBOX/" + (source_dir / name).relative_to(root).as_posix()] = r["sha256"]
+    pins["DROPBOX/" + (source_dir / "download_manifest.json").relative_to(root).as_posix()] = sha(source_dir / "download_manifest.json")
+    receipt_path = source_dir / "outreach_receipts.json"
+    outreach = json.loads(receipt_path.read_text(encoding="utf-8")) if receipt_path.exists() else {"requests": []}
+    sent_requests = outreach["requests"]
+    delivery_events = outreach.get("delivery_events", [])
+    form_submissions = outreach.get("form_submissions", [])
+    assert len({r["source_id"] for r in sent_requests}) == len(sent_requests), "Duplicate outreach receipt"
+    assert all(r["status"] == "SENT_AWAITING_RESPONSE" and r["message_id"] and r["thread_id"] and r["sent_utc"] and r["verification_url"].startswith("https://") for r in sent_requests), "Incomplete send/recipient-verification receipt"
+    if receipt_path.exists():
+        assert outreach.get("authorization") and outreach.get("sender_account"), "Outreach authority/sender not documented"
+        pins["DROPBOX/" + receipt_path.relative_to(root).as_posix()] = sha(receipt_path)
+    assert all(e["sent_message_id"] in {r["message_id"] for r in sent_requests} and e["notice_message_id"] and e["notice_utc"] and e["status"] == "DELIVERY_FAILED" for e in delivery_events), "Incomplete delivery-failure evidence"
+    assert len({(r["source_id"], r["submitted_utc"]) for r in form_submissions}) == len(form_submissions), "Duplicate form receipt"
+    for form in form_submissions:
+        assert form["authorization"] and form["reply_email"] == outreach["sender_account"] and form["status"] == "WEB_FORM_SUBMITTED_AWAITING_RESPONSE", "Form authority/status not documented"
+        assert form["form_url"].startswith("https://") and form["confirmation_url"].startswith("https://") and form["confirmation_text"], "No visible form submission confirmation"
+        proof = (root / form["proof_relative_path"]).resolve()
+        assert proof.is_relative_to(source_dir.resolve()) and sha(proof) == form["proof_sha256"], "Form screenshot proof missing or changed"
+        pins["DROPBOX/" + proof.relative_to(root.resolve()).as_posix()] = form["proof_sha256"]
+    if old and old.get("stata_import_validation_passed"):
+        # M6 may add published contact/documentation sources and explicitly
+        # authorized send receipts. All earlier source bytes stay immutable.
+        manifest_key = "DROPBOX/" + (source_dir / "download_manifest.json").relative_to(root).as_posix()
+        receipt_key = "DROPBOX/" + receipt_path.relative_to(root).as_posix()
+        for p, h in old["input_sha256"].items():
+            if p in (manifest_key, receipt_key): continue
+            assert pins.get(p) == h and sha(saved_path(root, p)) == h, f"Accepted M6 source changed: {p}"
+        for name, record in old.get("raw_source_records", {}).items():
+            assert sources.get(name) == record, f"Archived source receipt changed: {name}"
+        assert all(r in sent_requests for r in old.get("outreach_receipts", [])), "An earlier send receipt was changed or discarded"
+        assert all(e in delivery_events for e in old.get("outreach_delivery_events", [])), "An earlier delivery notice was changed or discarded"
+        assert all(r in form_submissions for r in old.get("outreach_form_submissions", [])), "An earlier form receipt was changed or discarded"
+
+    parents = gpd.read_file(out / "gis/ubos2024_context.gpkg", layer="subcounties")
+    attrs = pd.read_csv(out / "phase2_ubos2024_subcounty_context.csv", dtype=str, keep_default_na=False)
+    attrs["geo_id"] = pd.to_numeric(attrs.geo_id).astype(int)
+    parents = parents.merge(attrs[[c for c in attrs if c == "geo_id" or c not in parents]], on="geo_id", validate="one_to_one")
+    assert len(parents) == 43 and parents.crs.to_epsg() == 4326
+    # Match M5's diagnostic study-area plus 5km context. This is not an eligibility cutoff.
+    region = gpd.GeoSeries([parents.to_crs(32736).geometry.union_all().buffer(5000)], crs=32736).to_crs(4326).iloc[0]
+    bbox = shapely.box(*region.bounds)
+    shapely.prepare(region)
+    place_types = {"city", "town", "village", "hamlet", "suburb", "neighbourhood", "quarter", "locality", "isolated_dwelling"}
+    roads_types = {"motorway", "motorway_link", "trunk", "trunk_link", "primary", "primary_link", "secondary", "secondary_link", "tertiary", "tertiary_link", "unclassified", "residential", "living_street", "service", "track", "path", "footway", "pedestrian", "steps", "cycleway", "bridleway", "road"}
+    points, roads, water, areas, issues = [], [], [], [], []
+    national = Counter()
+    factory = osmium.geom.WKBFactory()
+    started = time.monotonic()
+    print("Reading complete dated Uganda OSM extract; retaining only study-area/context features.", flush=True)
+    # C++ filtering reduces transfers to Python, not location caching or area
+    # assembly. Keys are OR-combined; every feature class below is retained.
+    for obj in osmium.FileProcessor(str(pbf)).with_areas().with_filter(osmium.filter.KeyFilter("place", "highway", "waterway", "boundary")):
+        kind = obj.type_str()
+        if kind == "n":
+            place = obj.tags.get("place", "")
+            if place not in place_types: continue
+            national["place_nodes"] += 1
+            if not obj.location.valid():
+                issues.append(dict(osm_uid=f"OSM_N_{obj.id}", issue="MISSING_NODE_LOCATION", feature_kind="place", geography_scope="UNKNOWN"))
+                continue
+            geom = shapely.Point(obj.location.lon, obj.location.lat)
+            if not bbox.covers(geom) or not region.covers(geom): continue
+            points.append(dict(osm_uid=f"OSM_N_{obj.id}", osm_type="node", osm_id=str(obj.id), osm_label=obj.tags.get("name", ""), alt_name=obj.tags.get("alt_name", ""), name_en=obj.tags.get("name:en", ""), place_type=place, lon=geom.x, lat=geom.y, geometry=geom))
+        elif kind == "w":
+            road = obj.tags.get("highway", "")
+            waterway = obj.tags.get("waterway", "")
+            if road not in roads_types and waterway not in {"river", "stream", "canal", "drain"}: continue
+            national["road_ways" if road in roads_types else "waterway_ways"] += 1
+            coords = [(n.lon, n.lat) for n in obj.nodes if n.location.valid()]
+            if len(coords) != len(obj.nodes) or len(coords) < 2:
+                issues.append(dict(osm_uid=f"OSM_W_{obj.id}", issue="INCOMPLETE_OR_SHORT_WAY", feature_kind="road" if road else "waterway", geography_scope="UNKNOWN"))
+                continue
+            geom = shapely.LineString(coords)
+            if not bbox.intersects(geom) or not region.intersects(geom): continue
+            if not geom.is_valid or geom.length == 0:
+                issues.append(dict(osm_uid=f"OSM_W_{obj.id}", issue="INVALID_OR_ZERO_LENGTH_WAY", feature_kind="road" if road else "waterway", geography_scope="STUDY_CONTEXT"))
+                continue
+            row = dict(osm_uid=f"OSM_W_{obj.id}", osm_type="way", osm_id=str(obj.id), osm_label=obj.tags.get("name", ""), feature_type=road or waterway, surface=obj.tags.get("surface", ""), access_tag=obj.tags.get("access", ""), foot_tag=obj.tags.get("foot", ""), motor_vehicle_tag=obj.tags.get("motor_vehicle", ""), bridge_tag=obj.tags.get("bridge", ""), geometry=geom)
+            (roads if road in roads_types else water).append(row)
+        elif kind == "r" and obj.tags.get("boundary", "") == "administrative":
+            national["admin_relation_level_" + obj.tags.get("admin_level", "UNKNOWN")] += 1
+        elif kind == "a":
+            boundary, place = obj.tags.get("boundary", ""), obj.tags.get("place", "")
+            if boundary != "administrative" and place not in place_types: continue
+            national["assembled_admin_areas" if boundary == "administrative" else "assembled_place_areas"] += 1
+            uid = f"OSM_{'W' if obj.from_way() else 'R'}_{obj.orig_id()}"
+            try:
+                geom = shapely.from_wkb(factory.create_multipolygon(obj))
+            except Exception as e:
+                issues.append(dict(osm_uid=uid, issue="AREA_ASSEMBLY_ERROR: " + str(e)[:160], feature_kind="area", geography_scope="UNKNOWN"))
+                continue
+            if not bbox.intersects(geom) or not region.intersects(geom): continue
+            if geom.is_empty or not geom.is_valid:
+                issues.append(dict(osm_uid=uid, issue="INVALID_ASSEMBLED_AREA_NOT_REPAIRED", feature_kind="area", geography_scope="STUDY_CONTEXT"))
+                continue
+            areas.append(dict(osm_uid=uid, osm_type="way" if obj.from_way() else "relation", osm_id=str(obj.orig_id()), osm_label=obj.tags.get("name", ""), boundary_tag=boundary, admin_level=obj.tags.get("admin_level", ""), place_type=place, geometry=geom))
+    print(f"OSM scan finished in {time.monotonic()-started:.1f}s: {len(points)} place nodes, {len(roads)} roads, {len(water)} waterways, {len(areas)} areas in diagnostic extent.", flush=True)
+    gpkg = out / "gis/phase2_osm_context_20261002.gpkg"
+    if gpkg.exists(): gpkg.unlink()  # Owned reproducible M6 output only.
+    tables, geometry_layers = {}, {}
+    specifications = [("places", points, "Point"), ("roads", roads, "LineString"), ("waterways", water, "LineString"), ("areas", areas, "MultiPolygon")]
+    for layer, rows, geometry_type in specifications:
+        rows.sort(key=lambda r:(r["osm_type"], int(r["osm_id"])))
+        assert len({r["osm_uid"] for r in rows}) == len(rows), f"Duplicate OSM feature: {layer}"
+        for i, row in enumerate(rows, 1):
+            row.update(geo_id=i, source_date=osm_timestamp, evidence_status="OSM_UNVERIFIED_CONTEXT", current_boundary_certified=0, rct_geographic_release=0)
+        fields = [k for k in rows[0] if k != "geometry"] if rows else ["geo_id", "osm_uid", "osm_type", "osm_id", "osm_label", "evidence_status", "current_boundary_certified", "rct_geographic_release"]
+        if rows:
+            frame = gpd.GeoDataFrame(rows, crs=4326)
+            frame.to_file(gpkg, layer="osm_"+layer, driver="GPKG")
+            projected = frame[["geo_id", "geometry"]].to_crs(32736)
+            projected.to_file(out / "gis" / ("osm_"+layer+"_utm36s.shp"), driver="ESRI Shapefile", index=False)
+            if layer in ("roads", "waterways"):
+                for row, length in zip(rows, frame.to_crs(32736).geometry.length): row["length_m"] = float(length)
+                fields.append("length_m")
+            geometry_layers[layer] = len(rows)
+        tables["phase2_osm_bulk_"+layer] = (fields, [{k:r.get(k) for k in fields} for r in rows])
+    # Spatial parent information is separate evidence, never a forced name match.
+    parent_rows = list(parents.itertuples())
+    for row in points:
+        matches = [p for p in parent_rows if p.geometry.covers(row["geometry"])]
+        row["spatial_parent_count"] = len(matches)
+        row["spatial_district"] = matches[0].district if len(matches) == 1 else ""
+        row["spatial_subcounty"] = matches[0].subcounty if len(matches) == 1 else ""
+    fields, rows = tables["phase2_osm_bulk_places"]
+    fields += ["spatial_parent_count", "spatial_district", "spatial_subcounty"]
+    tables["phase2_osm_bulk_places"] = (fields, [{k:r.get(k) for k in fields} for r in points])
+    name_index = defaultdict(list)
+    for row in points:
+        keys = {ordinal_key(n) for k in ("osm_label", "name_en", "alt_name") for n in row[k].split(";") if n.strip()}
+        for key in keys: name_index[key].append(row)
+    register = read_csv(out / "phase2_village_linkage_register.csv")
+    census = read_csv(out / "phase2_lc_geometry_coverage.csv")
+    references = [dict(reference_row_id=r["phase2_lc_uid"], reference_group="EC_2022_FRAME", **r) for r in census] + register
+    assert len(census) == 1483 and len(register) == 258
+    assert len({r["reference_row_id"] for r in references}) == len(references)
+    candidates = []
+    for ref in references:
+        for row in name_index.get(ordinal_key(ref["village"]), []):
+            same_district = int(name_key(ref["district"]) == name_key(row["spatial_district"])) if row["spatial_district"] else None
+            same_parent = int(ordinal_key(ref["subcounty"], "subcounty") == ordinal_key(row["spatial_subcounty"], "subcounty")) if row["spatial_subcounty"] else None
+            candidates.append(dict(reference_row_id=ref["reference_row_id"], reference_group=ref["reference_group"], district=ref["district"], subcounty=ref["subcounty"], parish=ref["parish"], village=ref["village"], osm_uid=row["osm_uid"], osm_label=row["osm_label"], place_type=row["place_type"], lon=row["lon"], lat=row["lat"], spatial_district=row["spatial_district"], spatial_subcounty=row["spatial_subcounty"], same_district=same_district, same_subcounty=same_parent, candidate_basis="EXACT_OR_TERMINAL_ORDINAL_NAME_ONLY", identity_status="UNCONFIRMED", current_boundary_certified=0, rct_geographic_release=0))
+    candidate_fields = list(candidates[0]) if candidates else ["reference_row_id", "osm_uid", "identity_status", "current_boundary_certified", "rct_geographic_release"]
+    tables["phase2_osm_bulk_candidates"] = (candidate_fields, candidates)
+    grouped = defaultdict(list)
+    for r in candidates: grouped[r["reference_row_id"]].append(r)
+    field_rows = []
+    for ref in references:
+        matches = grouped[ref["reference_row_id"]]
+        row = dict(review_row_id=ref["reference_row_id"], object_type="DATED_ADMINISTRATIVE_LC" if ref["reference_group"] == "EC_2022_FRAME" else "PROJECT_SOURCE_ROW", district=ref["district"], subcounty=ref["subcounty"], parish=ref["parish"], village=ref["village"], reference_group=ref["reference_group"], ec_lc_uid=ref.get("ec_lc_uid", ref.get("phase2_lc_uid", "")), original100_flag=int(ref.get("original100_flag", 0)), historical_geo_id=int(ref["historical_geo_id"]) if ref.get("historical_geo_id") else None, osm_name_candidate_count=len(matches), osm_same_parent_count=sum(r["same_district"] == 1 and r["same_subcounty"] == 1 for r in matches), source_basis="EC July 2022; M5 project/source register; unverified OSM 2026-10-02", local_identity_status="PENDING", mentor_status="NOT_ASSESSED", current_boundary_certified=0, rct_geographic_release=0)
+        row.update({k:"" for k in ("review_decision", "review_evidence", "confirmed_ec_lc_uid", "current_official_code", "confirmed_district", "confirmed_subcounty", "confirmed_parish", "confirmed_village", "reference_lon", "reference_lat", "reference_point_definition", "coordinate_method", "gps_accuracy_m", "verification_date", "verifier_role", "independent_check_role")})
+        field_rows.append(row)
+    tables["phase2_field_villages"] = (list(field_rows[0]), field_rows)
+    edge_rows = []
+    for r in read_csv(out / "phase2_project_geo_neighbors.csv"):
+        key = r["reference_row_id"] + "|" + r["candidate_geo_id"]
+        edge_rows.append(dict(edge_review_id="EDGE_"+hashlib.sha256(key.encode()).hexdigest()[:16], anchor_reference_row_id=r["reference_row_id"], candidate_geo_id=int(r["candidate_geo_id"]), candidate_ec_uid=r["candidate_ec_uid"], candidate_district=r["candidate_district"], candidate_subcounty=r["candidate_subcounty"], candidate_parish=r["candidate_parish"], candidate_village=r["candidate_village"], historical_polygon_distance_m=float(r["polygon_distance_m"]), historical_point_distance_m=float(r["point_distance_m"]), historical_queen=int(r["queen_exact"]), historical_rook=int(r["rook_exact"]), identity_candidate_rows=int(r["candidate_identity_rows"]), evidence_status="HISTORICAL_REVIEW_CANDIDATE_NOT_ELIGIBLE", current_boundary_certified=0, rct_geographic_release=0, **{k:"" for k in ("review_decision", "review_evidence", "confirmed_anchor_ec_uid", "confirmed_candidate_ec_uid", "local_neighbor_status", "neighbor_basis", "reciprocal_check", "travel_mode", "travel_minutes", "seasonal_access", "shared_anchor_ids", "ownership_decision", "verification_date", "verifier_role", "independent_check_role")}))
+    assert len({r["edge_review_id"] for r in edge_rows}) == len(edge_rows), "Historical edge duplicates"
+    tables["phase2_field_neighbors"] = (list(edge_rows[0]), edge_rows)
+    # Blank keyed rows deliberately allow additions beyond the GIS-generated shortlist.
+    additions = [dict(addition_row_id=f"ADD_{i:03}", anchor_reference_row_id="", candidate_ec_uid="", candidate_district="", candidate_subcounty="", candidate_parish="", candidate_village="", local_neighbor_status="", neighbor_basis="", review_evidence="", reference_lon=None, reference_lat=None, travel_mode="", travel_minutes=None, seasonal_access="", verification_date="", verifier_role="", independent_check_role="", record_status="BLANK_TEMPLATE_NOT_A_VILLAGE", current_boundary_certified=0, rct_geographic_release=0) for i in range(1, 41)]
+    tables["phase2_field_additions"] = (list(additions[0]), additions)
+    requests = [
+        ("UBOS", "https://www.ubos.org/contact-us-2/", "Route via official general contact to GIS/cartography", "Current LC1/village/cell roster, stable codes, polygons or reference points, LC1-to-EA geographic crosswalk; vintage and reuse permission", "Official LC1 identity and current geographic coverage", "DRAFT_NOT_SENT"),
+        ("Bushenyi District Planning", "https://bushenyi.go.ug/dept/planning", "Official planning department", "Current district/subcounty/parish/village roster; aliases/splits and changes; GIS or aggregate planning maps if shareable; local adjacency verification", "Confirm current local identities and all plausible neighbors", "DRAFT_NOT_SENT"),
+        ("Rubirizi District Planning", "https://rubirizi.go.ug/dept/planning-department", "Official planning department", "Current district/subcounty/parish/village roster; aliases/splits and changes; GIS or aggregate planning maps if shareable; local adjacency verification", "Confirm current local identities and all plausible neighbors", "DRAFT_NOT_SENT"),
+        ("Sheema District Planning", "https://www.sheema.go.ug/contact", "Official district contact; request planning unit", "Current district/subcounty/parish/village roster; aliases/splits and changes; GIS or aggregate planning maps if shareable; local adjacency verification", "Confirm current local identities and all plausible neighbors", "DRAFT_NOT_SENT"),
+        ("CDFU/local administrators", "", "Jorge/Ivan to coordinate; no GIS files currently available", "Structured identity and exhaustive neighboring-LC verification, reference points if needed, practical access and shared-candidate checks; assessment roster when available", "Local verified neighbor route, distinct from polygon contiguity", "NOT_CONDUCTED"),
+        ("PSU ScholarSphere archive", SOURCES["psu_mapping_metadata.html"], "Repository support or dataset author through published record", "Restore ordinary access to historical map archive; source provenance, vintage and permission", "May improve historical linkage; not certification of current boundaries", "ACCESS_UNAVAILABLE_NOT_CONTACTED"),
+        ("IED/NES service", "https://ied-sa.fr:6443/arcgis/rest/services/UGANDA/Uganda/MapServer", "Publisher support; request valid TLS/public alternative", "Public export through supported, valid-certificate endpoint", "Historical/energy context only unless LC coverage established", "TLS_FAILURE_NOT_BYPASSED"),
+        ("DRE settlements source", "https://energydata.info/api/3/action/package_show?id=uganda-distributed-renewable-energy-dre", "Publisher/catalog support for public GeoJSON", "Ordinary public access to settlement geographic layer and vintage", "Settlement context, not official LC boundaries", "ACCESS_UNAVAILABLE_NOT_CONTACTED"),
+        ("Geofabrik/OSM", urls["uganda-261002.osm.pbf"], "Public dated complete national extract", "Settlement nodes, roads, waterways, tagged administrative/place areas", "Supplementary context and identity candidates, not official LC identity", "ACQUIRED_MD5_AND_SHA256_VERIFIED"),
+    ]
+    followup = [dict(source_id=f"FOLLOWUP_{i:02}", organization=a, source_url=b, contact_route=c, requested_data=d, purpose=e, acquisition_status=f, availability="UNKNOWN" if f != "ACQUIRED_MD5_AND_SHA256_VERIFIED" else "DATED_OSM_REFERENCE_ONLY", review_decision="", review_evidence="", request_date="", response_date="", response_source_path="", boundary_vintage="", reuse_permission="") for i,(a,b,c,d,e,f) in enumerate(requests,1)]
+    sent_by_source = {r["source_id"]: r for r in sent_requests}
+    failed_by_source = {e["source_id"]: e for e in delivery_events}
+    form_by_source = {r["source_id"]: r for r in sorted(form_submissions, key=lambda r:r["submitted_utc"])}
+    assert (set(sent_by_source) | set(form_by_source)).issubset({r["source_id"] for r in followup})
+    for row in followup:
+        receipt = sent_by_source.get(row["source_id"])
+        row.update(verified_email=receipt["to"] if receipt else "", sent_utc=receipt["sent_utc"] if receipt else "", sent_message_id=receipt["message_id"] if receipt else "", sent_thread_id=receipt["thread_id"] if receipt else "")
+        if receipt:
+            row.update(acquisition_status=receipt["status"], source_url=receipt["verification_url"])
+        elif row["source_id"] == "FOLLOWUP_02":
+            row.update(acquisition_status="NO_VERIFIED_EMAIL_REQUEST_PENDING")
+        failure = failed_by_source.get(row["source_id"])
+        row.update(delivery_status="FAILED" if failure else "NOT_CONFIRMED" if receipt else "NOT_SENT", delivery_notice_id=failure["notice_message_id"] if failure else "")
+        if failure:
+            row.update(acquisition_status="DELIVERY_FAILED_CONTACT_FOLLOWUP_REQUIRED", contact_route="Published charter email is disabled; current official route required")
+        form = form_by_source.get(row["source_id"])
+        row.update(form_sent_utc=form["submitted_utc"] if form else "", form_url=form["form_url"] if form else "", form_confirmation=form["confirmation_text"] if form else "", form_proof_path=form["proof_relative_path"] if form else "", form_proof_sha256=form["proof_sha256"] if form else "")
+        if form:
+            row.update(acquisition_status=form["status"], contact_route="Official contact form submitted; website confirmed submission, office receipt/response not established", source_url=form["form_url"])
+    tables["phase2_source_followup"] = (list(followup[0]), followup)
+    decision_items = [
+        ("MENTOR_ROSTER", "Assessment-based mentor eligibility and training roster", "CDFU assessments not yet received; geographic register is not the trained mentor pool"),
+        ("NEIGHBOR_DEFINITION", "Shared current boundary or independently locally verified neighbor relationship", "No final definition chosen; historical geometry and 5km context do not approve eligibility"),
+        ("NEIGHBOR_ENUMERATION", "Complete enumeration and independent review for each anchor", "All plausible neighbors must be considered, not only GIS-mapped villages or preferred mentees"),
+        ("ADMIN_BORDER_POLICY", "Cross-parish, subcounty and district eligibility", "Inventory crossing candidates; do not silently exclude them"),
+        ("PREVIOUS_CONTACT_POLICY", "Prior program contact / Phase1 village eligibility", "Provenance is not treatment assignment; eligibility policy not locked"),
+        ("SHARED_OWNERSHIP", "Candidates neighboring multiple mentors", "Lock unique allocation and spillover handling before randomization"),
+        ("TRAVEL_FEASIBILITY", "Travel mode, travel time and seasonal access", "OSM road proximity is not verified travel time; mentor convenience alone does not define neighbors"),
+        ("WORKLOAD_PER_WAVE", "Feasible mentee workload and timing", "3-4 villages per mentor per wave is a planning scenario, not an approved quota"),
+        ("HOTSPOT_CONTEXT", "Administrative/local justice-need evidence", "No verified full hotspot frame yet; do not invent intensity from geography"),
+        ("FRAME_FREEZE", "Final frame, exclusions and ownership before assignment", "Keep an audit of additions/removals and versioned approval"),
+        ("GPS_REFERENCE", "A consistently defined village reference point where needed", "Reference points are not polygons and are not automatically settlement centroids"),
+        ("RANDOMIZATION_AUTHORITY", "Approved staggered assignment protocol and reproducibility", "No randomization, wave allocation, mentor selection or rankings in this milestone"),
+    ]
+    decisions = [dict(decision_id=a, decision_required=b, current_evidence=c, decision_status="PENDING", review_decision="", review_evidence="", approval_role="", approval_date="") for a,b,c in decision_items]
+    tables["phase2_rule_decisions"] = (list(decisions[0]), decisions)
+    issue_fields = ["osm_uid", "issue", "feature_kind", "geography_scope"]
+    tables["phase2_osm_geometry_issues"] = (issue_fields, issues)
+    summary = [dict(metric=k, count=v, object_type="OSM snapshot feature", limitation="Study-area 5km context; OSM mapping completeness and LC identity not certified") for k,v in [("regional_place_nodes",len(points)),("regional_road_ways",len(roads)),("regional_waterway_ways",len(water)),("regional_assembled_areas",len(areas)),("regional_level10_areas",sum(r["admin_level"]=="10" for r in areas))]]
+    summary += [dict(metric=k, count=v, object_type=t, limitation=c) for k,v,t,c in [
+        ("dated_EC_frame_rows",len(census),"dated administrative LC", "EC July 2022; current roster needs confirmation"),
+        ("project_source_rows",len(register),"project source row", "128 FVL plus 130 Phase1 references; overlapping, not 258 unique LCs"),
+        ("OSM_name_review_pairs",len(candidates),"reference-OSM candidate pair", "Name match is unconfirmed; none promoted"),
+        ("historical_neighbor_review_pairs",len(edge_rows),"project-reference/historical-polygon pair", "Not eligible neighbors; missing anchors retain missing coverage"),
+        ("blank_addition_rows",len(additions),"blank template row", "Not villages, nominations or completed reviews"),
+        ("local_reviews_completed",0,"verified local review", "No field evidence collected or fabricated"),
+        ("external_requests_sent",len(sent_requests)+len(form_submissions),"external contact attempt", "Email sends and confirmed form submissions; not proof of office receipt or response"),
+        ("external_email_requests_sent",len(sent_requests),"email send attempt", "Sent snapshots retained even when a later delivery-failure notice arrived"),
+        ("external_forms_submitted",len(form_submissions),"official web-form submission", "Visible website confirmation; office receipt/response not established"),
+        ("external_delivery_failures",len(failed_by_source),"delivery failure", "A sent message is not proof of successful receipt"),
+        ("rct_geographic_release",0,"release status", "Mentor assessments, verified frame and policy approval still required")]]
+    tables["phase2_verification_summary"] = (list(summary[0]),summary)
+    reproducible_tables = []
+    for stem,(fields,rows) in tables.items():
+        csv_path = out / (stem+".csv")
+        write_csv(csv_path, rows, fields)
+        if old and old.get("stata_import_validation_passed") and stem not in ("phase2_source_followup", "phase2_verification_summary"):
+            old_hash = old.get("product_sha256", {}).get(csv_path.relative_to(root).as_posix())
+            assert old_hash and sha(csv_path) == old_hash, f"M6 geographic/reference rows changed on rerun: {stem}"
+            reproducible_tables.append(stem)
+    workbook_inputs = {
+        "AcquisitionFollowup": tables["phase2_source_followup"],
+        "VillageFieldReview": tables["phase2_field_villages"],
+        "NeighborFieldReview": tables["phase2_field_neighbors"],
+        "NeighborAdditions": tables["phase2_field_additions"],
+        "OSMNameReview": tables["phase2_osm_bulk_candidates"],
+        "FrameDecisions": tables["phase2_rule_decisions"],
+    }
+    write_json(out / "verification_workbook_inputs.json", {n:dict(fields=f, rows=r) for n,(f,r) in workbook_inputs.items()})
+    write_json(path, dict(
+        milestone="6: public source acquisition and local-verification preparation",
+        status="REFERENCE_AND_VERIFICATION_PACKET_COMPLETE_LOCAL_FRAME_PENDING",
+        built_utc=datetime.now(timezone.utc).isoformat(), input_sha256=pins,
+        raw_source_records=sources, outreach_receipts=sent_requests,
+        outreach_delivery_events=delivery_events,
+        outreach_form_submissions=form_submissions,
+        rerun_identical_reference_tables=reproducible_tables,
+        protected_inputs_before_after=protected, accepted_workbook_sheets=before,
+        csv_rows={n:len(r) for n,(f,r) in tables.items()}, geometry_layers=geometry_layers,
+        source_snapshot=osm_timestamp, provider_md5=expected_md5,
+        osm_national_tag_counts=dict(national),
+        regional_admin_level_counts=dict(Counter(r["admin_level"] for r in areas if r["boundary_tag"]=="administrative")),
+        runtime={p.split("==")[0]:importlib.metadata.version(p.split("==")[0]) for p in (*GIS_PACKAGES,"osmium==4.3.1")},
+        metric_crs="EPSG:32736", diagnostic_buffer_m=5000,
+        local_verification_completed=False, external_requests_sent=bool(sent_requests or form_submissions),
+        external_request_count=len(sent_requests)+len(form_submissions), mentor_selection_performed=False,
+        external_email_request_count=len(sent_requests), external_form_submission_count=len(form_submissions),
+        external_delivery_failure_count=len(failed_by_source),
+        randomization_performed=False, rct_geographic_release=0))
+    print("M6 public acquisition and review templates produced; no local identity/neighbor decision inferred.", flush=True)
+
+
+def verify_verification(root):
+    import pandas as pd
+    import numpy as np
+    import geopandas as gpd
+    import shapely
+    _,out = folders(root)
+    path = out / "phase2_verification_manifest.json"
+    m = json.loads(path.read_text(encoding="utf-8"))
+    for p,h in m["input_sha256"].items(): assert sha(saved_path(root,p)) == h, p
+    assert same_pins(root, m["protected_inputs_before_after"], protected_inputs(root)), "Protected inputs changed"
+    products = []
+    for stem,n in m["csv_rows"].items():
+        a = pd.read_csv(out / (stem+".csv"),dtype=str,keep_default_na=False)
+        b = pd.read_stata(out / (stem+".dta"),convert_categoricals=False)
+        assert len(a)==len(b)==n and set(a)==set(b), stem
+        for c in a:
+            if pd.api.types.is_numeric_dtype(b[c]):
+                assert np.allclose(pd.to_numeric(a[c].replace("",np.nan)),b[c],rtol=1e-12,atol=1e-7,equal_nan=True),(stem,c)
+            else: assert a[c].equals(b[c].fillna("").astype(str)),(stem,c)
+        products += [out / (stem+e) for e in (".csv",".dta")]
+    for layer,n in m["geometry_layers"].items():
+        stem = "osm_"+layer+"_utm36s"
+        shp = gpd.read_file(out / "gis" / (stem+".shp"))
+        native = pd.read_stata(out / "gis" / (stem+".dta"),convert_categoricals=False)
+        vertices = pd.read_stata(out / "gis" / (stem+"_shp.dta"),convert_categoricals=False)
+        assert len(shp)==len(native)==n and native.geo_id.is_unique and shp.crs.to_epsg()==32736
+        expected = shapely.get_coordinates(shp.geometry)
+        actual = vertices.loc[vertices._X.notna(),["_X","_Y"]].to_numpy()
+        assert expected.shape==actual.shape and np.allclose(expected,actual,rtol=0,atol=1e-6),stem
+        assert set(vertices._ID)==set(native._ID) and vertices._X.isna().equals(vertices._Y.isna()),stem
+        assert set(vertices.geo_id)==set(native.geo_id),stem
+        products += [out / "gis" / (stem+e) for e in (".shp",".shx",".dbf",".prj",".cpg",".dta","_shp.dta")]
+    gpkg = out / "gis/phase2_osm_context_20261002.gpkg"
+    assert set(gpd.list_layers(gpkg).name)=={"osm_"+n for n in m["geometry_layers"]}
+    for layer,n in m["geometry_layers"].items():
+        frame=gpd.read_file(gpkg,layer="osm_"+layer)
+        assert len(frame)==n and frame.crs.to_epsg()==4326 and frame.is_valid.all() and not frame.is_empty.any()
+    cells = workbook_cells(root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx")
+    assert len(m["accepted_workbook_sheets"])==26 and all(cells[n]==v for n,v in m["accepted_workbook_sheets"].items()), "Earlier workbook content changed"
+    inputs=json.loads((out / "verification_workbook_inputs.json").read_text(encoding="utf-8"))
+    assert set(cells)-set(m["accepted_workbook_sheets"])==set(inputs) and len(cells)==32
+    for n,v in inputs.items(): assert cells[n]["cells"]>=len(v["rows"])+len(v["fields"]),n
+    # Independently verify every new header/source value in the exported XML.
+    # Editable local decisions are preserved and checked on export/reopen by
+    # the companion; they do not silently alter the native reference inputs.
+    editable = {"review_decision", "review_evidence", "confirmed_ec_lc_uid", "current_official_code", "confirmed_district", "confirmed_subcounty", "confirmed_parish", "confirmed_village", "reference_lon", "reference_lat", "reference_point_definition", "coordinate_method", "gps_accuracy_m", "verification_date", "verifier_role", "independent_check_role", "confirmed_anchor_ec_uid", "confirmed_candidate_ec_uid", "local_neighbor_status", "neighbor_basis", "reciprocal_check", "travel_mode", "travel_minutes", "seasonal_access", "shared_anchor_ids", "ownership_decision", "request_date", "response_date", "response_source_path", "boundary_vintage", "reuse_permission", "approval_role", "approval_date"}
+    ns = {"s": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+    verified_cells = 0
+    with zipfile.ZipFile(root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx") as z:
+        strings = ["".join(n.itertext()) for n in ET.fromstring(z.read("xl/sharedStrings.xml"))] if "xl/sharedStrings.xml" in z.namelist() else []
+        rels = {n.get("Id"): n.get("Target") for n in ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))}
+        for sheet in ET.fromstring(z.read("xl/workbook.xml")).find("s:sheets", ns):
+            name = sheet.get("name")
+            if name not in inputs: continue
+            target = rels[sheet.get("{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id")].lstrip("/")
+            if not target.startswith("xl/"): target = "xl/" + target
+            actual_cells = {}
+            for c in ET.fromstring(z.read(target)).findall(".//s:sheetData/s:row/s:c", ns):
+                assert c.find("s:f", ns) is None, f"Unexpected formula in review/source worksheet: {name}/{c.get('r')}"
+                v, t = c.find("s:v", ns), c.get("t", "n")
+                value = v.text if v is not None else ""
+                if t == "s": value = strings[int(value)]
+                elif t == "inlineStr": value = "".join(c.find("s:is", ns).itertext())
+                actual_cells[c.get("r")] = value
+            fields = inputs[name]["fields"]
+            allowed = editable if name != "NeighborAdditions" else set(fields) - {"addition_row_id", "record_status", "current_boundary_certified", "rct_geographic_release"}
+            for i, row in enumerate([dict(zip(fields, fields)), *inputs[name]["rows"]], 1):
+                for j, field in enumerate(fields):
+                    if i > 1 and field in allowed: continue
+                    column, k = "", j + 1
+                    while k: k, remainder = divmod(k - 1, 26); column = chr(65 + remainder) + column
+                    actual, expected = actual_cells.get(f"{column}{i}", ""), row[field]
+                    if i > 1 and field.endswith("_utc") and isinstance(expected, str) and expected:
+                        expected = "UTC " + expected  # Reversible display prefix; source unchanged.
+                    if isinstance(expected, (int, float)):
+                        assert actual != "" and np.isclose(float(actual), expected, rtol=1e-12, atol=1e-7), (name, i, field)
+                    else: assert actual == str(expected if expected is not None else ""), (name, i, field)
+                    verified_cells += 1
+    review_log = (out / "phase2_verification_workbook.log").read_text(encoding="utf-8")
+    assert '"reviewWorksheetRoundtripVerified":true' in review_log, "Reviewer worksheet roundtrip not verified"
+    products += [gpkg,out / "verification_workbook_inputs.json"]
+    workbook=root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx"
+    m.update(stata_import_validation_passed=True,stata_execution_route="stata_run_selection MCP",protected_inputs_unchanged_after_stata=True,accepted_worksheet_cells_unchanged=True,new_worksheet_source_cells_verified=verified_cells,reviewer_input_roundtrip_verified=True,review_workbook_sha256=sha(workbook),product_sha256={p.relative_to(root).as_posix():sha(p) for p in products},code_sha256={p.name:sha(p) for p in Path(__file__).parent.glob("6 Phase2_Geospatial*.*") if p.is_file()})
+    write_json(path,m)
+    text = f"""PHASE 2 MILESTONE 6: PUBLIC SOURCE ACQUISITION AND LOCAL-VERIFICATION PREPARATION
+
+Execution (Stata, via stata_run_selection MCP only):
+do \"1 Code/6 Phase2_Geospatial_Frame.do\" \"{root.as_posix()}\" verification
+
+Snapshot: {m['source_snapshot']}; complete Uganda extract, provider MD5 and SHA256
+verified. Original PBF, checksum, source/access receipts and documentation are
+in 3 Data/1 Raw/Secondary data/Phase2_Geospatial_Sources/milestone6.
+All 26 prior census workbook tabs are unchanged; six operational review tabs
+extend the same Phase2_Administrative_Village_Census.xlsx. Yellow cells are
+editable review inputs. Source facts and proposed matches are distinct.
+Outreach timestamps display with a UTC prefix to prevent Excel auto-conversion;
+the archived receipt, CSV and native DTA retain exact ISO-8601 timestamp strings.
+
+Observed regional features: {m['geometry_layers']}
+OSM admin-level counts: {m['regional_admin_level_counts']}
+OSM name matches are candidates, not current LC links. Place nodes are not
+village polygons. Historical geometry coverage is unchanged from M5.
+The region is study subcounty geometry plus 5km context; this is a diagnostic
+extent, NOT an adopted neighbor definition or an exhaustive cross-border frame.
+Road/stream geometries are context, not measured travel time, routable topology,
+ownership, legal jurisdiction or certified LC boundaries. Invalid/incomplete
+OSM geometry is recorded, not repaired into plausible boundaries.
+
+REVIEW PROCEDURE
+1. VillageFieldReview: retain dated administrative/source identity. Confirm
+current district/subcounty/parish/village and official code with an appropriate
+local source. Link project rows to EC identities only with documentary evidence.
+Do not merge source rows solely because their village names resemble each other.
+Where GPS is needed, use a consistently defined public village reference point;
+record method, accuracy, date and verifier role, not personal details. Points
+are not boundaries. Independently cross-check ambiguous/split/shared identities.
+2. NeighborFieldReview: GIS candidates are a starting shortlist, not a census of
+eligible neighbors. Independently enumerate ALL locally plausible neighboring
+LCs for every anchor, including unlocated villages and crossings. Record the
+relationship basis and evidence, reciprocal check, travel mode/time, seasonal
+access, and shared-anchor issue. Use NeighborAdditions for missing candidates;
+blank template rows do not count as villages. Do not cap candidates at 3 or 4.
+3. FrameDecisions: Jorge/CDFU must lock assessment-based mentor roster, neighbor
+definition, exclusions/prior contact, crossing policy, ownership/spillovers,
+feasible workload and timing, and the complete frame before any assignment.
+3-4 mentees per mentor per wave remains a planning scenario, not a locked quota.
+4. AcquisitionFollowup records official routes, requests and verified send
+receipts. {m['external_email_request_count']} authorized email attempts and
+{m['external_form_submission_count']} confirmed official form submissions are
+archived; office receipt and responses are not established.
+{m['external_delivery_failure_count']} email attempt(s) have a confirmed delivery
+failure. The failed email remains in the audit trail even when a subsequent
+official form was submitted. See each current acquisition status.
+Actual messages/recipient evidence are archived
+in milestone6/outreach_receipts.json. No household GPS, chairperson names,
+phones or submission IDs are needed. Archive received sources in Dropbox.
+The delivery_status and delivery_notice_id fields refer to the EMAIL attempt;
+form_confirmation records the separate website submission response. Neither
+a sent email nor a website confirmation establishes office receipt or reply.
+
+GENERAL REQUEST TEMPLATE (actual sent messages are separately archived)
+We are preparing an LC1-level research sampling frame for Bushenyi, Rubirizi and
+Sheema. Please advise whether you can share the current village/cell roster with
+stable geographic codes and parent units, village polygons or aggregate village
+reference points, and any geographic change/alias or LC1-to-census-EA crosswalk.
+Please state boundary/reference date, coverage, CRS and reuse conditions. We do
+not request household coordinates or respondent personal data. Where digital
+boundaries are unavailable, can the relevant local office verify current LC1
+identities and a complete list of neighboring LCs for our project locations?
+
+NEXT IMPORT OF COMPLETED REVIEWS
+This milestone prepares collection, not adjudication. Native DTA review inputs
+contain the initial pending state. Reruns preserve entered workbook review cells
+by stable row key and do not silently use them to release eligibility. Reviewed
+workbook evidence must be separately reconciled, approved and versioned before
+it can alter the canonical frame or become a randomization input.
+
+VALIDATED: all CSV/DTA columns, native shapefile coordinates, accepted source
+and product pins, 26 prior workbook tabs and protected Phase1 code/data/report.
+No mentors selected, no eligible neighbors approved, no assignments or new Phase1
+analysis. Geographic RCT release remains 0. Official outreach has been sent;
+field verification has not been performed. A historical/OSM map is not complete
+current LC1 geography.
+"""
+    (out / "README_MILESTONE6.txt").write_text(text,encoding="utf-8")
+    print("M6 native inputs and shapes verified; 26 accepted workbook tabs and Phase1 inputs unchanged. Local frame remains pending.",flush=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, default=DEFAULT_ROOT)
@@ -1918,21 +2414,24 @@ def main():
     p.add_argument("--reconcile", action="store_true")
     p.add_argument("--neighbors", action="store_true")
     p.add_argument("--coverage", action="store_true")
+    p.add_argument("--verification", action="store_true")
     p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--review-workbook", action="store_true")
     p.add_argument("--inspect-workbook", action="store_true")
     p.add_argument("--verify", action="store_true")
     args = p.parse_args()
-    if sum((args.acquire,args.build,args.reconcile,args.neighbors,args.coverage)) > 1:
+    if sum((args.acquire,args.build,args.reconcile,args.neighbors,args.coverage,args.verification)) > 1:
         p.error("Choose one phase mode; source acquisition and builds are separate steps")
     import importlib.metadata
     pinned = all(importlib.util.find_spec(p.split("==")[0]) and
                  importlib.metadata.version(p.split("==")[0]) == p.split("==")[1] for p in GIS_PACKAGES)
-    if (args.build or (args.coverage and args.verify) or ((args.reconcile or args.neighbors or args.coverage) and not (args.review_workbook or args.inspect_workbook or args.verify))) and not args.worker and not pinned:
+    if args.verification:
+        pinned = pinned and importlib.util.find_spec("osmium") is not None and importlib.metadata.version("osmium")=="4.3.1"
+    if (args.build or ((args.coverage or args.verification) and args.verify) or ((args.reconcile or args.neighbors or args.coverage or args.verification) and not (args.review_workbook or args.inspect_workbook or args.verify))) and not args.worker and not pinned:
         r = subprocess.run(worker_args(), capture_output=True, text=True,
                            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
         _, out = folders(args.root)
-        (out / ("phase2_coverage_final_verification.log" if args.coverage and args.verify else "phase2_coverage_conversion.log" if args.coverage else "phase2_neighbor_conversion.log" if args.neighbors else "phase2_reconciliation_conversion.log" if args.reconcile else "phase2_gis_conversion.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
+        (out / ("phase2_verification_conversion.log" if args.verification else "phase2_coverage_final_verification.log" if args.coverage and args.verify else "phase2_coverage_conversion.log" if args.coverage else "phase2_neighbor_conversion.log" if args.neighbors else "phase2_reconciliation_conversion.log" if args.reconcile else "phase2_gis_conversion.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
         print(r.stdout + r.stderr, flush=True)
         r.check_returncode()
         return
@@ -1947,10 +2446,13 @@ def main():
     if args.coverage and not (args.review_workbook or args.inspect_workbook or args.verify):
         acquire_coverage(args.root)
         coverage(args.root)
+    if args.verification and not (args.review_workbook or args.inspect_workbook or args.verify):
+        verification(args.root)
     if args.review_workbook or args.inspect_workbook:
-        review_workbook(args.root, args.inspect_workbook, args.reconcile, args.neighbors, args.coverage)
+        review_workbook(args.root, args.inspect_workbook, args.reconcile, args.neighbors, args.coverage, args.verification)
     if args.verify:
-        if args.coverage: verify_coverage(args.root)
+        if args.verification: verify_verification(args.root)
+        elif args.coverage: verify_coverage(args.root)
         elif args.neighbors: verify_neighbors(args.root)
         elif args.reconcile: verify_reconciliation(args.root)
         else: verify_outputs(args.root)

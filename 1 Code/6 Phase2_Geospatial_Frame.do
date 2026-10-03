@@ -1,4 +1,4 @@
-/* Phase 2 Milestones 2-5: reproducible geographic reference, not RCT assignment.
+/* Phase 2 Milestones 2-6: reproducible geographic reference, not RCT assignment.
    Execute this entry point ONLY through stata_run_selection MCP.
    External source files and all geographic outputs are stored in Dropbox.
    Python is limited to HTTP/format conversion/geometric QA; final inputs,
@@ -11,8 +11,8 @@ if `"`project_root'"' == "" {
     local project_root "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice"
 }
 if `"`companion'"' == "" local companion "`c(pwd)'/1 Code/6 Phase2_Geospatial_Frame.py"
-if !inlist(`"`mode'"', "", "build", "acquire", "reconcile", "neighbors", "auditfix", "coverage") {
-    di as error "Unknown Phase2 mode. Use build, acquire, reconcile, neighbors, auditfix or coverage."
+if !inlist(`"`mode'"', "", "build", "acquire", "reconcile", "neighbors", "auditfix", "coverage", "verification") {
+    di as error "Unknown Phase2 mode. Use build, acquire, reconcile, neighbors, auditfix, coverage or verification."
     exit 198
 }
 local original_cwd "`c(pwd)'"
@@ -25,6 +25,7 @@ if `"`mode'"' == "reconcile" local validation_log "phase2_geographic_reconciliat
 if `"`mode'"' == "neighbors" local validation_log "phase2_neighbor_validation.log"
 if `"`mode'"' == "auditfix" local validation_log "phase2_metadata_import_correction.log"
 if `"`mode'"' == "coverage" local validation_log "phase2_coverage_validation.log"
+if `"`mode'"' == "verification" local validation_log "phase2_verification_validation.log"
 log using "`output'/`validation_log'", name(phase2geo) text replace
 preserve
 clear all // Release native Sp/Mata file caches from prior runs; preserved data are restored at exit.
@@ -65,10 +66,146 @@ sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"
             "--acquire" if Macro.getLocal("mode") == "acquire" else
             "--reconcile" if Macro.getLocal("mode") == "reconcile" else
             "--coverage" if Macro.getLocal("mode") == "coverage" else
+            "--verification" if Macro.getLocal("mode") == "verification" else
             "--neighbors" if Macro.getLocal("mode") == "neighbors" else "--build"]
 runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
 end
 if `"`mode'"' == "acquire" {
+    restore
+    log close phase2geo
+    exit
+}
+
+/* M6: supplementary dated OSM context and a local-verification collection
+   packet. Native imports are pending/reference inputs, never an RCT release. */
+if `"`mode'"' == "verification" {
+    foreach stem in phase2_osm_bulk_places phase2_osm_bulk_roads ///
+        phase2_osm_bulk_waterways phase2_osm_bulk_areas phase2_osm_bulk_candidates ///
+        phase2_osm_geometry_issues phase2_field_villages phase2_field_neighbors ///
+        phase2_field_additions phase2_source_followup phase2_rule_decisions ///
+        phase2_verification_summary {
+        import delimited using "`output'/`stem'.csv", delimiters(",") ///
+            varnames(1) encoding(utf8) stringcols(_all) bindquotes(strict) maxquotedrows(1000) clear
+        gen long __source_order = _n
+        foreach x in geo_id lon lat length_m spatial_parent_count same_district ///
+            same_subcounty original100_flag historical_geo_id osm_name_candidate_count ///
+            osm_same_parent_count historical_polygon_distance_m historical_point_distance_m ///
+            historical_queen historical_rook identity_candidate_rows candidate_geo_id ///
+            current_boundary_certified rct_geographic_release reference_lon reference_lat ///
+            gps_accuracy_m travel_minutes count {
+            capture confirm variable `x'
+            if !_rc destring `x', replace
+        }
+        capture confirm variable rct_geographic_release
+        if !_rc assert rct_geographic_release == 0
+        capture confirm variable current_boundary_certified
+        if !_rc assert current_boundary_certified == 0
+        if inlist("`stem'", "phase2_osm_bulk_places", "phase2_osm_bulk_roads", ///
+            "phase2_osm_bulk_waterways", "phase2_osm_bulk_areas") {
+            if _N > 0 {
+                isid geo_id
+                isid osm_uid
+                assert evidence_status == "OSM_UNVERIFIED_CONTEXT"
+            }
+        }
+        if "`stem'" == "phase2_osm_bulk_places" {
+            assert !missing(lon,lat) & inrange(lon,28,36) & inrange(lat,-3,6)
+        }
+        if "`stem'" == "phase2_osm_bulk_candidates" {
+            if _N > 0 isid reference_row_id osm_uid
+            assert identity_status == "UNCONFIRMED"
+        }
+        if "`stem'" == "phase2_field_villages" {
+            assert _N == 1741
+            isid review_row_id
+            count if reference_group == "EC_2022_FRAME"
+            assert r(N) == 1483
+            count if original100_flag == 1
+            assert r(N) == 100
+            assert local_identity_status == "PENDING"
+            assert mentor_status == "NOT_ASSESSED"
+            assert missing(reference_lon, reference_lat)
+        }
+        if "`stem'" == "phase2_field_neighbors" {
+            isid edge_review_id
+            isid anchor_reference_row_id candidate_geo_id
+            assert evidence_status == "HISTORICAL_REVIEW_CANDIDATE_NOT_ELIGIBLE"
+            assert inrange(historical_polygon_distance_m,0,5000.000001)
+            assert local_neighbor_status == ""
+        }
+        if "`stem'" == "phase2_field_additions" {
+            assert _N == 40
+            isid addition_row_id
+            assert record_status == "BLANK_TEMPLATE_NOT_A_VILLAGE"
+            assert candidate_ec_uid == "" & candidate_village == ""
+        }
+        if "`stem'" == "phase2_source_followup" {
+            isid source_id
+            assert !missing(verified_email, sent_message_id, sent_thread_id, sent_utc) ///
+                if acquisition_status == "SENT_AWAITING_RESPONSE"
+            assert !missing(delivery_notice_id, sent_message_id) if delivery_status == "FAILED"
+            assert !missing(form_sent_utc, form_url, form_confirmation, form_proof_path, form_proof_sha256) ///
+                if acquisition_status == "WEB_FORM_SUBMITTED_AWAITING_RESPONSE"
+            assert availability == "UNKNOWN" if inlist(acquisition_status, ///
+                "SENT_AWAITING_RESPONSE", "WEB_FORM_SUBMITTED_AWAITING_RESPONSE", ///
+                "DELIVERY_FAILED_CONTACT_FOLLOWUP_REQUIRED")
+        }
+        foreach forbidden in chairperson_name respondent_name phone telephone ///
+            submission_key uuid assigned_wave mentor_selected treatment {
+            capture confirm variable `forbidden'
+            assert _rc != 0
+        }
+        sort __source_order
+        drop __source_order
+        save "`output'/`stem'.dta", replace
+    }
+    cd "`output'/gis"
+    foreach layer in places roads waterways areas {
+        use "`output'/phase2_osm_bulk_`layer'.dta", clear
+        if _N == 0 continue
+        local shape "osm_`layer'_utm36s"
+        spshape2dta `shape', replace saving(`shape')
+        use "`output'/gis/`shape'.dta", clear
+        isid geo_id
+        isid _ID
+        merge 1:1 geo_id using "`output'/phase2_osm_bulk_`layer'.dta", assert(match) nogen
+        label variable geo_id "Source-specific OSM feature ID; not canonical LC ID"
+        // Dropbox may briefly lock an owned generated file during sync.
+        // Retry only r(608); do not alter permissions or bypass other errors.
+        capture noisily save "`output'/gis/`shape'.dta", replace
+        local save_rc = _rc
+        forvalues attempt = 1/3 {
+            if `save_rc' != 608 continue, break
+            sleep 1000
+            capture noisily save "`output'/gis/`shape'.dta", replace
+            local save_rc = _rc
+        }
+        if `save_rc' exit `save_rc'
+        spset, clear
+        use "`output'/gis/`shape'_shp.dta", clear
+        gen long source_vertex_order = _n
+        assert missing(_X) == missing(_Y)
+        assert inrange(_X,100000,900000) & inrange(_Y,9600000,10800000) if !missing(_X,_Y)
+        merge m:1 _ID using "`output'/gis/`shape'.dta", keepusing(geo_id) assert(match) nogen
+        sort _ID source_vertex_order
+        capture noisily save "`output'/gis/`shape'_shp.dta", replace
+        local save_rc = _rc
+        forvalues attempt = 1/3 {
+            if `save_rc' != 608 continue, break
+            sleep 1000
+            capture noisily save "`output'/gis/`shape'_shp.dta", replace
+            local save_rc = _rc
+        }
+        if `save_rc' exit `save_rc'
+    }
+    cd "`original_cwd'"
+    python:
+import sys, runpy
+from sfi import Macro
+sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"), "--verification", "--review-workbook", "--verify"]
+runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
+end
+    di as result "M6 complete: dated public OSM context and pending local-verification packet. RCT release = 0."
     restore
     log close phase2geo
     exit
