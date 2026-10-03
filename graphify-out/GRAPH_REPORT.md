@@ -4,12 +4,12 @@
 - cluster-only mode — file stats not available
 
 ## Summary
-- 747 nodes · 837 edges · 77 communities (53 shown, 24 thin omitted)
-- Extraction: 90% EXTRACTED · 10% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
+- 767 nodes · 916 edges · 77 communities (53 shown, 24 thin omitted)
+- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `0a8f1de7`
+- Built from commit: `5736f927`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -94,15 +94,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `Dropbox corpus snapshot 31 August 2026` - 115 edges
-2. `Institutional functioning and operational readiness` - 17 edges
-3. `build()` - 15 edges
-4. `Average baseline scores across core domains` - 15 edges
-5. `reconcile()` - 13 edges
-6. `folders()` - 12 edges
-7. `build_census()` - 12 edges
-8. `Training priority gaps by baseline domain` - 12 edges
-9. `main()` - 11 edges
-10. `fetch()` - 10 edges
+2. `folders()` - 18 edges
+3. `Institutional functioning and operational readiness` - 17 edges
+4. `coverage()` - 16 edges
+5. `reconcile()` - 15 edges
+6. `Average baseline scores across core domains` - 15 edges
+7. `build()` - 14 edges
+8. `main()` - 14 edges
+9. `sha()` - 14 edges
+10. `neighbors()` - 13 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Village Dispute Mediation in China, 2002-10: An Enduring Institution amid Rural Change` --semantically_similar_to--> `Local Council justice capacity`  [INFERRED] [semantically similar]
@@ -289,8 +289,8 @@ Cohesion: 0.04
 Nodes (44): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+36 more)
 
 ### Community 59 - "6 Phase2_Geospatial_Frame.py"
-Cohesion: 0.17
-Nodes (32): acquire(), build(), extract_mpk(), extract_zip(), fetch(), folders(), hierarchy_key(), main() (+24 more)
+Cohesion: 0.15
+Nodes (47): acquire(), acquire_coverage(), build(), coverage(), coverage_key(), extract_mpk(), extract_zip(), fetch() (+39 more)
 
 ### Community 60 - "phase1_baseline_origin_comparison_1bd5bc75.md"
 Cohesion: 0.17
@@ -337,12 +337,12 @@ Cohesion: 0.50
 Nodes (3): Sheet: multivariable_diagnostics, Sheet: origin_adjusted, Sheet: README
 
 ### Community 74 - "5 Phase2_Administrative_Frame.py"
-Cohesion: 0.14
-Nodes (37): build_census(), clean(), coded_name(), digest(), download_sources(), ec_uid(), extract_ec_sources(), extract_local_sources() (+29 more)
+Cohesion: 0.13
+Nodes (38): build_census(), clean(), coded_name(), digest(), download_sources(), ec_uid(), extract_ec_sources(), extract_local_sources() (+30 more)
 
 ### Community 75 - "6 Phase2_Geospatial_Review.mjs"
-Cohesion: 0.14
-Nodes (12): coverage, data, inputs, originalSheets, preservedSheets, previews, priorNotes, reconcile (+4 more)
+Cohesion: 0.11
+Nodes (16): coverage, coverageMode, coverageSheets, data, inputs, neighbors, neighborSheets, originalSheets (+8 more)
 
 ### Community 76 - "build_dropbox_corpus_snapshot.py"
 Cohesion: 0.13
@@ -355,7 +355,7 @@ Nodes (23): basic_profile(), dbf_profile(), legacy_xls_profile(), main(), Path, 
   C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/McCart et al. - 2022 - Randomized trial of a diversion program for property offenders with drug use.pdf · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **406 isolated node(s):** `Sheet: adr_barriers`, `Sheet: adr_mediation`, `Sheet: adr_methods`, `Sheet: case_types_3m`, `Sheet: caseload_by_district` (+401 more)
+- **410 isolated node(s):** `Sheet: adr_barriers`, `Sheet: adr_mediation`, `Sheet: adr_methods`, `Sheet: case_types_3m`, `Sheet: caseload_by_district` (+405 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -367,11 +367,11 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `Randomized trial of a diversion program for property offenders with drug use` and `Restorative justice conferences`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `Dropbox corpus snapshot 31 August 2026` connect `Dropbox corpus snapshot 31 August 2026` to `Procedural justice and decision acceptance`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.024) - this node is a cross-community bridge._
 - **Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Procedural justice and decision acceptance` to `Dropbox corpus snapshot 31 August 2026`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
 - **What connects `Sheet: adr_barriers`, `Sheet: adr_mediation`, `Sheet: adr_methods` to the rest of the system?**
-  _406 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _410 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Dropbox corpus snapshot 31 August 2026` be split into smaller, more focused modules?**
   _Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected._
 - **Should `Advancing Justice Uganda Inception Report` be split into smaller, more focused modules?**

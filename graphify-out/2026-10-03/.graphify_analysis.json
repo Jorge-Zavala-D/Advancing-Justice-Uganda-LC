@@ -993,13 +993,13 @@
       "degree": 17
     },
     {
-      "id": "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall",
-      "label": "Average baseline scores across core domains",
+      "id": "1_code_6_phase2_geospatial_frame_build",
+      "label": "build()",
       "degree": 15
     },
     {
-      "id": "1_code_6_phase2_geospatial_frame_build",
-      "label": "build()",
+      "id": "2_output_phase1_baseline_executive_figures_fig_02_core_indices_overall",
+      "label": "Average baseline scores across core domains",
       "degree": 15
     },
     {
@@ -1008,8 +1008,8 @@
       "degree": 13
     },
     {
-      "id": "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps",
-      "label": "Training priority gaps by baseline domain",
+      "id": "1_code_6_phase2_geospatial_frame_folders",
+      "label": "folders()",
       "degree": 12
     },
     {
@@ -1018,8 +1018,8 @@
       "degree": 12
     },
     {
-      "id": "1_code_6_phase2_geospatial_frame_folders",
-      "label": "folders()",
+      "id": "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps",
+      "label": "Training priority gaps by baseline domain",
       "degree": 12
     },
     {
@@ -1028,8 +1028,8 @@
       "degree": 11
     },
     {
-      "id": "2_output_phase1_baseline_executive_figures_fig_21_record_challenges",
-      "label": "Reported record-keeping challenges",
+      "id": "1_code_6_phase2_geospatial_frame_fetch",
+      "label": "fetch()",
       "degree": 10
     }
   ],
