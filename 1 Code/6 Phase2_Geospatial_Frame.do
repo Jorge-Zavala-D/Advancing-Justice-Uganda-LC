@@ -1,4 +1,4 @@
-/* Phase 2 Milestone 2: reproducible geographic reference, not RCT assignment.
+/* Phase 2 Milestones 2-3: reproducible geographic reference, not RCT assignment.
    Execute this entry point ONLY through stata_run_selection MCP.
    External source files and all geographic outputs are stored in Dropbox.
    Python is limited to HTTP/format conversion/geometric QA; final inputs,
@@ -16,19 +16,131 @@ local output "`project_root'/3 Data/2 Working/Phase2_Geospatial_Frame"
 local admin "`project_root'/3 Data/2 Working/Phase2_Administrative_Frame"
 capture mkdir "`output'"
 capture log close phase2geo
-log using "`output'/phase2_geographic_validation.log", name(phase2geo) text replace
+local validation_log "phase2_geographic_validation.log"
+if `"`mode'"' == "reconcile" local validation_log "phase2_geographic_reconciliation_validation.log"
+log using "`output'/`validation_log'", name(phase2geo) text replace
 preserve
 clear all // Release native Sp/Mata file caches from prior runs; preserved data are restored at exit.
 python:
 import sys, runpy
 from sfi import Macro
 sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"),
-            "--acquire" if Macro.getLocal("mode") == "acquire" else "--build"]
+            "--acquire" if Macro.getLocal("mode") == "acquire" else
+            "--reconcile" if Macro.getLocal("mode") == "reconcile" else "--build"]
 runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
 end
 if `"`mode'"' == "acquire" {
     restore
     log close phase2geo
+    exit
+}
+
+/* Milestone 3 is an isolated continuation: preserve all Milestone 2 products,
+   source identifiers and held release decisions. No neighbor rule is applied. */
+if `"`mode'"' == "reconcile" {
+    use "`admin'/phase2_administrative_village_frame.dta", clear
+    keep phase2_lc_uid
+    isid phase2_lc_uid
+    tempfile census_ids
+    save `census_ids'
+
+    import delimited using "`output'/phase2_reconciled_lc_reference.csv", ///
+        varnames(1) encoding(utf8) stringcols(_all) clear
+    destring current_boundary_certified rct_geographic_release, replace
+    assert _N == 1483
+    foreach metric in hist_ref_lon hist_ref_lat historical_point_in_census_sc ///
+        candidate_geometry_rows hist_source_invalid hist_same_geometry_rows hist_point_in_district {
+        destring `metric', replace
+    }
+    isid phase2_lc_uid
+    assert current_boundary_certified == 0 & rct_geographic_release == 0
+    count if historical_geo_id != ""
+    assert r(N) == 316
+    merge 1:1 phase2_lc_uid using `census_ids', generate(__census_match)
+    tab __census_match, missing
+    assert __census_match == 3
+    drop __census_match
+    save "`output'/phase2_reconciled_lc_reference.dta", replace
+
+    import delimited using "`output'/phase2_reconciled_project_reference.csv", ///
+        varnames(1) encoding(utf8) stringcols(_all) clear
+    destring current_boundary_certified rct_geographic_release, replace
+    assert _N == 130
+    isid source_row_id
+    bysort linked_ec_uid: assert _N == 1 if linked_ec_uid != ""
+    count if linked_ec_uid != ""
+    assert r(N) == 37
+    assert !missing(district)
+    assert current_boundary_certified == 0 & rct_geographic_release == 0
+    tab district, missing
+    save "`output'/phase2_reconciled_project_reference.dta", replace
+
+    import delimited using "`output'/phase2_ubos2024_parish_context.csv", ///
+        varnames(1) encoding(utf8) stringcols(_all) clear
+    destring current_boundary_certified rct_geographic_release, replace
+    assert _N == 199
+    isid ubos_parish_code
+    assert current_boundary_certified == 0 & rct_geographic_release == 0
+    save "`output'/phase2_ubos2024_parish_context.dta", replace
+
+    import delimited using "`output'/phase2_ubos2024_subcounty_context.csv", ///
+        varnames(1) encoding(utf8) stringcols(_all) clear
+    destring geo_id current_boundary_certified rct_geographic_release, replace
+    foreach numeric in ref_lon ref_lat source_invalid geom_area_sqkm {
+        capture confirm variable `numeric'
+        if !_rc destring `numeric', replace
+    }
+    assert _N == 43
+    isid geo_id
+    isid ubos_subcounty_code
+    assert current_boundary_certified == 0 & rct_geographic_release == 0
+    tempfile census_sc_attributes
+    save `census_sc_attributes'
+    cd "`output'/gis"
+    spshape2dta ubos2024_subcounties, saving(ubos2024_subcounty_attr) replace
+    use "`output'/gis/ubos2024_subcounty_attr.dta", clear
+    assert _N == 43
+    isid geo_id
+    isid _ID
+    merge 1:1 geo_id using `census_sc_attributes', generate(__shape_match)
+    tab __shape_match, missing
+    assert __shape_match == 3
+    drop __shape_match
+    spset, modify shpfile(ubos2024_subcounty_attr_shp) ///
+        coordsys(latlong, kilometers)
+    spset
+    label variable geo_id "UBOS context source feature row; not an LC or respondent ID"
+    save "`output'/gis/ubos2024_subcounty_attr.dta", replace
+    spset, clear // Release Windows mapped coordinate file before reloading it.
+    save "`output'/phase2_ubos2024_subcounty_context.dta", replace
+    use "`output'/gis/ubos2024_subcounty_attr_shp.dta", clear
+    gen long source_vertex_order = _n
+    assert missing(_X) == missing(_Y)
+    assert inrange(_X, 28, 36) & inrange(_Y, -3, 6) if !missing(_X, _Y)
+    merge m:1 _ID using "`output'/gis/ubos2024_subcounty_attr.dta", ///
+        keepusing(geo_id) generate(__vertex_match)
+    tab __vertex_match, missing
+    assert __vertex_match == 3
+    drop __vertex_match
+    sort _ID source_vertex_order
+    save "`output'/gis/ubos2024_subcounty_attr_shp.dta", replace
+
+    import delimited using "`output'/phase2_reconciliation_geometry_candidates.csv", ///
+        varnames(1) encoding(utf8) stringcols(_all) clear
+    destring candidate_inside_census_sc candidate_parent_name_agrees accepted_documentary_link, replace
+    if _N > 0 isid phase2_lc_uid candidate_geo_id
+    assert inlist(candidate_inside_census_sc, 0, 1)
+    merge m:1 phase2_lc_uid using `census_ids', keep(master match) generate(__candidate_match)
+    tab __candidate_match, missing
+    assert __candidate_match == 3
+    drop __candidate_match
+    save "`output'/phase2_reconciliation_geometry_candidates.dta", replace
+
+    python: sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"), "--reconcile", "--review-workbook", "--verify"]; runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
+    cd "`original_cwd'"
+    restore
+    log close phase2geo
+    display as result "Milestone 3 documentary reconciliation and native Stata validation complete. NOT an RCT release."
     exit
 }
 

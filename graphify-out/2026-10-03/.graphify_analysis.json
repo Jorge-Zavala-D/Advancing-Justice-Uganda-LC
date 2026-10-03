@@ -584,6 +584,322 @@
     ],
     "57": [
       "2_output_phase1_baseline_qa_presentation_assets_issue_severity_audit_review_items_by_severity"
+    ],
+    "58": [
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_adr_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_adr_mediation",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_adr_methods",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_case_types_3m",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_caseload_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_caseload_outliers",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_caseload_summary",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_chair_profile",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_chair_profile_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_committee_challenges",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_committee_function",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_district_diff_tests",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_duplicate_villages",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_duration_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_fieldwork_duration",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_high_capacity_flags",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_index_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_index_correlation_matrix",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_index_summary",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_institutional_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_institutional_function",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_legal_knowledge",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_legitimacy_bypass",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_priority_gaps",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_qa_flags",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_readiness_correlations",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_readiness_quartiles",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_readme",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_record_challenges",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_record_quality",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_referral_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_referral_practice",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_referral_reasons",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_reint_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_reint_support_types",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_reintegration_norms",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_report_ready_figures",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_safeguards",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_sample_district",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_sample_enumerator",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_sample_origin",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_sample_report",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_sample_wave",
+      "graphify_out_converted_phase1_baseline_executive_results_159667b6_sheet_vignette_performance"
+    ],
+    "59": [
+      "1_code_6_phase2_geospatial_frame",
+      "1_code_6_phase2_geospatial_frame_acquire",
+      "1_code_6_phase2_geospatial_frame_build",
+      "1_code_6_phase2_geospatial_frame_extract_mpk",
+      "1_code_6_phase2_geospatial_frame_extract_zip",
+      "1_code_6_phase2_geospatial_frame_fetch",
+      "1_code_6_phase2_geospatial_frame_folders",
+      "1_code_6_phase2_geospatial_frame_hierarchy_key",
+      "1_code_6_phase2_geospatial_frame_main",
+      "1_code_6_phase2_geospatial_frame_name_key",
+      "1_code_6_phase2_geospatial_frame_protected_inputs",
+      "1_code_6_phase2_geospatial_frame_py_path",
+      "1_code_6_phase2_geospatial_frame_rationale_1",
+      "1_code_6_phase2_geospatial_frame_rationale_144",
+      "1_code_6_phase2_geospatial_frame_rationale_157",
+      "1_code_6_phase2_geospatial_frame_rationale_203",
+      "1_code_6_phase2_geospatial_frame_rationale_221",
+      "1_code_6_phase2_geospatial_frame_rationale_380",
+      "1_code_6_phase2_geospatial_frame_rationale_398",
+      "1_code_6_phase2_geospatial_frame_rationale_750",
+      "1_code_6_phase2_geospatial_frame_read_csv",
+      "1_code_6_phase2_geospatial_frame_reconcile",
+      "1_code_6_phase2_geospatial_frame_review_workbook",
+      "1_code_6_phase2_geospatial_frame_sha",
+      "1_code_6_phase2_geospatial_frame_shorthand_key",
+      "1_code_6_phase2_geospatial_frame_source_identity",
+      "1_code_6_phase2_geospatial_frame_transfer",
+      "1_code_6_phase2_geospatial_frame_verify_outputs",
+      "1_code_6_phase2_geospatial_frame_verify_reconciliation",
+      "1_code_6_phase2_geospatial_frame_worker_args",
+      "1_code_6_phase2_geospatial_frame_write_csv",
+      "1_code_6_phase2_geospatial_frame_write_json",
+      "time"
+    ],
+    "60": [
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_district_adjusted_diagnostics",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_fig32_core_composites",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_fig33_jlos_collaboration",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_fig34_priority_gaps",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_fig35_high_readiness_flags",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_final_diff_table",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_ranked_abs_differences",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_readme",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_report_core_comparisons",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_sample_by_district_origin",
+      "graphify_out_converted_phase1_baseline_origin_comparison_1bd5bc75_sheet_sample_by_origin"
+    ],
+    "61": [
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_binary_share_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_categorical_counts_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_numeric_field_status",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_numeric_summary_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_readme",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_6599e640_sheet_string_missingness"
+    ],
+    "62": [
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_district_jlos_diagnostic",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_fig36_jlos_snapshot",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_fig37_referral_reasons",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_fig38_referral_barriers",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_fig39_referral_loop",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_5a499913_sheet_readme"
+    ],
+    "63": [
+      "agents",
+      "agents_graphify"
+    ],
+    "64": [
+      "graphify_out_converted_key_baseline_regression_results_f6664379",
+      "graphify_out_converted_key_baseline_regression_results_f6664379_sheet_regression_results"
+    ],
+    "65": [
+      "graphify_out_converted_quick_record_quality_regression_d287a073",
+      "graphify_out_converted_quick_record_quality_regression_d287a073_sheet_result"
+    ],
+    "66": [
+      "graphify_out_converted_phase1_baseline_regression_results_5ad58d99",
+      "graphify_out_converted_phase1_baseline_regression_results_5ad58d99_sheet_multivariable_diagnostics",
+      "graphify_out_converted_phase1_baseline_regression_results_5ad58d99_sheet_origin_adjusted",
+      "graphify_out_converted_phase1_baseline_regression_results_5ad58d99_sheet_readme"
+    ],
+    "67": [
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23",
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23_sheet_indicator_table",
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23_sheet_readme",
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23_sheet_section10_crosswalk",
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23_sheet_section10_metrics",
+      "graphify_out_converted_phase1_baseline_indicator_table_aff55d23_sheet_section10_notes"
+    ],
+    "68": [
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_adr_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_adr_mediation",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_adr_methods",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_case_types_3m",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_caseload_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_caseload_outliers",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_caseload_summary",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_chair_profile",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_chair_profile_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_committee_challenges",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_committee_function",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_district_diff_tests",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_duplicate_villages",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_duration_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_fieldwork_duration",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_fig40_operations",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_high_capacity_flags",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_index_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_index_correlation_matrix",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_index_summary",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_institutional_by_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_institutional_function",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_legal_knowledge",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_legitimacy_bypass",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_priority_gaps",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_qa_flags",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_readiness_correlations",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_readiness_quartiles",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_readme",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_record_challenges",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_record_quality",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_referral_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_referral_practice",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_referral_reasons",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_reint_barriers",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_reint_support_types",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_reintegration_norms",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_report_ready_figures",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_safeguards",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_sample_district",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_sample_enumerator",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_sample_origin",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_sample_report",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_sample_wave",
+      "graphify_out_converted_phase1_baseline_executive_results_febcbf27_sheet_vignette_performance"
+    ],
+    "69": [
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_district_adjusted_diagnostics",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_fig32_core_composites",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_fig33_jlos_collaboration",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_fig34_priority_gaps",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_fig35_high_readiness_flags",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_final_diff_table",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_ranked_abs_differences",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_readme",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_report_core_comparisons",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_sample_by_district_origin",
+      "graphify_out_converted_phase1_baseline_origin_comparison_6ba0ef47_sheet_sample_by_origin"
+    ],
+    "70": [
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_binary_share_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_categorical_counts_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_numeric_field_status",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_numeric_summary_all",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_readme",
+      "graphify_out_converted_phase1_baseline_all_item_tabulations_e840681a_sheet_string_missingness"
+    ],
+    "71": [
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_district_jlos_diagnostic",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_fig36_jlos_snapshot",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_fig37_referral_reasons",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_fig38_referral_barriers",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_fig39_referral_loop",
+      "graphify_out_converted_phase1_baseline_jlos_expanded_analysis_af527f77_sheet_readme"
+    ],
+    "72": [
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7",
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7_sheet_indicator_table",
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7_sheet_readme",
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7_sheet_section10_crosswalk",
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7_sheet_section10_metrics",
+      "graphify_out_converted_phase1_baseline_indicator_table_847c6dd7_sheet_section10_notes"
+    ],
+    "73": [
+      "graphify_out_converted_phase1_baseline_regression_results_d60827fb",
+      "graphify_out_converted_phase1_baseline_regression_results_d60827fb_sheet_multivariable_diagnostics",
+      "graphify_out_converted_phase1_baseline_regression_results_d60827fb_sheet_origin_adjusted",
+      "graphify_out_converted_phase1_baseline_regression_results_d60827fb_sheet_readme"
+    ],
+    "74": [
+      "1_code_5_phase2_administrative_frame",
+      "1_code_5_phase2_administrative_frame_build_census",
+      "1_code_5_phase2_administrative_frame_clean",
+      "1_code_5_phase2_administrative_frame_coded_name",
+      "1_code_5_phase2_administrative_frame_digest",
+      "1_code_5_phase2_administrative_frame_download_sources",
+      "1_code_5_phase2_administrative_frame_ec_uid",
+      "1_code_5_phase2_administrative_frame_extract_ec_sources",
+      "1_code_5_phase2_administrative_frame_extract_local_sources",
+      "1_code_5_phase2_administrative_frame_extract_project_references",
+      "1_code_5_phase2_administrative_frame_extract_sheema_tables",
+      "1_code_5_phase2_administrative_frame_hierarchy_key",
+      "1_code_5_phase2_administrative_frame_inspect_sources",
+      "1_code_5_phase2_administrative_frame_local_record",
+      "1_code_5_phase2_administrative_frame_locate_pages",
+      "1_code_5_phase2_administrative_frame_main",
+      "1_code_5_phase2_administrative_frame_name_key",
+      "1_code_5_phase2_administrative_frame_page_prefix",
+      "1_code_5_phase2_administrative_frame_prefixcomplete",
+      "1_code_5_phase2_administrative_frame_py_path",
+      "1_code_5_phase2_administrative_frame_rationale_1",
+      "1_code_5_phase2_administrative_frame_rationale_177",
+      "1_code_5_phase2_administrative_frame_rationale_432",
+      "1_code_5_phase2_administrative_frame_rationale_578",
+      "1_code_5_phase2_administrative_frame_rationale_627",
+      "1_code_5_phase2_administrative_frame_reconcile",
+      "1_code_5_phase2_administrative_frame_shorthand_key",
+      "1_code_5_phase2_administrative_frame_strip_number",
+      "1_code_5_phase2_administrative_frame_verify_source_totals",
+      "1_code_5_phase2_administrative_frame_word_rows",
+      "1_code_5_phase2_administrative_frame_write_csv",
+      "difflib",
+      "exception",
+      "openpyxl",
+      "pdfplumber",
+      "pypdf",
+      "re",
+      "urllib_request"
+    ],
+    "75": [
+      "1_code_6_phase2_geospatial_review",
+      "1_code_6_phase2_geospatial_review_coverage",
+      "1_code_6_phase2_geospatial_review_data",
+      "1_code_6_phase2_geospatial_review_digest",
+      "1_code_6_phase2_geospatial_review_inputs",
+      "1_code_6_phase2_geospatial_review_originalsheets",
+      "1_code_6_phase2_geospatial_review_preservedsheets",
+      "1_code_6_phase2_geospatial_review_previews",
+      "1_code_6_phase2_geospatial_review_priornotes",
+      "1_code_6_phase2_geospatial_review_reconcile",
+      "1_code_6_phase2_geospatial_review_reconciliationsheets",
+      "1_code_6_phase2_geospatial_review_reviewids",
+      "1_code_6_phase2_geospatial_review_stage",
+      "1_code_6_phase2_geospatial_review_target"
+    ],
+    "76": [
+      "1_code_build_dropbox_corpus_snapshot",
+      "1_code_build_dropbox_corpus_snapshot_basic_profile",
+      "1_code_build_dropbox_corpus_snapshot_dbf_profile",
+      "1_code_build_dropbox_corpus_snapshot_legacy_xls_profile",
+      "1_code_build_dropbox_corpus_snapshot_main",
+      "1_code_build_dropbox_corpus_snapshot_py_path",
+      "1_code_build_dropbox_corpus_snapshot_rationale_1",
+      "1_code_build_dropbox_corpus_snapshot_rationale_31",
+      "1_code_build_dropbox_corpus_snapshot_rationale_61",
+      "1_code_build_dropbox_corpus_snapshot_rationale_90",
+      "1_code_build_dropbox_corpus_snapshot_sha256",
+      "1_code_build_dropbox_corpus_snapshot_shapefile_profile",
+      "argparse",
+      "collections",
+      "csv",
+      "datetime",
+      "hashlib",
+      "json",
+      "os",
+      "path",
+      "pathlib",
+      "struct",
+      "subprocess",
+      "zipfile"
     ]
   },
   "cohesion": {
@@ -644,7 +960,26 @@
     "54": 1.0,
     "55": 1.0,
     "56": 1.0,
-    "57": 1.0
+    "57": 1.0,
+    "58": 0.044444444444444446,
+    "59": 0.17424242424242425,
+    "60": 0.16666666666666666,
+    "61": 0.2857142857142857,
+    "62": 0.2857142857142857,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 0.5,
+    "67": 0.3333333333333333,
+    "68": 0.043478260869565216,
+    "69": 0.16666666666666666,
+    "70": 0.2857142857142857,
+    "71": 0.2857142857142857,
+    "72": 0.3333333333333333,
+    "73": 0.5,
+    "74": 0.13513513513513514,
+    "75": 0.14285714285714285,
+    "76": 0.13405797101449277
   },
   "gods": [
     {
@@ -663,39 +998,39 @@
       "degree": 15
     },
     {
+      "id": "1_code_6_phase2_geospatial_frame_build",
+      "label": "build()",
+      "degree": 15
+    },
+    {
+      "id": "1_code_6_phase2_geospatial_frame_reconcile",
+      "label": "reconcile()",
+      "degree": 13
+    },
+    {
       "id": "2_output_phase1_baseline_executive_figures_fig_04_priority_gaps",
       "label": "Training priority gaps by baseline domain",
       "degree": 12
     },
     {
+      "id": "1_code_5_phase2_administrative_frame_build_census",
+      "label": "build_census()",
+      "degree": 12
+    },
+    {
+      "id": "1_code_6_phase2_geospatial_frame_folders",
+      "label": "folders()",
+      "degree": 12
+    },
+    {
+      "id": "1_code_5_phase2_administrative_frame_main",
+      "label": "main()",
+      "degree": 11
+    },
+    {
       "id": "2_output_phase1_baseline_executive_figures_fig_21_record_challenges",
       "label": "Reported record-keeping challenges",
       "degree": 10
-    },
-    {
-      "id": "2_output_phase1_baseline_executive_figures_fig_27_reintegration_support",
-      "label": "Support types identified for successful reintegration",
-      "degree": 10
-    },
-    {
-      "id": "2_output_phase1_baseline_executive_figures_fig_33_origin_jlos_collaboration",
-      "label": "JLOS collaboration and referral pathway by Phase 1 origin",
-      "degree": 10
-    },
-    {
-      "id": "2_output_phase1_baseline_key_regressions_key_baseline_regression_coefficients",
-      "label": "Baseline differences by prior administrative contact",
-      "degree": 10
-    },
-    {
-      "id": "2_output_phase1_baseline_executive_figures_fig_15_adr_barriers",
-      "label": "Reported barriers to local mediation/ADR",
-      "degree": 10
-    },
-    {
-      "id": "2_output_phase1_baseline_executive_figures_fig_03_composite_indices_by_district",
-      "label": "Composite baseline domains by district",
-      "degree": 8
     }
   ],
   "surprises": [
@@ -768,27 +1103,27 @@
     },
     {
       "type": "bridge_node",
-      "question": "Why does `Dropbox corpus snapshot 31 August 2026` connect `Restorative Justice Evidence` to `Baseline Reconciliation`?",
-      "why": "High betweenness centrality (0.065) - this node is a cross-community bridge."
+      "question": "Why does `Dropbox corpus snapshot 31 August 2026` connect `Dropbox corpus snapshot 31 August 2026` to `Procedural justice and decision acceptance`?",
+      "why": "High betweenness centrality (0.026) - this node is a cross-community bridge."
     },
     {
       "type": "bridge_node",
-      "question": "Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Baseline Reconciliation` to `Restorative Justice Evidence`?",
-      "why": "High betweenness centrality (0.005) - this node is a cross-community bridge."
+      "question": "Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Procedural justice and decision acceptance` to `Dropbox corpus snapshot 31 August 2026`?",
+      "why": "High betweenness centrality (0.002) - this node is a cross-community bridge."
     },
     {
       "type": "isolated_nodes",
-      "question": "What connects `Phase 1 Baseline QA Quarto Source and Reproducible Evidence Chain`, `Macdonald et al. (2022) citizen engagement with lower courts`, `Beckman et al. (2024) restorative justice diversion` to the rest of the system?",
-      "why": "240 weakly-connected nodes found - possible documentation gaps or missing edges."
+      "question": "What connects `Sheet: adr_barriers`, `Sheet: adr_mediation`, `Sheet: adr_methods` to the rest of the system?",
+      "why": "406 weakly-connected nodes found - possible documentation gaps or missing edges."
     },
     {
       "type": "low_cohesion",
-      "question": "Should `Restorative Justice Evidence` be split into smaller, more focused modules?",
+      "question": "Should `Dropbox corpus snapshot 31 August 2026` be split into smaller, more focused modules?",
       "why": "Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected."
     },
     {
       "type": "low_cohesion",
-      "question": "Should `Procedural Justice Evidence` be split into smaller, more focused modules?",
+      "question": "Should `Advancing Justice Uganda Inception Report` be split into smaller, more focused modules?",
       "why": "Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected."
     }
   ]

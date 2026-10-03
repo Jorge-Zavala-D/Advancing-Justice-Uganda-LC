@@ -89,9 +89,22 @@ def write_csv(path, rows, fields=None):
 
 def write_json(path, data):
     path = Path(path)
-    temp = path.with_suffix(path.suffix + ".tmp")
-    temp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    temp.replace(path)
+    # Dropbox can briefly hold the destination. Keep the old receipt intact.
+    with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=path.parent,
+                                     suffix=".tmp", delete=False) as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+        temp = Path(f.name)
+    try:
+        for attempt in range(5):
+            try:
+                temp.replace(path)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                time.sleep(0.2 * (attempt + 1))
+    finally:
+        temp.unlink(missing_ok=True)
 
 
 def source_identity(url):
@@ -140,9 +153,14 @@ def transfer(url, temp, limit):
         return size, parts[0] if parts else "", parts[-1] if parts else url
 
 
-def fetch(root, name, url, *, required=True, limit=400_000_000):
+def fetch(root, name, url, *, required=True, limit=400_000_000, raw_subdir=None):
     """Cache exact responses and hashes. Never disable TLS verification."""
     raw, _ = folders(root)
+    if raw_subdir is not None:
+        target = (raw / raw_subdir).resolve()
+        assert target.is_relative_to(raw.resolve()), "Source folder must stay within Dropbox GIS archive"
+        raw = target
+        raw.mkdir(parents=True, exist_ok=True)
     path = raw / name
     manifest_path = raw / "download_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
@@ -170,7 +188,7 @@ def fetch(root, name, url, *, required=True, limit=400_000_000):
         response_status = "ok"
         if name.endswith((".json", ".geojson")):
             body = json.loads(temp.read_text(encoding="utf-8-sig"))
-            if body.get("error") or body.get("success") is False:
+            if isinstance(body, dict) and (body.get("error") or body.get("success") is False):
                 response_status = "service_error_not_data"
                 if required:
                     raise ValueError(f"Service returned error object: {body}")
@@ -296,7 +314,7 @@ def worker_args():
     return cmd
 
 
-def review_workbook(root, inspect_only=False):
+def review_workbook(root, inspect_only=False, reconcile_mode=False):
     # Presentation formatting only; input values have already passed Stata.
     runtime = Path(os.environ.get("CODEX_RUNTIME_DEPENDENCIES", str(Path.home() / ".cache/codex-runtimes/codex-primary-runtime/dependencies")))
     node = runtime / "node/bin/node.exe"
@@ -311,10 +329,10 @@ def review_workbook(root, inspect_only=False):
     assert module_path.resolve() == packages.resolve(), "Unexpected staging dependency target"
     builder = staging / "6 Phase2_Geospatial_Review.mjs"
     shutil.copyfile(Path(__file__).with_name(builder.name), builder)
-    cmd = [str(node), str(builder), str(root)] + (["--inspect"] if inspect_only else [])
+    cmd = [str(node), str(builder), str(root)] + (["--inspect"] if inspect_only else []) + (["--reconcile"] if reconcile_mode else [])
     r = subprocess.run(cmd, capture_output=True, text=True, creationflags=subprocess.CREATE_NO_WINDOW)
     _, out = folders(root)
-    (out / "phase2_geographic_workbook.log").write_text(r.stdout + r.stderr, encoding="utf-8")
+    (out / ("phase2_reconciliation_workbook.log" if reconcile_mode else "phase2_geographic_workbook.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
     print(r.stdout + r.stderr, flush=True)
     r.check_returncode()
 
@@ -728,11 +746,286 @@ visible. Review-workbook edits are notes only, not automatic authoritative merge
     print("Geographic bridge built; final DTA imports and checks must run in Stata.", flush=True)
 
 
+def reconcile(root):
+    """Dated identity/context review. Never certify current LC boundaries."""
+    import geopandas as gpd
+    import pandas as pd
+    import shapely
+    import importlib.metadata
+    raw, out = folders(root)
+    admin = root / "3 Data/2 Working/Phase2_Administrative_Frame"
+    protected = protected_inputs(root)
+    m2path = out / "phase2_geographic_manifest.json"
+    m2 = json.loads(m2path.read_text(encoding="utf-8"))
+    frozen = {root / p: h for p, h in m2["product_sha256"].items()}
+    frozen[m2path] = sha(m2path)
+    for p, h in frozen.items():
+        assert sha(p) == h, f"Accepted Milestone 2 product changed: {p}"
+    source = lambda name, endpoint: fetch(root, name, "https://statistics.ubos.org/nphc/" + endpoint, raw_subdir="milestone3")
+    source("ubos_2024_map.html", "map")
+    source("ubos_2024_drilldown.html", "drilldown")
+    load = lambda name, endpoint: json.loads(source(name, "api/" + endpoint).read_text(encoding="utf-8-sig"))
+    districts = load("ubos_districts.json", "get_districts.php?subregion_code=41")
+    expected = {"BUSHENYI": ("402", 17, 72), "RUBIRIZI": ("425", 11, 53), "SHEEMA": ("426", 15, 74)}
+    assert {r["name"]: r["code"] for r in districts if r["name"] in expected} == {d: x[0] for d, x in expected.items()}
+    parents, scrows, features = [], [], []
+    for district, (dc, nsc, np) in expected.items():
+        counties = load(f"ubos_counties_{dc}.json", f"get_counties.php?district_code={dc}")
+        assert len(counties) == 2
+        district_scs = []
+        for county in counties:
+            cc = str(county["code"])
+            assert str(county["district_code"]) == dc
+            subcounties = load(f"ubos_subcounties_{cc}.json", f"get_subcounties.php?county_code={cc}")
+            for sc in subcounties:
+                code = str(sc["code"])
+                assert str(sc["district_code"]) == dc and str(sc["county_code"]) == cc
+                row = {"geo_id": int(code), "district": district, "census_county": county["name"],
+                       "subcounty": sc["name"], "ubos_district_code": dc, "ubos_county_code": cc,
+                       "ubos_subcounty_code": code, "source_context": "NPHC 2024; geometry update date unverified",
+                       "current_boundary_certified": 0, "rct_geographic_release": 0}
+                scrows.append(row); district_scs.append(row)
+                parishfile = f"ubos_parishes_{code}.json"
+                parishes = load(parishfile, f"get_parishes.php?district_code={dc}&subcounty_code={code}")
+                for parish in parishes:
+                    assert str(parish["district_code"]) == dc and str(parish["ccode"]) == cc and str(parish["scode"]) == code
+                    parents.append({**row, "parish": parish["name"], "ubos_parish_code": str(parish["code"]),
+                                    "source_file": str((raw / "milestone3" / parishfile).relative_to(root)),
+                                    "source_sha256": sha(raw / "milestone3" / parishfile)})
+        assert len(district_scs) == nsc and sum(r["district"] == district for r in parents) == np
+        doc = load(f"ubos_geometry_{dc}.geojson", f"get_geospatial_data.php?level=subcounty&district_code={dc}")
+        collection = doc["geojson"]
+        if isinstance(collection, str): collection = json.loads(collection)
+        assert collection["type"] == "FeatureCollection" and len(collection["features"]) == nsc
+        assert collection.get("crs", {}).get("properties", {}).get("name") in (None, "urn:ogc:def:crs:OGC:1.3:CRS84", "EPSG:4326")
+        for f in collection["features"]:
+            p = f["properties"]
+            code = str(p["population_data"]["code"])
+            assert code == str(p["DCode"]) + str(p["CCode"]) + str(p["SCode"])
+            assert code in {r["ubos_subcounty_code"] for r in district_scs}
+            features.append({"type": "Feature", "properties": {"geo_id": int(code)}, "geometry": f["geometry"]})
+    assert len(scrows) == 43 and len(parents) == 199
+    assert len({r["ubos_parish_code"] for r in parents}) == 199
+    geometry = gpd.GeoDataFrame.from_features(features, crs=4326)
+    assert geometry.geo_id.is_unique and geometry.geom_type.isin(["Polygon", "MultiPolygon"]).all()
+    invalid = ~geometry.is_valid
+    geometry["source_invalid"] = invalid.astype(int)
+    if invalid.any(): geometry.geometry = geometry.geometry.make_valid()
+    assert geometry.is_valid.all() and geometry.geometry.to_wkb().is_unique
+    assert (~geometry.is_empty).all() and geometry.geom_type.isin(["Polygon", "MultiPolygon"]).all()
+    xmin, ymin, xmax, ymax = geometry.total_bounds
+    assert 28 <= xmin <= xmax <= 36 and -3 <= ymin <= ymax <= 6
+    reps = geometry.to_crs(32736).representative_point().to_crs(4326)
+    geometry["ref_lon"], geometry["ref_lat"] = reps.x, reps.y
+    geometry["geom_area_sqkm"] = geometry.to_crs(32736).area / 1e6
+    assert geometry.covers(reps).all()
+    gis = out / "gis"; gis.mkdir(exist_ok=True)
+    geometry[["geo_id", "geometry"]].to_file(gis / "ubos2024_subcounties.shp", index=False)
+    geometry.to_file(gis / "ubos2024_context.gpkg", layer="subcounties", driver="GPKG", index=False)
+    bygeo = {r["geo_id"]: r for r in geometry.drop(columns="geometry").to_dict("records")}
+    for r in scrows: r.update({k: v for k, v in bygeo[r["geo_id"]].items() if k != "geo_id"})
+    lcs = read_csv(out / "phase2_geographic_lc_reference.csv")
+    assert len(lcs) == 1483 and len({r["phase2_lc_uid"] for r in lcs}) == 1483
+    parishrefs = defaultdict(dict)
+    sckeys = defaultdict(set)
+    for r in lcs:
+        k = hierarchy_key(r)[:3]
+        parishrefs[k][r["parish_uid"]] = r
+        sckeys[k[:2]].add(r["subcounty_uid"])
+    parishmap = {}
+    for r in parents:
+        k = hierarchy_key(r, ("district", "subcounty", "parish"))
+        candidates = list(parishrefs[k].values())
+        assert len(candidates) <= 1, "Ambiguous EC parish identity"
+        r["ec_parish_uid"] = candidates[0]["parish_uid"] if candidates else ""
+        r["crosswalk_status"] = "named_hierarchy_match" if candidates else "parish_spelling_review"
+        r["ec_parish_name"] = candidates[0]["parish"] if candidates else ""
+        r["interpretation"] = "Dated parent context only; not current LC geometry or compatible source codes"
+        if candidates: parishmap[candidates[0]["parish_uid"]] = r
+    assert sum(bool(r["ec_parish_uid"]) for r in parents) == 196
+    assert len({hierarchy_key(r, ("district", "subcounty")) for r in scrows}) == 43
+    census_sc = {hierarchy_key(r, ("district", "subcounty")): r for r in scrows}
+    assert all(len(sckeys[k]) == 1 for k in census_sc), "Nonunique electoral parent"
+    assert set(sckeys) == set(census_sc)
+    geomdict = dict(zip(geometry.geo_id, geometry.geometry))
+    historic = {r["geo_id"]: r for r in read_csv(out / "historical_villages_attributes.csv")}
+    lcmap = {r["phase2_lc_uid"]: r for r in lcs}
+    candidates = read_csv(out / "phase2_geometry_candidates.csv")
+    assert len({(r["phase2_lc_uid"], r["candidate_geo_id"]) for r in candidates}) == len(candidates)
+    for c in candidates:
+        lc = lcmap[c["phase2_lc_uid"]]; h = historic[c["candidate_geo_id"]]
+        sc = census_sc[hierarchy_key(lc)[:2]]
+        c["ubos_subcounty_code"] = sc["ubos_subcounty_code"]
+        c["candidate_inside_census_sc"] = int(geomdict[sc["geo_id"]].covers(shapely.Point(float(h["ref_lon"]), float(h["ref_lat"]))))
+        c["candidate_parent_name_agrees"] = int(name_key(h["parish"], "parish") == name_key(lc["parish"], "parish"))
+        c["interpretation"] = "Containment is a diagnostic, not identity evidence or current boundary certification"
+    for lc in lcs:
+        sc = census_sc[hierarchy_key(lc)[:2]]
+        lc["historical_geo_id"] = lc["village_geo_id"]
+        lc["ubos_subcounty_code"] = sc["ubos_subcounty_code"]
+        lc["ubos_parish_code"] = parishmap.get(lc["parish_uid"], {}).get("ubos_parish_code", "")
+        lc["census_parent_status"] = "named_hierarchy_match" if lc["ubos_parish_code"] else "parish_spelling_review"
+        lc["historical_point_in_census_sc"] = next((c["candidate_inside_census_sc"] for c in candidates if c["phase2_lc_uid"] == lc["phase2_lc_uid"] and c["candidate_geo_id"] == lc["historical_geo_id"]), "")
+        lc["current_parent_spatial_status"] = "outside_census_parent_review" if lc["historical_point_in_census_sc"] == 0 else "historical_point_inside_census_parent" if lc["historical_point_in_census_sc"] == 1 else "no_accepted_historical_point"
+        lc["current_boundary_certified"] = lc["rct_geographic_release"] = 0
+    project = read_csv(out / "phase2_project_geometry_crosswalk.csv")
+    assert len(project) == 130 and len({r["source_row_id"] for r in project}) == 130
+    assert sum(bool(r["phase2_lc_uid"]) for r in project) == 36
+    kirugu = next(r for r in project if r["source_row_id"] == "PROJECT_PHASE1_d32d97b21e66")
+    uid = "UGA_112_222_010_031_004"
+    assert kirugu["phase1_uid"] == "rubirizi_kirugu_kyenzaza_kirugu_ib" and not kirugu["phase2_lc_uid"]
+    assert hierarchy_key(kirugu) == ("RUBIRIZI", "KIRUGU", "KYENZAZA", "KIRUGU IB")
+    assert hierarchy_key(lcmap[uid]) == ("RUBIRIZI", "KIRUGU", "KYENZAZA", "KIRUGU I B")
+    evidence = [r for r in read_csv(admin / "ec_source_village_rows.csv") if r.get("phase2_lc_uid") == uid]
+    # The official row is alternatively addressed by its independently coded hierarchy.
+    if not evidence:
+        evidence = [r for r in read_csv(admin / "ec_source_village_rows.csv") if hierarchy_key(r) == hierarchy_key(lcmap[uid])]
+    assert len(evidence) == 1 and str(evidence[0]["source_page"]) == "2474"
+    mapped = [r for r in read_csv(admin / "phase2_administrative_source_crosswalk.csv")
+              if r["source_id"] == "PROJECT_MAPPED" and r["phase2_lc_uid"] == uid]
+    assert len(mapped) == 1, "Independent project mapping evidence must be unique"
+    kirugu["phase2_lc_uid"] = uid
+    kirugu["match_status"] = "documented_record_specific_suffix_spacing"
+    kirugu["identity_evidence"] = "EC2022 p2474; List of LCs mapped.xlsx Rubirizi row31; Final Village List.xlsx row71; Tracking_Form_Final.xlsx row80; RUBIRIZI ADMIN DATA.xlsx C170; accepted field confirmation 2026-10-02"
+    kirugu["identity_evidence_sha256"] = sha(admin / "ec_source_village_rows.csv")
+    priorities = {"RUHANDAGAZI": "UGA_004_225_001_009_003", "NYAMYERANDE I": "UGA_004_018_006_011_006",
+                  "KISHARU I": "UGA_112_222_006_044_003", "NYAMWERU": "UGA_112_017_002_009_002",
+                  "KYAMBURA C": "UGA_112_017_003_029_001", "BURURUMA": "UGA_112_017_008_026_003",
+                  "KARAGARA": "UGA_112_017_004_034_002", "RUNYINYA II": "UGA_101_022_005_013_009",
+                  "KIZIBA": "UGA_101_294_002_003_006", "KARUGORORA": "UGA_101_022_004_017_003",
+                  "KIHANGA II": "UGA_101_022_004_018_008", "BUGARAMA": "UGA_101_021_007_006_002"}
+    priorities = {(name_key(lcmap[u]["district"]), v): u for v, u in priorities.items()}
+    for r in project:
+        linked = r["phase2_lc_uid"]
+        r["linked_ec_uid"] = linked
+        r["historical_geo_id"] = lcmap[linked]["historical_geo_id"] if linked else ""
+        r["current_parent_spatial_status"] = lcmap[linked]["current_parent_spatial_status"] if linked else "identity_unresolved"
+        r["current_boundary_certified"] = r["rct_geographic_release"] = 0
+        r.setdefault("identity_evidence", "Frozen Milestone 1 full-hierarchy crosswalk" if linked else "Unresolved; candidate names are not identity proof")
+        r.setdefault("identity_evidence_sha256", sha(out / "phase2_project_geometry_crosswalk.csv"))
+        proposed = priorities.get((name_key(r["district"]), name_key(r["village"]))) if not linked else None
+        r["review_priority"] = "one_parent_component_candidate" if proposed else "standard"
+        r["proposed_ec_uid"] = proposed or ""
+        r["proposed_hierarchy"] = " / ".join(lcmap[proposed][x] for x in ("district", "subcounty", "parish", "village")) if proposed else ""
+        if proposed:
+            a, b = shorthand_key(hierarchy_key(r)), shorthand_key(hierarchy_key(lcmap[proposed]))
+            assert a[0] == b[0] and a[3] == b[3] and sum(x != y for x, y in zip(a, b)) == 1, (r["phase1_uid"], a, b)
+        r["review_decision"] = r["review_evidence"] = ""
+    assert sum(bool(r["linked_ec_uid"]) for r in project) == 37
+    assert len({r["linked_ec_uid"] for r in project if r["linked_ec_uid"]}) == 37
+    assert sum(r["review_priority"] != "standard" for r in project) == 12
+    assert sum(bool(r["historical_geo_id"]) for r in lcs) == 316
+    assert len({r["historical_geo_id"] for r in lcs if r["historical_geo_id"]}) == 316
+    write_csv(out / "phase2_ubos2024_subcounty_context.csv", scrows)
+    write_csv(out / "phase2_ubos2024_parish_context.csv", parents)
+    write_csv(out / "phase2_reconciled_project_reference.csv", project)
+    write_csv(out / "phase2_reconciled_lc_reference.csv", lcs)
+    write_csv(out / "phase2_reconciliation_geometry_candidates.csv", candidates)
+    coverage = []
+    for d in DISTRICTS:
+        subset = [r for r in project if r["district"] == d]
+        local = [r for r in lcs if r["district"] == d]
+        coverage.append({"district": d, "dated_ec_lcs": len(local), "project_references": len(subset),
+                         "project_identity_links": sum(bool(r["linked_ec_uid"]) for r in subset),
+                         "project_identity_pending": sum(not r["linked_ec_uid"] for r in subset),
+                         "historical_lc_geometry_links": sum(bool(r["historical_geo_id"]) for r in local),
+                         "census_subcounties": sum(r["district"] == d for r in scrows),
+                         "census_parishes": sum(r["district"] == d for r in parents),
+                         "census_parish_name_matches": sum(r["district"] == d and bool(r["ec_parish_uid"]) for r in parents),
+                         "current_lc_boundaries_certified": 0, "rct_geographic_release": 0})
+    coverage.append({"district": "TOTAL", **{k: sum(r[k] for r in coverage) for k in coverage[0] if k != "district"}})
+    checks = [{"check": "Project identity", "status": "PASS", "observed": 37, "expected": 37, "detail": "36 frozen links plus one documented Kirugu suffix-spacing link; 93 remain pending"},
+              {"check": "Historical geometry", "status": "PASS", "observed": 316, "expected": 316, "detail": "No candidate promoted by proximity, containment or parent-label resemblance"},
+              {"check": "Census parish hierarchy", "status": "REVIEW", "observed": 196, "expected": 199, "detail": "Kyarikunda/Kyarukunda, Rutooma/Rutoma, Mabaare/Mabare are explicit spelling reviews"},
+              {"check": "Current LC boundaries", "status": "NOT_CERTIFIED", "observed": 0, "expected": 0, "detail": "2024 census-map context does not establish geometry vintage, legal LC boundaries or a licensed redistribution right"},
+              {"check": "Code namespaces", "status": "PASS", "observed": 0, "expected": 0, "detail": "EC constituencies, UBOS counties and NBRB codes remain separate; no cross-agency numeric code joins"},
+              {"check": "Review notes", "status": "AUDIT_ONLY", "observed": 0, "expected": 0, "detail": "Editable notes never automatically alter links; future approved identities require exact IDs and source evidence"}]
+    outside = sum(r["historical_point_in_census_sc"] == 0 for r in lcs)
+    checks.append({"check": "Historical point versus census parent", "status": "REVIEW" if outside else "PASS", "observed": outside, "expected": 0,
+                   "detail": f"Of 316 historical links, {316-outside} points fall inside the matching census SC; {outside} lie outside. Preserve historical evidence but flag parent-context disagreement; no current boundary inference."})
+    lead = ("source_row_id", "phase1_uid", "district", "subcounty", "parish", "village", "linked_ec_uid", "match_status", "review_priority", "proposed_ec_uid", "proposed_hierarchy", "historical_geo_id", "current_parent_spatial_status", "identity_evidence", "identity_evidence_sha256", "review_decision", "review_evidence")
+    review = [{**{k: r[k] for k in lead}, **{k: v for k, v in r.items() if k not in lead}} for r in project]
+    write_json(out / "reconciliation_workbook_inputs.json", {"ReconciledCoverage": coverage, "IdentityReview": review, "UBOSParents": parents, "ReconcileQA": checks})
+    assert protected_inputs(root) == protected
+    for p, h in frozen.items(): assert sha(p) == h
+    manifest = {"milestone": "3 Dated identity and geographic context reconciliation", "built_utc": datetime.now(timezone.utc).isoformat(),
+                "status": "REVIEW_PACKAGE_COMPLETE_NOT_RCT_FRAME", "protected_inputs_before_after": protected,
+                "frozen_m2_sha256": {str(p): h for p, h in frozen.items()},
+                "raw_source_sha256": {str(p.relative_to(root)): sha(p) for p in (raw / "milestone3").glob("*") if p.is_file() and not p.name.endswith(".tmp")},
+                "runtime": {p.split("==")[0]: importlib.metadata.version(p.split("==")[0]) for p in GIS_PACKAGES},
+                "project_references": 130, "project_identity_links": 37, "historical_geometry_links": 316,
+                "census_subcounties": 43, "census_parishes": 199, "census_parish_matches": 196, "historical_points_outside_census_parent": outside,
+                "stata_import_validation_passed": False, "current_lc_boundaries_certified": 0, "rct_geographic_release": 0}
+    write_json(out / "phase2_reconciliation_manifest.json", manifest)
+    print("Milestone 3 evidence bridge prepared; native Stata validation still required.", flush=True)
+
+
+def verify_reconciliation(root):
+    _, out = folders(root)
+    path = out / "phase2_reconciliation_manifest.json"
+    m = json.loads(path.read_text(encoding="utf-8"))
+    assert protected_inputs(root) == m["protected_inputs_before_after"]
+    for p, h in m["frozen_m2_sha256"].items(): assert sha(Path(p)) == h, f"Frozen product changed: {p}"
+    for p, h in m["raw_source_sha256"].items(): assert sha(root / p) == h, f"Raw source changed: {p}"
+    names = ("phase2_reconciled_project_reference", "phase2_reconciled_lc_reference", "phase2_ubos2024_parish_context", "phase2_ubos2024_subcounty_context", "phase2_reconciliation_geometry_candidates")
+    assert all((out / (n + ".dta")).exists() for n in names)
+    import pandas as pd
+    import numpy as np
+    for n, expected in zip(names, (130, 1483, 199, 43, None)):
+        data = pd.read_stata(out / (n + ".dta"), convert_categoricals=False)
+        if expected: assert len(data) == expected
+        source = pd.read_csv(out / (n + ".csv"), dtype=str, keep_default_na=False)
+        key = "source_row_id" if "project" in n else "ubos_parish_code" if "parish" in n else "geo_id" if "subcounty" in n else "phase2_lc_uid"
+        keys = [key, "candidate_geo_id"] if "candidates" in n else [key]
+        for k in keys: data[k] = data[k].astype(str)
+        data = data.sort_values(keys).reset_index(drop=True)
+        source = source.sort_values(keys).reset_index(drop=True)
+        assert len(data) == len(source) and set(source.columns).issubset(data.columns)
+        for col in source:
+            if pd.api.types.is_numeric_dtype(data[col]):
+                values = pd.to_numeric(source[col].replace("", np.nan))
+                assert np.allclose(values, data[col], rtol=1e-7, atol=1e-9, equal_nan=True), f"Native numeric mismatch: {n}/{col}"
+            else:
+                assert source[col].equals(data[col].fillna("").astype(str)), f"Native text mismatch: {n}/{col}"
+        for f in ("current_boundary_certified", "rct_geographic_release"):
+            if f in data: assert (data[f] == 0).all()
+    products = [out / (n + suffix) for n in names for suffix in (".csv", ".dta")]
+    products += list((out / "gis").glob("*")) + [out / "reconciliation_workbook_inputs.json"]
+    m.update({"stata_import_validation_passed": True, "stata_execution_route": "stata_run_selection MCP",
+              "product_sha256": {str(p.relative_to(root)): sha(p) for p in products if p.is_file()},
+              "review_workbook_sha256": sha(root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx"),
+              "code_sha256": {p.name: sha(p) for p in Path(__file__).parent.glob("6 Phase2_Geospatial*.*") if p.is_file()}})
+    write_json(path, m)
+    (out / "README_MILESTONE3.txt").write_text("""Milestone 3: dated identity/geographic-context review; not randomization release.
+Reproduce via existing Stata entry: do \"1 Code/6 Phase2_Geospatial_Frame.do\" \"<Dropbox root>\" reconcile
+All retained inputs enter native Stata DTA via the stata_run_selection MCP route.
+130 project geography entries are not the baseline analytical sample or a training roster.
+37 documentary EC identities are linked; 93 remain pending. Only Kirugu IB/I B added.
+The 316 historical polygon links are unchanged. Their locations are derived historical
+interior points, not survey GPS, current LC boundaries, or approved neighbors.
+UBOS NPHC2024 supplies 43 census-map subcounty polygons and 199 parish identity rows.
+196 named parish hierarchies match; three spelling pairs remain review-only.
+Five accepted historical interior points lie outside the matching census SC;
+these are flagged for parent-context review, not silently moved or deleted.
+EC constituency, UBOS county, NBRB and census codes are separate namespaces.
+The API's reporting year does not certify geometry update date or legal boundaries.
+Reuse/redistribution licensing is unverified; keep exact raw responses in private Dropbox.
+Original JSONs are preserved; any invalid geometry repair is derived and flagged.
+Workbook review notes are audit-only, never automatic merge approvals.
+No Phase1 scores, report, baseline sample, Master or randomization code/data changed.
+No mentors selected; no neighboring-LC eligibility rule or wave assignment generated.
+Next approval-dependent step requires mentor assessment and authoritative identity/
+LC geometry evidence; missing identities are not imputed from nearest-name matches.
+""", encoding="utf-8")
+    print("Milestone 3 native Stata products and immutable inputs verified.", flush=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, default=DEFAULT_ROOT)
     p.add_argument("--acquire", action="store_true")
     p.add_argument("--build", action="store_true")
+    p.add_argument("--reconcile", action="store_true")
     p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--review-workbook", action="store_true")
     p.add_argument("--inspect-workbook", action="store_true")
@@ -741,11 +1034,11 @@ def main():
     import importlib.metadata
     pinned = all(importlib.util.find_spec(p.split("==")[0]) and
                  importlib.metadata.version(p.split("==")[0]) == p.split("==")[1] for p in GIS_PACKAGES)
-    if args.build and not args.worker and not pinned:
+    if (args.build or (args.reconcile and not (args.review_workbook or args.inspect_workbook or args.verify))) and not args.worker and not pinned:
         r = subprocess.run(worker_args(), capture_output=True, text=True,
                            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
         _, out = folders(args.root)
-        (out / "phase2_gis_conversion.log").write_text(r.stdout + r.stderr, encoding="utf-8")
+        (out / ("phase2_reconciliation_conversion.log" if args.reconcile else "phase2_gis_conversion.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
         print(r.stdout + r.stderr, flush=True)
         r.check_returncode()
         return
@@ -753,10 +1046,13 @@ def main():
         acquire(args.root)
     if args.build:
         build(args.root)
+    if args.reconcile and not (args.review_workbook or args.inspect_workbook or args.verify):
+        reconcile(args.root)
     if args.review_workbook or args.inspect_workbook:
-        review_workbook(args.root, args.inspect_workbook)
+        review_workbook(args.root, args.inspect_workbook, args.reconcile)
     if args.verify:
-        verify_outputs(args.root)
+        if args.reconcile: verify_reconciliation(args.root)
+        else: verify_outputs(args.root)
 
 
 if __name__ == "__main__":
