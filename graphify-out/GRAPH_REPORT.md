@@ -1,16 +1,16 @@
-# Graph Report - Advancing-Justice-Uganda-LC  (2026-10-03)
+# Graph Report - Advancing-Justice-Uganda-LC  (2026-10-16)
 
 ## Corpus Check
-- 54 files · ~1,731,083 words
+- 54 files · ~1,733,921 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 773 nodes · 939 edges · 77 communities (53 shown, 24 thin omitted)
-- Extraction: 91% EXTRACTED · 9% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
+- 779 nodes · 963 edges · 77 communities (53 shown, 24 thin omitted)
+- Extraction: 91% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `80c7dfc2`
+- Built from commit: `bbebab78`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -95,15 +95,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `Dropbox corpus snapshot 31 August 2026` - 115 edges
-2. `folders()` - 20 edges
-3. `Institutional functioning and operational readiness` - 17 edges
-4. `sha()` - 16 edges
-5. `coverage()` - 16 edges
-6. `main()` - 16 edges
-7. `write_json()` - 15 edges
-8. `reconcile()` - 15 edges
-9. `Average baseline scores across core domains` - 15 edges
-10. `build()` - 14 edges
+2. `folders()` - 22 edges
+3. `sha()` - 18 edges
+4. `main()` - 18 edges
+5. `write_json()` - 17 edges
+6. `Institutional functioning and operational readiness` - 17 edges
+7. `coverage()` - 16 edges
+8. `saved_path()` - 15 edges
+9. `reconcile()` - 15 edges
+10. `Average baseline scores across core domains` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Village Dispute Mediation in China, 2002-10: An Enduring Institution amid Rural Change` --semantically_similar_to--> `Local Council justice capacity`  [INFERRED] [semantically similar]
@@ -290,8 +290,8 @@ Cohesion: 0.04
 Nodes (44): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+36 more)
 
 ### Community 59 - "6 Phase2_Geospatial_Frame.py"
-Cohesion: 0.15
-Nodes (50): acquire(), acquire_coverage(), build(), coverage(), coverage_key(), extract_mpk(), extract_zip(), fetch() (+42 more)
+Cohesion: 0.13
+Nodes (56): acquire(), acquire_coverage(), build(), coverage(), coverage_key(), extract_mpk(), extract_zip(), fetch() (+48 more)
 
 ### Community 60 - "phase1_baseline_origin_comparison_1bd5bc75.md"
 Cohesion: 0.17

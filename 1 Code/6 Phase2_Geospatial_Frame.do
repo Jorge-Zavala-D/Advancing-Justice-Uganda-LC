@@ -1,4 +1,4 @@
-/* Phase 2 Milestones 2-6: reproducible geographic reference, not RCT assignment.
+/* Phase 2 Milestones 2-7: reproducible geographic reference, not RCT assignment.
    Execute this entry point ONLY through stata_run_selection MCP.
    External source files and all geographic outputs are stored in Dropbox.
    Python is limited to HTTP/format conversion/geometric QA; final inputs,
@@ -11,8 +11,8 @@ if `"`project_root'"' == "" {
     local project_root "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice"
 }
 if `"`companion'"' == "" local companion "`c(pwd)'/1 Code/6 Phase2_Geospatial_Frame.py"
-if !inlist(`"`mode'"', "", "build", "acquire", "reconcile", "neighbors", "auditfix", "coverage", "verification") {
-    di as error "Unknown Phase2 mode. Use build, acquire, reconcile, neighbors, auditfix, coverage or verification."
+if !inlist(`"`mode'"', "", "build", "acquire", "reconcile", "neighbors", "auditfix", "coverage", "verification", "official") {
+    di as error "Unknown Phase2 mode. Use build, acquire, reconcile, neighbors, auditfix, coverage, verification or official."
     exit 198
 }
 local original_cwd "`c(pwd)'"
@@ -26,6 +26,7 @@ if `"`mode'"' == "neighbors" local validation_log "phase2_neighbor_validation.lo
 if `"`mode'"' == "auditfix" local validation_log "phase2_metadata_import_correction.log"
 if `"`mode'"' == "coverage" local validation_log "phase2_coverage_validation.log"
 if `"`mode'"' == "verification" local validation_log "phase2_verification_validation.log"
+if `"`mode'"' == "official" local validation_log "phase2_official_validation.log"
 log using "`output'/`validation_log'", name(phase2geo) text replace
 preserve
 clear all // Release native Sp/Mata file caches from prior runs; preserved data are restored at exit.
@@ -57,6 +58,193 @@ module["repair_inventory_receipt"](Path(Macro.getLocal("project_root")), Macro.g
 end
     restore
     log close phase2geo
+    exit
+}
+/* M7: pinned received UBOS polygons / MoLG list. This mode is offline and
+   does not rerun M1-M6, change accepted identities, or assign treatment.
+   Reproduce through Stata MCP:
+   do "1 Code/6 Phase2_Geospatial_Frame.do" "<Dropbox project root>" "official"
+*/
+if `"`mode'"' == "official" {
+    python:
+import sys, runpy
+from sfi import Macro
+sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"), "--official"]
+runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
+end
+    import excel using "`project_root'/3 Data/1 Raw/Secondary data/Phase2_Geospatial_Sources/received_20261016/Uganda Administrative Units for MoLG Final_2023.xlsx", ///
+        sheet("Sheet1") cellrange(A5:G71218) allstring clear
+    assert _N == 71214
+    rename (A B C D E F G) (raw_region raw_district raw_county raw_constituency raw_subcounty raw_parish raw_village)
+    gen long source_excel_row = _n + 4
+    isid source_excel_row
+    save "`output'/phase2_molg_raw_import.dta", replace
+
+    local official_tables phase2_molg_admin_list phase2_molg_study_list phase2_ubos_villages ///
+        phase2_official_admin_crosswalk phase2_official_source_differences ///
+        phase2_study_ubos_linkage phase2_study_ubos_candidates phase2_official_identity_review phase2_official_link_audit ///
+        phase2_official_neighbor_edges phase2_official_neighbor_coverage phase2_official_shared_candidates
+    foreach stem of local official_tables {
+        import delimited using "`output'/`stem'.csv", delimiters(",") varnames(1) ///
+            encoding(utf8) stringcols(_all) bindquotes(strict) maxquotedrows(1000) clear
+        foreach v in geo_id adjudicated_geo_id candidate_geo_id molg_excel_row source_excel_row parent_layout_review ///
+            ref_lon ref_lat area_km2 extent_edge outer_border_m edge_distance_m nonsettlement_review ///
+            current_boundary_certified rct_geographic_release original100_flag same_name same_subcounty ///
+            same_parish name_similarity accepted_link hist_point_inside molg_corroborated same_district ///
+            identity_candidate_rows name_candidates same_sc_name_candidates same_parish_name_candidates best_name_similarity ///
+            candidate_phase1_known candidate_new100_known candidate_nonsettlement candidate_extent_edge ///
+            point_distance_m polygon_distance_m shared_border_m overlap_area_m2 queen_exact rook_exact ///
+            short_border_review point_le_1000m point_le_2000m point_le_3000m point_le_5000m ///
+            anchor_extent_edge within_5km_of_extent candidate_count queen_exact_n rook_exact_n ///
+            point_1000m_n point_2000m_n point_3000m_n point_5000m_n anchor_count {
+            capture confirm variable `v'
+            if !_rc destring `v', replace
+        }
+        capture confirm variable rct_geographic_release
+        if !_rc assert rct_geographic_release == 0
+        capture confirm variable current_boundary_certified
+        if !_rc assert current_boundary_certified == 0
+        if "`stem'" == "phase2_molg_admin_list" {
+            assert _N == 71214
+            isid source_excel_row
+        }
+        if "`stem'" == "phase2_molg_study_list" {
+            assert _N == 1483
+            assert parent_layout_review == 0
+        }
+        if "`stem'" == "phase2_ubos_villages" {
+            assert _N == 1479
+            isid geo_id
+            isid ubos_lc_uid
+            isid district subcounty parish village
+            assert inrange(ref_lon,29,31) & inrange(ref_lat,-1,0)
+            assert area_km2 > 0
+        }
+        if "`stem'" == "phase2_study_ubos_linkage" {
+            assert _N == 258
+            isid reference_row_id
+            count if original100_flag == 1
+            assert r(N) == 100
+            count if reference_group == "PROJECT_PHASE1"
+            assert r(N) == 130
+            assert !missing(geo_id) if linkage_status == "SOURCE_LINK_CONFIRMED"
+            assert missing(geo_id) if linkage_status != "SOURCE_LINK_CONFIRMED"
+            assert mentor_status == "NOT_ASSESSED" & eligibility_status == "NOT_APPROVED"
+            // Independent documentary fixtures: mapped LC row 9 and sampling-source row 157.
+            count if reference_group == "PROJECT_PHASE1" & village == "KITAGATA" & geo_id == 406
+            assert r(N) == 1
+            count if reference_group == "PROJECT_PHASE1" & village == "KIZIRA CELL" & geo_id == 573
+            assert r(N) == 1
+        }
+        if "`stem'" == "phase2_study_ubos_candidates" isid reference_row_id candidate_geo_id
+        if "`stem'" == "phase2_official_link_audit" {
+            assert _N == 87
+            isid reference_row_id
+            assert inlist(decision,"RESOLVE_DOCUMENTARY","NEEDS_CONFIRMATION")
+            assert geo_id == adjudicated_geo_id & !missing(geo_id) if decision == "RESOLVE_DOCUMENTARY"
+            assert missing(geo_id) & confirmation_question != "" if decision == "NEEDS_CONFIRMATION"
+        }
+        if "`stem'" == "phase2_official_neighbor_edges" {
+            isid geo_id candidate_geo_id
+            assert geo_id != candidate_geo_id
+            assert inrange(polygon_distance_m,0,5000.000001)
+            assert overlap_area_m2 <= 0.000001
+            assert rook_exact <= queen_exact
+            assert shared_border_m > 0 if rook_exact == 1
+        }
+        if "`stem'" == "phase2_official_neighbor_coverage" {
+            assert _N == 130
+            isid phase1_uid
+            assert missing(candidate_count,queen_exact_n,rook_exact_n) if missing(geo_id)
+        }
+        foreach forbidden in respondent_name chairperson_name phone telephone uuid submission_key assigned_wave treatment mentor_selected {
+            capture confirm variable `forbidden'
+            assert _rc != 0
+        }
+        save "`output'/`stem'.dta", replace
+    }
+    use "`output'/phase2_molg_admin_list.dta", clear
+    merge 1:1 source_excel_row using "`output'/phase2_molg_raw_import.dta", assert(match) nogen
+    assert village == ustrtrim(raw_village)
+    count if inlist(district,"BUSHENYI","RUBIRIZI","SHEEMA")
+    assert r(N) == 1483
+
+    cd "`output'/gis"
+    spshape2dta ubos_received_wgs84, saving(ubos_received_native) replace
+    use ubos_received_native, clear
+    assert _N == 1479
+    isid _ID
+    isid DCode CCode SCode PCode LCCode
+    spset, modify coordsys(latlong, kilometers)
+    save ubos_received_native, replace
+    spset
+    use ubos_received_native_shp, clear
+    assert _N == 155000
+    assert missing(_X) == missing(_Y)
+    assert inrange(_X,29,31) & inrange(_Y,-1,0) if !missing(_X,_Y)
+
+    use "`output'/phase2_study_ubos_linkage.dta", clear
+    keep if reference_group == "PROJECT_PHASE1"
+    isid phase1_uid
+    keep phase1_uid district subcounty parish village geo_id
+    rename (district subcounty parish village) (anchor_district anchor_subcounty anchor_parish anchor_village)
+    tempfile official_anchors
+    save `official_anchors'
+    keep if !missing(geo_id)
+    isid geo_id
+    keep phase1_uid geo_id
+    joinby geo_id using "`output'/phase2_official_neighbor_edges.dta"
+    merge m:1 phase1_uid using `official_anchors', keep(master match) generate(anchor_merge)
+    assert anchor_merge == 3 // Unresolved anchors may remain using-only, never master-only.
+    drop anchor_merge
+    merge m:1 phase1_uid using "`output'/phase2_official_neighbor_coverage.dta", ///
+        keepusing(anchor_extent_edge within_5km_of_extent) keep(master match) generate(coverage_merge)
+    assert coverage_merge == 3
+    drop coverage_merge
+    isid phase1_uid candidate_geo_id
+    assert geo_id != candidate_geo_id
+    assert rct_geographic_release == 0
+    gen str24 eligibility_status = "NOT_APPROVED"
+    gen str24 ownership_status = "NOT_ASSIGNED"
+    gen str24 mentor_status = "NOT_ASSESSED"
+    gen str24 travel_status = "NOT_VERIFIED"
+    label variable point_distance_m "Derived interior-point distance (metres); not GPS or travel distance"
+    label variable candidate_phase1_known "Known Phase1 LC link; lower bound while identities are unresolved"
+    label variable queen_exact "Exact boundary or vertex contact; not approved eligibility"
+    label variable rook_exact "Exact contact with positive shared border; not approved eligibility"
+    sort phase1_uid candidate_geo_id
+    save "`output'/phase2_candidate_neighbor_frame.dta", replace
+    export delimited using "`output'/phase2_candidate_neighbor_frame.csv", replace quote
+
+    use "`output'/phase2_study_ubos_linkage.dta", clear
+    keep if reference_group == "PROJECT_PHASE1" & !missing(geo_id)
+    merge m:1 geo_id using "`output'/phase2_ubos_villages.dta", keep(master match) generate(point_merge) keepusing(ref_lon ref_lat)
+    assert point_merge == 3
+    drop point_merge
+    rename (ref_lon ref_lat) (_X _Y)
+    gen byte map_layer = 2
+    append using "`output'/gis/ubos_received_native_shp.dta"
+    replace map_layer = 1 if missing(map_layer)
+    gen long source_vertex_order = _n
+    sort map_layer source_vertex_order
+    twoway (line _Y _X if map_layer == 1, cmissing(n) lcolor(gs11) lwidth(vthin)) ///
+        (scatter _Y _X if map_layer == 2, msymbol(O) mcolor("187 109 31") msize(small)), ///
+        title("Received UBOS village/cell geography", size(medium)) ///
+        subtitle("Bushenyi, Rubirizi and Sheema: confirmed study-source links", size(small)) ///
+        legend(order(1 "Received polygon boundaries" 2 "Source-linked Phase1 LC interior points") rows(2) size(small) position(6)) ///
+        xtitle("Longitude (WGS84)") ytitle("Latitude (WGS84)") aspectratio(.85) ///
+        note("UBOS delivery: 15 October 2026; boundary reference date pending. Points are derived, not survey GPS." ///
+             "Unresolved identities remain in the linkage ledger. No mentor selection or randomization.", size(vsmall)) ///
+        graphregion(color(white)) plotregion(color(white)) name(phase2official, replace)
+    graph export "`output'/phase2_official_mapping_ALL.png", width(2400) replace
+    python:
+sys.argv = [Macro.getLocal("companion"), "--root", Macro.getLocal("project_root"), "--official", "--verify"]
+runpy.run_path(Macro.getLocal("companion"), run_name="__main__")
+end
+    cd "`original_cwd'"
+    restore
+    log close phase2geo
+    display as result "Official-source integration and candidate-neighbor frame verified. NOT an RCT release."
     exit
 }
 python:

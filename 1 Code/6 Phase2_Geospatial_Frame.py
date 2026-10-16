@@ -1,4 +1,4 @@
-"""Milestones 2-6 geographic source conversion and review, called from Stata.
+"""Milestones 2-7 geographic source conversion and review, called from Stata.
 
 Raw responses, archives and derived geography stay in Dropbox. This companion
 does not select mentors, approve final neighbor eligibility, or allocate treatment. Stata owns
@@ -2406,6 +2406,493 @@ current LC1 geography.
     print("M6 native inputs and shapes verified; 26 accepted workbook tabs and Phase1 inputs unchanged. Local frame remains pending.",flush=True)
 
 
+def molg_rows(path):
+    """Flatten the received hierarchy without treating marginal flags as regions."""
+    ns = {"s": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+    fields = ("region", "district", "county", "constituency", "subcounty", "parish", "village")
+    with zipfile.ZipFile(path) as z:
+        assert z.testzip() is None
+        assert not any("externalLinks/" in n or "vbaProject" in n for n in z.namelist())
+        strings = ["".join(e.itertext()) for e in ET.fromstring(z.read("xl/sharedStrings.xml")).findall("s:si", ns)]
+        records, parents = [], [""] * 6
+        for row in ET.fromstring(z.read("xl/worksheets/sheet1.xml")).findall("s:sheetData/s:row", ns):
+            number = int(row.attrib["r"])
+            if number < 5:
+                continue
+            values = [""] * 11
+            for cell in row.findall("s:c", ns):
+                assert cell.find("s:f", ns) is None and cell.attrib.get("t") != "e", "Unexpected formula/error in received list"
+                letters = re.match(r"[A-Z]+", cell.attrib["r"])[0]
+                col = 0
+                for char in letters:
+                    col = col * 26 + ord(char) - 64
+                v = cell.find("s:v", ns)
+                text = "" if v is None else v.text or ""
+                if cell.attrib.get("t") == "s":
+                    text = strings[int(text)]
+                elif cell.attrib.get("t") == "inlineStr":
+                    text = "".join(cell.find("s:is", ns).itertext())
+                if col <= len(values):
+                    values[col - 1] = text.strip()
+            for j, value in enumerate(values[:6]):
+                if value and not (j == 0 and value.upper() in ("REFUGEE HOST DISTRICT", "ISLANDS")):
+                    parents[j] = value
+                    if j > 0:
+                        parents[j + 1:] = [""] * (5 - j)
+            if values[6]:
+                records.append(dict(zip(fields, [*parents, values[6]]), source_excel_row=number,
+                                    source_sheet="Sheet1", parent_layout_review=int(any(not x for x in parents)),
+                                    source_annotation=" | ".join(x for x in values[7:] if x)))
+    return records
+
+
+def official(root):
+    """Integrate received official-source geography; all eligibility remains pending."""
+    import geopandas as gpd
+    import pandas as pd
+    import shapely
+    import importlib.metadata
+    from difflib import SequenceMatcher
+    raw, out = folders(root)
+    received = raw / "received_20261016"
+    workbook = received / "Uganda Administrative Units for MoLG Final_2023.xlsx"
+    archive = received / "Bushenyi_Ribirizi_Sheema Districts.zip"
+    expected = {workbook: "c1c1c87e9753d2322c6439b453db03c2ff6a64d68ee3173e04b598ee9c6d8de4",
+                archive: "178e3a0ad92bcab596900b194abd617b318735e6aa07c20e615ea0b7cd48c44b"}
+    for p, digest in expected.items():
+        assert sha(p) == digest, f"Received source changed: {p}"
+    admin = root / "3 Data/2 Working/Phase2_Administrative_Frame"
+    snapshot = root / "3 Data/1 Raw/Secondary data/Phase2_Administrative_Sources/phase1_geographic_reference.csv"
+    decisions_path = out / "phase2_official_link_decisions_20261016.csv"
+    frozen = out / "audit_20261016_pre_link_adjudication"
+    inputs = [*expected, received / "intake_validation.json", snapshot,
+              admin / "phase2_administrative_village_frame.csv", out / "phase2_village_linkage_register.csv",
+              admin / "project_geographic_reference_rows.csv", admin / "phase2_administrative_source_manifest.json",
+              out / "phase2_reconciled_project_reference.csv", out / "phase2_neighbor_rules.csv",
+              decisions_path, frozen / "phase2_study_ubos_linkage.csv", frozen / "phase2_official_manifest.json",
+              root / "3 Data/2 Working/phase1_baseline_clean_all_records.dta"]
+    pins = {"DROPBOX/" + p.relative_to(root).as_posix(): sha(p) for p in inputs}
+    path = out / "phase2_official_manifest.json"
+    prior = json.loads(path.read_text()) if path.exists() else None
+    if prior:
+        assert all(pins.get(k) == v for k, v in prior["input_sha256"].items()), "Official integration inputs changed; review versions before rerunning"
+    protected = protected_inputs(root)
+    prefixes = ("phase2_official_", "phase2_molg_", "phase2_ubos_villages", "phase2_study_ubos_", "phase2_candidate_neighbor_frame")
+    preserved = {"DROPBOX/" + p.relative_to(root).as_posix(): sha(p) for p in out.iterdir()
+                 if p.is_file() and not p.name.startswith(prefixes)}
+    report_book = root / "4 Deliverables and Presentations/Phase2_Administrative_Village_Census.xlsx"
+    preserved["DROPBOX/" + report_book.relative_to(root).as_posix()] = sha(report_book)
+    records = molg_rows(workbook)
+    assert len(records) == 71214 and len({r["source_excel_row"] for r in records}) == len(records)
+    study = [r for r in records if r["district"] in DISTRICTS]
+    assert Counter(r["district"] for r in study) == {"BUSHENYI": 571, "RUBIRIZI": 293, "SHEEMA": 619}
+    assert all(not r["parent_layout_review"] for r in study)
+    write_csv(out / "phase2_molg_admin_list.csv", records)
+    write_csv(out / "phase2_molg_study_list.csv", study)
+    gis = out / "gis"
+    gis.mkdir(exist_ok=True)
+    with zipfile.ZipFile(archive) as z:
+        assert z.testzip() is None and len(z.infolist()) == 8
+        for member in z.infolist():
+            item = Path(member.filename)
+            assert not item.is_absolute() and ".." not in item.parts
+            suffix = ".shp.xml" if item.name.endswith(".shp.xml") else item.suffix
+            assert suffix in (".shp", ".shx", ".dbf", ".prj", ".cpg", ".sbn", ".sbx", ".shp.xml")
+            (gis / ("ubos_received_wgs84" + suffix)).write_bytes(z.read(member))
+    source = gpd.read_file(gis / "ubos_received_wgs84.shp", engine="pyogrio")
+    assert len(source) == 1479 and source.crs.to_epsg() == 4326
+    assert source.geometry.notna().all() and not source.is_empty.any() and source.is_valid.all()
+    assert source.geom_type.eq("Polygon").all() and source.geometry.to_wkb().is_unique
+    assert Counter(source.District) == {"BUSHENYI": 572, "RUBIRIZI": 293, "SHEEMA": 614}
+    codes = ["DCode", "CCode", "SCode", "PCode", "LCCode"]
+    assert not source[codes].isna().any().any() and not source.duplicated(codes).any()
+    metric = source.to_crs(32736)
+    shapes = metric.geometry.to_numpy()
+    points = metric.representative_point()
+    points_ll = points.to_crs(4326)
+    assert shapely.covers(shapes, points.to_numpy()).all()
+    extent = shapely.union_all(shapes)
+    border = shapely.boundary(extent)
+    features = []
+    for i, row in source.iterrows():
+        features.append(dict(geo_id=i + 1, ubos_lc_uid="UBOS_" + "_".join(str(row[c]) for c in codes),
+            district=row.District, subcounty=row.Sub_County, parish=row.Parish, village=row.LC,
+            ubos_dcode=str(row.DCode), ubos_ccode=str(row.CCode), ubos_scode=str(row.SCode),
+            ubos_pcode=str(row.PCode), ubos_lccode=str(row.LCCode), source_status=row.Status,
+            source_comment="" if pd.isna(row.Comment) else str(row.Comment),
+            ref_lon=float(points_ll.iloc[i].x), ref_lat=float(points_ll.iloc[i].y),
+            area_km2=float(metric.geometry.iloc[i].area / 1e6),
+            extent_edge=int(shapely.intersects(shapes[i], border)),
+            outer_border_m=float(shapely.length(shapely.intersection(shapes[i], border))),
+            edge_distance_m=float(shapely.distance(points.iloc[i], border)),
+            nonsettlement_review=int(str(row.Comment).strip().upper() in ("FOREST", "NATIONAL PARK")),
+            geometry_status="UBOS_RECEIVED_REFERENCE_DATE_PENDING", current_boundary_certified=0,
+            rct_geographic_release=0))
+    assert len({r["ubos_lc_uid"] for r in features}) == len(features)
+    assert len({coverage_key(r) for r in features}) == len(features)
+    write_csv(out / "phase2_ubos_villages.csv", features)
+    spatial = gpd.GeoDataFrame(features, geometry=source.geometry, crs=source.crs)
+    spatial.to_file(gis / "ubos_received_reference.gpkg", layer="village_reference", driver="GPKG", index=False)
+    by_id = {r["geo_id"]: r for r in features}
+    index, molg_index = defaultdict(list), defaultdict(list)
+    for r in features:
+        index[coverage_key(r)].append(r)
+    for r in study:
+        molg_index[coverage_key(r)].append(r)
+    ec = read_csv(admin / "phase2_administrative_village_frame.csv")
+    ecmap = {}
+    ec_crosswalk = []
+    for row in ec:
+        matches = index[coverage_key(row)]
+        gid = matches[0]["geo_id"] if len(matches) == 1 else None
+        ecmap[row["phase2_lc_uid"]] = gid
+        ec_crosswalk.append(dict(ec_lc_uid=row["phase2_lc_uid"], district=row["district"],
+            subcounty=row["subcounty"], parish=row["parish"], village=row["village"], geo_id=gid,
+            match_rule="UNIQUE_FULL_HIERARCHY_ORDINAL" if gid else "UNRESOLVED_SOURCE_CHANGE",
+            current_boundary_certified=0, rct_geographic_release=0))
+    write_csv(out / "phase2_official_admin_crosswalk.csv", ec_crosswalk)
+    discrepancies = []
+    for label, rows, target in (("MOLG_WITHOUT_GIS", study, index), ("GIS_WITHOUT_MOLG", features, molg_index)):
+        for row in rows:
+            if not target[coverage_key(row)]:
+                discrepancies.append(dict(issue=label, district=row["district"], subcounty=row["subcounty"],
+                    parish=row["parish"], village=row["village"], geo_id=row.get("geo_id"),
+                    source_excel_row=row.get("source_excel_row"), disposition="UNRESOLVED_NOT_AN_AUTOMATIC_EXCLUSION"))
+    assert Counter(r["issue"] for r in discrepancies) == {"MOLG_WITHOUT_GIS": 39, "GIS_WITHOUT_MOLG": 35}
+    write_csv(out / "phase2_official_source_differences.csv", discrepancies)
+    refs = read_csv(out / "phase2_village_linkage_register.csv")
+    before_links = read_csv(frozen / "phase2_study_ubos_linkage.csv")
+    target_ids = {r["reference_row_id"] for r in before_links
+                  if r["reference_group"] == "PROJECT_PHASE1" and not r["geo_id"]}
+    decisions = {r["reference_row_id"]: r for r in read_csv(decisions_path)}
+    assert len(target_ids) == len(decisions) == 87 and set(decisions) == target_ids
+    assert len(read_csv(decisions_path)) == 87, "Duplicate adjudication row"
+    for d in decisions.values():
+        assert d["decision"] in ("RESOLVE_DOCUMENTARY", "NEEDS_CONFIRMATION")
+        assert d["source_evidence"] and d["decision_reason"]
+        assert bool(d["adjudicated_geo_id"]) == (d["decision"] == "RESOLVE_DOCUMENTARY")
+        assert d["decision"] == "RESOLVE_DOCUMENTARY" or d["confirmation_question"]
+        assert all(int(g) in by_id for g in d["candidate_geo_ids"].split(";") if g)
+    phase1 = {r["canonical_village_uid"]: r for r in read_csv(snapshot)}
+    assert len(refs) == 258 and len(phase1) == 130
+    assert sum(r["original100_flag"] == "1" for r in refs) == 100
+    def frame_key(row):
+        return "_".join(re.sub(r"[^a-z0-9]+", "_", row[k].strip().lower()).strip("_")
+                        for k in ("district", "subcounty", "parish", "village"))
+    candidates, links, evidence, proof = [], {}, {}, {}
+    name_index = defaultdict(list)
+    for feature in features:
+        name_index[(feature["district"], ordinal_key(feature["village"]))].append(feature)
+    documentary = defaultdict(list)
+    for alias in read_csv(admin / "project_geographic_reference_rows.csv"):
+        if alias["source_id"] not in ("PROJECT_TRACKER", "PROJECT_MAPPED", "PROJECT_SAMPLING"):
+            continue
+        matches = index[coverage_key(alias)]
+        if len(matches) == 1:
+            documentary[(alias["district"], ordinal_key(alias["village"]))].append((matches[0]["geo_id"], alias))
+    ref_name_counts = Counter((r["reference_group"], r["district"], ordinal_key(r["village"])) for r in refs)
+    for row in refs:
+        rid = row["reference_row_id"]
+        hits = {r["geo_id"] for r in index[coverage_key(row)]}
+        direct = bool(hits)
+        chain = ecmap.get(row["ec_lc_uid"])
+        if chain:
+            hits.add(chain)
+        evidence[rid] = "DIRECT_HIERARCHY_AND_EC_CHAIN" if direct and chain else "DIRECT_FULL_HIERARCHY" if direct else "ACCEPTED_EC_CHAIN" if chain else ""
+        proof[rid] = row["source_file"] + " / " + row["source_location"]
+        nk = (row["district"], ordinal_key(row["village"]))
+        aliases = documentary[nk]
+        # A changed parent needs an actual alternative document, never a name-only or fuzzy guess.
+        if (len(name_index[nk]) == 1 and len({g for g, a in aliases}) == 1 and
+                ref_name_counts[(row["reference_group"], *nk)] == 1):
+            doc_gid = aliases[0][0]
+            if not hits:
+                evidence[rid] = "DOCUMENTED_UNIQUE_NAME_HIERARCHY_CHAIN"
+                proof[rid] += "; " + "; ".join(sorted({a["source_id"] + ": " + a["source_file"] + " / " + a["source_location"] for g, a in aliases}))
+            hits.add(doc_gid)
+        links[rid] = hits
+    # Explicit source/cell decisions only: no global fuzzy spelling or split-village acceptance.
+    molg_by_row = {str(r["source_excel_row"]): r for r in study}
+    desk_molg = set()
+    for rid, d in decisions.items():
+        if d["decision"] == "RESOLVE_DOCUMENTARY":
+            gid = int(d["adjudicated_geo_id"])
+            ref = next(r for r in refs if r["reference_row_id"] == rid)
+            assert by_id[gid]["district"] == ref["district"]
+            assert str(gid) in d["candidate_geo_ids"].split(";")
+            molg_row = molg_by_row[d["molg_excel_row"]]
+            comparable_molg = dict(molg_row)
+            if d["molg_parish_variant"]:
+                assert molg_row["parish"] == d["molg_parish_variant"]
+                assert molg_row["parish"].replace("KASANA", "KASAANA") == by_id[gid]["parish"]
+                comparable_molg["parish"] = by_id[gid]["parish"]
+            assert coverage_key(comparable_molg) == coverage_key(by_id[gid]) or (
+                coverage_key(comparable_molg)[:3] == coverage_key(by_id[gid])[:3] and
+                re.sub(r"[^A-Z0-9]", "", molg_row["village"].upper()) ==
+                re.sub(r"[^A-Z0-9]", "", by_id[gid]["village"].upper())), "Desk link lacks MoLG corroboration"
+            desk_molg.add(gid)
+            links[rid].add(gid)
+            evidence[rid] = "DOCUMENTED_DESK_ADJUDICATION"
+            proof[rid] += "; " + d["source_evidence"] + "; " + d["decision_reason"]
+    # The accepted Phase1 snapshot explicitly connects original-frame IDs to selected LC identities.
+    frame_groups = defaultdict(list)
+    for row in refs:
+        fid = frame_key(row) if row["reference_group"] == "PROJECT_FVL" and row["original100_flag"] == "1" else phase1.get(row["phase1_uid"], {}).get("selected100_frame_uid", "")
+        if fid:
+            frame_groups[fid].append(row["reference_row_id"])
+    for group in frame_groups.values():
+        hits = set().union(*(links[rid] for rid in group))
+        for rid in group:
+            if not links[rid] and hits:
+                evidence[rid] = "ACCEPTED_SELECTED_FRAME_ID_CHAIN"
+                proof[rid] += "; accepted frame identity shared with " + "; ".join(sorted(group))
+            links[rid] |= hits
+    # Different study units must never silently collapse onto one source polygon.
+    reverse = defaultdict(list)
+    for row in refs:
+        if len(links[row["reference_row_id"]]) == 1:
+            reverse[(row["reference_group"], next(iter(links[row["reference_row_id"]])))].append(row["reference_row_id"])
+    collisions = {rid for group in reverse.values() if len(group) > 1 for rid in group}
+    ledger = []
+    for row in refs:
+        rid = row["reference_row_id"]
+        hits = links[rid]
+        gid = next(iter(hits)) if len(hits) == 1 and rid not in collisions else None
+        status = "SOURCE_LINK_CONFIRMED" if gid else "CONFLICT_REVIEW" if hits else "IDENTITY_REVIEW_REQUIRED"
+        current = by_id.get(gid, {})
+        ledger.append(dict(reference_row_id=rid, reference_group=row["reference_group"],
+            original100_flag=int(row["original100_flag"]), phase1_uid=row["phase1_uid"],
+            district=row["district"], subcounty=row["subcounty"], parish=row["parish"], village=row["village"],
+            ec_lc_uid=row["ec_lc_uid"], geo_id=gid, ubos_lc_uid=current.get("ubos_lc_uid", ""),
+            linkage_status=status, linkage_rule=evidence[rid] if gid else "NO_FORCED_MATCH",
+            linkage_evidence=proof[rid],
+            source_file=row["source_file"], source_location=row["source_location"],
+            mentor_status="NOT_ASSESSED", eligibility_status="NOT_APPROVED", current_boundary_certified=0,
+            rct_geographic_release=0))
+        pool = [r for r in features if r["district"] == row["district"]]
+        start = len(candidates)
+        historical_point = (shapely.Point(float(row["historical_lon"]), float(row["historical_lat"]))
+                            if row["historical_lon"] and row["historical_lat"] else None)
+        for candidate in pool:
+            same_name = int(ordinal_key(candidate["village"]) == ordinal_key(row["village"]))
+            same_sc = int(ordinal_key(candidate["subcounty"], "subcounty") == ordinal_key(row["subcounty"], "subcounty"))
+            same_parish = int(ordinal_key(candidate["parish"], "parish") == ordinal_key(row["parish"], "parish"))
+            similarity = SequenceMatcher(None, ordinal_key(row["village"]), ordinal_key(candidate["village"])).ratio()
+            if not (same_name or same_sc or same_parish or similarity >= 0.80 or candidate["geo_id"] in hits):
+                continue
+            candidates.append(dict(reference_row_id=rid, candidate_geo_id=candidate["geo_id"],
+                candidate_district=candidate["district"], candidate_subcounty=candidate["subcounty"],
+                candidate_parish=candidate["parish"], candidate_village=candidate["village"],
+                same_name=same_name, same_subcounty=same_sc, same_parish=same_parish,
+                name_similarity=similarity, accepted_link=int(gid == candidate["geo_id"]),
+                hist_point_inside=int(source.geometry.iloc[candidate["geo_id"] - 1].covers(historical_point)) if historical_point is not None else None,
+                molg_corroborated=int(bool(molg_index[coverage_key(candidate)]) or candidate["geo_id"] in desk_molg),
+                candidate_status="SOURCE_LINK_CONFIRMED" if gid == candidate["geo_id"] else "REVIEW_ONLY_NOT_ACCEPTED"))
+        considered = candidates[start:]
+        exact = [c for c in considered if c["same_name"]]
+        review_reason = ("SOURCE_LINK_CONFIRMED" if gid else "SOURCE_LINK_CONFLICT" if hits else
+                         "NO_EXACT_NAME_IN_DISTRICT" if not exact else
+                         "AMBIGUOUS_NAME_PARENT_REVIEW" if len(exact) > 1 else "UNIQUE_NAME_PARENT_MISMATCH")
+        ledger[-1].update(identity_candidate_rows=len(considered), name_candidates=len(exact),
+            same_sc_name_candidates=sum(c["same_subcounty"] for c in exact),
+            same_parish_name_candidates=sum(c["same_parish"] for c in exact),
+            best_name_similarity=max((c["name_similarity"] for c in considered), default=None),
+            review_reason=review_reason)
+        d = decisions.get(rid, {})
+        ledger[-1].update(adjudication_status=d.get("decision", "NOT_TARGETED"),
+            adjudication_evidence=d.get("source_evidence", ""),
+            adjudication_reason=d.get("decision_reason", ""),
+            confirmation_question=d.get("confirmation_question", ""))
+    by_ref = {r["reference_row_id"]: r for r in ledger}
+    for old in before_links:
+        if old["geo_id"]:
+            assert by_ref[old["reference_row_id"]]["geo_id"] == int(old["geo_id"]), "Prior confirmed link changed"
+    audit = []
+    for rid, d in decisions.items():
+        row = by_ref[rid]
+        assert row["geo_id"] == int(d["adjudicated_geo_id"]) if d["adjudicated_geo_id"] else row["geo_id"] is None
+        audit.append(dict(d, district=row["district"], subcounty=row["subcounty"],
+            parish=row["parish"], village=row["village"], phase1_uid=row["phase1_uid"],
+            project_source_file=row["source_file"], project_source_location=row["source_location"],
+            linkage_status=row["linkage_status"], geo_id=row["geo_id"],
+            candidate_paths="; ".join(" / ".join(by_id[int(g)][k] for k in ("district", "subcounty", "parish", "village"))
+                                      for g in d["candidate_geo_ids"].split(";") if g),
+            current_boundary_certified=0, rct_geographic_release=0))
+    audit.sort(key=lambda r: (r["district"], r["subcounty"], r["parish"], r["village"], r["reference_row_id"]))
+    write_csv(out / "phase2_official_link_audit.csv", audit)
+    write_csv(out / "phase2_study_ubos_linkage.csv", ledger)
+    write_csv(out / "phase2_study_ubos_candidates.csv", candidates)
+    unresolved = [r for r in ledger if not r["geo_id"]]
+    write_csv(out / "phase2_official_identity_review.csv", unresolved, list(ledger[0]))
+    project = [r for r in ledger if r["reference_group"] == "PROJECT_PHASE1"]
+    assert len(project) == 130 and len({r["phase1_uid"] for r in project}) == 130
+    known_project = {r["geo_id"] for r in project if r["geo_id"]}
+    known_new100 = {r["geo_id"] for r in ledger if r["original100_flag"] and r["geo_id"]}
+    rules = read_csv(out / "phase2_neighbor_rules.csv")
+    assert len(rules) == 6
+    tree = shapely.STRtree(shapes)
+    edges, overlaps = [], []
+    for i, feature in enumerate(features):
+        for j in sorted(map(int, tree.query(shapes[i], predicate="dwithin", distance=5000))):
+            if j == i:
+                continue
+            other = features[j]
+            contact = bool(shapely.touches(shapes[i], shapes[j]))
+            overlap = float(shapely.area(shapely.intersection(shapes[i], shapes[j]))) if shapely.intersects(shapes[i], shapes[j]) else 0.0
+            if overlap > 1e-6:
+                overlaps.append((i + 1, j + 1, overlap))
+            length = float(shapely.length(shapely.intersection(shapely.boundary(shapes[i]), shapely.boundary(shapes[j])))) if contact else 0.0
+            distance = float(shapely.distance(points.iloc[i], points.iloc[j]))
+            edge = dict(geo_id=i + 1, candidate_geo_id=j + 1, candidate_ubos_uid=other["ubos_lc_uid"],
+                candidate_district=other["district"], candidate_subcounty=other["subcounty"],
+                candidate_parish=other["parish"], candidate_village=other["village"],
+                candidate_source_status=other["source_status"], same_district=int(feature["district"] == other["district"]),
+                candidate_phase1_known=int(j + 1 in known_project), candidate_new100_known=int(j + 1 in known_new100),
+                candidate_nonsettlement=other["nonsettlement_review"], candidate_extent_edge=other["extent_edge"],
+                point_distance_m=distance, polygon_distance_m=float(shapely.distance(shapes[i], shapes[j])),
+                shared_border_m=length, overlap_area_m2=overlap, queen_exact=int(contact), rook_exact=int(contact and length > 0),
+                short_border_review=int(0 < length <= 1), current_boundary_certified=0, rct_geographic_release=0)
+            edge.update({f"point_le_{k}m": int(distance <= k) for k in (1000, 2000, 3000, 5000)})
+            edges.append(edge)
+    assert not overlaps, f"Positive-area overlaps in official source: {overlaps[:10]}"
+    assert len({(r["geo_id"], r["candidate_geo_id"]) for r in edges}) == len(edges)
+    lookup = {(e["geo_id"], e["candidate_geo_id"]): e for e in edges}
+    for e in edges:
+        reverse_edge = lookup[(e["candidate_geo_id"], e["geo_id"])]
+        assert (e["queen_exact"], e["rook_exact"]) == (reverse_edge["queen_exact"], reverse_edge["rook_exact"])
+        assert abs(e["point_distance_m"] - reverse_edge["point_distance_m"]) < 1e-7
+    write_csv(out / "phase2_official_neighbor_edges.csv", edges)
+    by_anchor = defaultdict(list)
+    for edge in edges:
+        by_anchor[edge["geo_id"]].append(edge)
+    coverage, shared = [], []
+    owners = defaultdict(set)
+    for anchor in project:
+        gid = anchor["geo_id"]
+        ff = by_id.get(gid, {})
+        row = dict(phase1_uid=anchor["phase1_uid"], reference_row_id=anchor["reference_row_id"],
+            district=anchor["district"], geo_id=gid, linkage_status=anchor["linkage_status"],
+            anchor_extent_edge=ff.get("extent_edge"),
+            within_5km_of_extent=int(ff["edge_distance_m"] <= 5000) if gid else None,
+            candidate_count=len(by_anchor[gid]) if gid else None,
+            mentor_status="NOT_ASSESSED", neighbors_status="CANDIDATES_NOT_APPROVED" if gid else "UNKNOWN_IDENTITY",
+            rct_geographic_release=0)
+        for rule in rules:
+            eligible = [e for e in by_anchor[gid] if e[rule["edge_flag"]]]
+            row[rule["scenario"] + "_n"] = len(eligible) if gid else None
+            for e in eligible:
+                owners[(rule["scenario"], e["candidate_geo_id"])].add(anchor["phase1_uid"])
+        coverage.append(row)
+    for (scenario, gid), anchors in sorted(owners.items()):
+        if len(anchors) > 1:
+            shared.append(dict(scenario=scenario, candidate_geo_id=gid, candidate_village=by_id[gid]["village"],
+                anchor_count=len(anchors), anchor_ids=";".join(sorted(anchors)),
+                ownership_status="NOT_ASSIGNED", rct_geographic_release=0))
+    write_csv(out / "phase2_official_neighbor_coverage.csv", coverage)
+    write_csv(out / "phase2_official_shared_candidates.csv", shared,
+              ["scenario", "candidate_geo_id", "candidate_village", "anchor_count", "anchor_ids", "ownership_status", "rct_geographic_release"])
+    for table in (features, ec_crosswalk, ledger, candidates, edges, coverage, shared):
+        assert all(len(k) <= 32 for r in table for k in r), "Stata variable name limit"
+    assert all(sha(saved_path(root, p)) == h for p, h in preserved.items()), "Prior milestone output changed"
+    assert protected_inputs(root) == protected
+    write_json(path, dict(milestone="7 Received UBOS/MoLG integration", status="SOURCE_LINKAGE_AND_CANDIDATE_NEIGHBORS_NOT_RCT_RELEASE",
+        built_utc=datetime.now(timezone.utc).isoformat(), input_sha256=pins, preserved_sha256=preserved,
+        protected_inputs_before_after=protected, counts=dict(national_rows=len(records), molg_study_rows=len(study),
+        ubos_polygons=len(features), study_references=len(ledger), phase1_references=len(project), original100_references=100,
+        matched_references=sum(bool(r["geo_id"]) for r in ledger), matched_phase1=sum(bool(r["geo_id"]) for r in project),
+        matched_original100=sum(bool(r["geo_id"]) for r in ledger if r["original100_flag"]), unresolved_references=len(unresolved),
+        investigated_phase1=len(audit), resolved_investigated=sum(r["decision"] == "RESOLVE_DOCUMENTARY" for r in audit),
+        pending_investigated=sum(r["decision"] == "NEEDS_CONFIRMATION" for r in audit),
+        phase1_review_reasons=dict(Counter(r["review_reason"] for r in project)),
+        original100_review_reasons=dict(Counter(r["review_reason"] for r in ledger if r["original100_flag"])),
+        identity_candidates=len(candidates), geometry_edge_pairs=len(edges), queen_pairs=sum(e["queen_exact"] for e in edges) // 2,
+        rook_pairs=sum(e["rook_exact"] for e in edges) // 2, shared_candidate_scenarios=len(shared),
+        expected_project_pairs=sum(len(by_anchor[r["geo_id"]]) for r in project if r["geo_id"])),
+        rules=rules, metric_crs="EPSG:32736", source_crs="EPSG:4326", max_geometry_radius_m=5000,
+        nonsettlement_geometries=sum(r["nonsettlement_review"] for r in features),
+        boundary_reference_date="UNCONFIRMED_REQUESTED_FROM_UBOS", reuse_permission="UNCONFIRMED_PRIVATE_PROJECT_USE_ONLY",
+        linkage_policy="Unique complete-hierarchy ordinal keys; accepted EC/selected-frame chains; source-backed project-document hierarchies and explicit 87-case desk decisions. No fuzzy acceptance, split-suffix guessing or many-to-one collisions; prior confirmed links preserved. Source linkage is not current-boundary certification.",
+        neighbor_policy="Exact queen/rook contact and existing interior-point distance scenarios; none is approved program eligibility",
+        limitations=["Unresolved study identities have missing, not zero, neighbor counts", "Three-district layer cannot enumerate outside-extent neighbors",
+                     "Known Phase1/New100 candidate flags are lower bounds while identities remain unresolved", "Park/forest polygons require eligibility review",
+                     "Polygon interior points are not GPS or travel-time measures", "No mentor assessment, ownership allocation or treatment-wave assignment"],
+        code_sha256=sha(Path(__file__)), runtime={p.split("==")[0]: importlib.metadata.version(p.split("==")[0]) for p in GIS_PACKAGES},
+        stata_import_validation_passed=False, randomization_performed=False, rct_geographic_release=0))
+    print(f"Official integration: {len(features)} polygons; {sum(bool(r['geo_id']) for r in project)}/130 Phase1 references source-linked; unresolved identities retained.", flush=True)
+
+
+def verify_official(root):
+    """Check native imports and Stata's anchor-edge join against independent source tables."""
+    import geopandas as gpd
+    import pandas as pd
+    import numpy as np
+    import shapely
+    _, out = folders(root)
+    path = out / "phase2_official_manifest.json"
+    m = json.loads(path.read_text())
+    if m.get("stata_import_validation_passed"):
+        for p, h in m["product_sha256"].items():
+            assert sha(root / p) == h, f"Previously verified official product changed: {p}"
+    for pins in (m["input_sha256"], m["preserved_sha256"], m["protected_inputs_before_after"]):
+        for p, h in pins.items():
+            assert sha(saved_path(root, p)) == h, f"Protected/input file changed: {p}"
+    stems = ("phase2_molg_admin_list", "phase2_molg_study_list", "phase2_ubos_villages", "phase2_official_admin_crosswalk",
+             "phase2_official_source_differences", "phase2_study_ubos_linkage", "phase2_study_ubos_candidates",
+             "phase2_official_identity_review", "phase2_official_link_audit", "phase2_official_neighbor_edges", "phase2_official_neighbor_coverage",
+             "phase2_official_shared_candidates", "phase2_candidate_neighbor_frame")
+    products = []
+    for stem in stems:
+        csv_rows = pd.read_csv(out / (stem + ".csv"), dtype=str, keep_default_na=False)
+        native = pd.read_stata(out / (stem + ".dta"), convert_categoricals=False)
+        assert len(csv_rows) == len(native) and set(csv_rows.columns) == set(native.columns), stem
+        for column in csv_rows:
+            if pd.api.types.is_numeric_dtype(native[column]):
+                expected = pd.to_numeric(csv_rows[column].replace("", np.nan))
+                assert np.allclose(expected, native[column], atol=1e-8, rtol=1e-12, equal_nan=True), (stem, column)
+            else:
+                assert csv_rows[column].equals(native[column].fillna("").astype(str)), (stem, column)
+        products.extend(out / (stem + suffix) for suffix in (".csv", ".dta"))
+    source = gpd.read_file(out / "gis/ubos_received_wgs84.shp")
+    native = pd.read_stata(out / "gis/ubos_received_native.dta", convert_categoricals=False)
+    assert len(source) == len(native) == 1479
+    for column in source.drop(columns="geometry"):
+        if pd.api.types.is_numeric_dtype(source[column]):
+            assert np.allclose(source[column], native[column], atol=1e-10, rtol=1e-12, equal_nan=True), column
+        else:
+            assert source[column].fillna("").astype(str).equals(native[column].fillna("").astype(str)), column
+    coordinates = pd.read_stata(out / "gis/ubos_received_native_shp.dta", convert_categoricals=False)
+    assert len(coordinates) == 155000
+    xy = coordinates.dropna(subset=["_X", "_Y"])
+    expected_xy = shapely.get_coordinates(source.geometry.to_numpy())
+    assert xy.shape[0] == expected_xy.shape[0] == 153521
+    assert np.allclose(xy[["_X", "_Y"]], expected_xy, rtol=0, atol=1e-12)
+    expected_ids = np.repeat(np.arange(1, len(source) + 1), shapely.get_num_coordinates(source.geometry.to_numpy()))
+    assert np.array_equal(xy._ID, expected_ids), "Coordinate-to-attribute identity shifted"
+    ledger = pd.read_stata(out / "phase2_study_ubos_linkage.dta", convert_categoricals=False)
+    edge = pd.read_stata(out / "phase2_official_neighbor_edges.dta", convert_categoricals=False)
+    anchor = ledger.loc[ledger.reference_group.eq("PROJECT_PHASE1") & ledger.geo_id.notna(), ["phase1_uid", "geo_id"]]
+    expected = anchor.merge(edge, on="geo_id", validate="one_to_many").sort_values(["phase1_uid", "candidate_geo_id"])
+    frame = pd.read_stata(out / "phase2_candidate_neighbor_frame.dta", convert_categoricals=False).sort_values(["phase1_uid", "candidate_geo_id"])
+    assert len(expected) == len(frame) == m["counts"]["expected_project_pairs"]
+    assert not frame.duplicated(["phase1_uid", "candidate_geo_id"]).any()
+    for column in expected:
+        a, b = expected[column].reset_index(drop=True), frame[column].reset_index(drop=True)
+        assert np.allclose(a, b, rtol=1e-12, atol=1e-8, equal_nan=True) if pd.api.types.is_numeric_dtype(a) else a.equals(b), column
+    assert frame.rct_geographic_release.eq(0).all()
+    forbidden = {"respondent_name", "chairperson_name", "phone", "telephone", "uuid", "submission_key", "assigned_wave", "treatment", "mentor_selected"}
+    assert not forbidden.intersection(frame.columns)
+    products += [out / "phase2_molg_raw_import.dta"]
+    products += sorted(p for p in (out / "gis").glob("ubos_received*") if p.is_file())
+    products += [out / "phase2_official_mapping_ALL.png"]
+    assert all(p.is_file() for p in products)
+    m.update(stata_import_validation_passed=True, product_sha256={p.relative_to(root).as_posix(): sha(p) for p in products},
+             native_source_attributes_verified=29, native_coordinates_verified=153521, native_coordinate_rows=155000,
+             code_sha256=sha(Path(__file__)),
+             finalized_utc=datetime.now(timezone.utc).isoformat())
+    write_json(path, m)
+    print("PASS: received sources, all native tables/vertices and Stata candidate-frame join verified; protected inputs unchanged; no randomization.", flush=True)
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--root", type=Path, default=DEFAULT_ROOT)
@@ -2415,23 +2902,24 @@ def main():
     p.add_argument("--neighbors", action="store_true")
     p.add_argument("--coverage", action="store_true")
     p.add_argument("--verification", action="store_true")
+    p.add_argument("--official", action="store_true")
     p.add_argument("--worker", action="store_true", help=argparse.SUPPRESS)
     p.add_argument("--review-workbook", action="store_true")
     p.add_argument("--inspect-workbook", action="store_true")
     p.add_argument("--verify", action="store_true")
     args = p.parse_args()
-    if sum((args.acquire,args.build,args.reconcile,args.neighbors,args.coverage,args.verification)) > 1:
+    if sum((args.acquire,args.build,args.reconcile,args.neighbors,args.coverage,args.verification,args.official)) > 1:
         p.error("Choose one phase mode; source acquisition and builds are separate steps")
     import importlib.metadata
     pinned = all(importlib.util.find_spec(p.split("==")[0]) and
                  importlib.metadata.version(p.split("==")[0]) == p.split("==")[1] for p in GIS_PACKAGES)
     if args.verification:
         pinned = pinned and importlib.util.find_spec("osmium") is not None and importlib.metadata.version("osmium")=="4.3.1"
-    if (args.build or ((args.coverage or args.verification) and args.verify) or ((args.reconcile or args.neighbors or args.coverage or args.verification) and not (args.review_workbook or args.inspect_workbook or args.verify))) and not args.worker and not pinned:
+    if (args.official or args.build or ((args.coverage or args.verification) and args.verify) or ((args.reconcile or args.neighbors or args.coverage or args.verification) and not (args.review_workbook or args.inspect_workbook or args.verify))) and not args.worker and not pinned:
         r = subprocess.run(worker_args(), capture_output=True, text=True,
                            creationflags=subprocess.CREATE_NO_WINDOW if os.name == "nt" else 0)
         _, out = folders(args.root)
-        (out / ("phase2_verification_conversion.log" if args.verification else "phase2_coverage_final_verification.log" if args.coverage and args.verify else "phase2_coverage_conversion.log" if args.coverage else "phase2_neighbor_conversion.log" if args.neighbors else "phase2_reconciliation_conversion.log" if args.reconcile else "phase2_gis_conversion.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
+        (out / ("phase2_official_final_verification.log" if args.official and args.verify else "phase2_official_conversion.log" if args.official else "phase2_verification_conversion.log" if args.verification else "phase2_coverage_final_verification.log" if args.coverage and args.verify else "phase2_coverage_conversion.log" if args.coverage else "phase2_neighbor_conversion.log" if args.neighbors else "phase2_reconciliation_conversion.log" if args.reconcile else "phase2_gis_conversion.log")).write_text(r.stdout + r.stderr, encoding="utf-8")
         print(r.stdout + r.stderr, flush=True)
         r.check_returncode()
         return
@@ -2448,10 +2936,13 @@ def main():
         coverage(args.root)
     if args.verification and not (args.review_workbook or args.inspect_workbook or args.verify):
         verification(args.root)
+    if args.official and not args.verify:
+        official(args.root)
     if args.review_workbook or args.inspect_workbook:
         review_workbook(args.root, args.inspect_workbook, args.reconcile, args.neighbors, args.coverage, args.verification)
     if args.verify:
-        if args.verification: verify_verification(args.root)
+        if args.official: verify_official(args.root)
+        elif args.verification: verify_verification(args.root)
         elif args.coverage: verify_coverage(args.root)
         elif args.neighbors: verify_neighbors(args.root)
         elif args.reconcile: verify_reconciliation(args.root)
