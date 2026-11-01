@@ -7,6 +7,7 @@
 | Sample | Observed LCs from the 100-unit selected Final Village List frame. |
 | JLOS definition | Justice, Law and Order Sector: police, courts, probation/child protection, and related justice-sector authorities. |
 | Interpretation | Descriptive baseline analysis only. These figures do not estimate program impact. |
+| Denominators | Item n or n_* counts nonmissing analyzed values for that measure. Conditional verification does not automatically cover all interviews. See executive denominator_dictionary. |
 ## Sheet: fig36_jlos_snapshot
 | order | indicator | n | value | item_id | indicator_with_n |
 | --- | --- | --- | --- | --- | --- |
@@ -55,8 +56,8 @@
 | 6 | Documentation and feedback | 91 | 44.09340659340659 | 6 | Documentation and feedback (n=91) |
 | 7 | Verified referral record | 63 | 63.09523809523809 | 7 | Verified referral record (n=63) |
 ## Sheet: district_jlos_diagnostic
-| canonical_district | n | prior_formal_coordination | m4_q02_referral_scope_score | police_coordination_score | court_coordination_score | referral_path_conf_score | referral_explain_conf_score | referral_documentation_score | referral_feedback_score | verified_referral_record_score | verified_ref_dest_score | idx_referral_practice | n_referral_reasons | n_referral_barriers | no_major_referral_barriers |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Bushenyi | 41 | 0.8780487775802612 | 0.8441734313964844 | 0.6951219512195121 | 0.63125 | 0.5670731707317073 | 0.524390243902439 | 0.4817073170731707 | 0.41875 | 0.6785714285714286 | 0.6666666666666666 | 0.5891042351722717 | 2.2195122241973877 | 1.7804877758026123 | 0.2195121943950653 |
-| Rubirizi | 28 | 0.9642857313156128 | 0.875 | 0.8214285714285714 | 0.7767857142857143 | 0.6607142857142857 | 0.6785714285714286 | 0.48214285714285715 | 0.48214285714285715 | 0.6923076923076923 | 0.59375 | 0.6684204936027527 | 2.7142856121063232 | 1.3928571939468384 | 0.4285714328289032 |
-| Sheema | 24 | 0.7916666865348816 | 0.8703703880310059 | 0.75 | 0.7380952380952381 | 0.5625 | 0.5833333333333334 | 0.39285714285714285 | 0.3522727272727273 | 0.8214285714285714 | 0.8461538461538461 | 0.5977265238761902 | 2.1666667461395264 | 1.375 | 0.2916666567325592 |
+| canonical_district | prior_formal_coordination | m4_q02_referral_scope_score | police_coordination_score | court_coordination_score | referral_path_conf_score | referral_explain_conf_score | referral_documentation_score | referral_feedback_score | verified_referral_record_score | verified_ref_dest_score | idx_referral_practice | n_referral_reasons | n_referral_barriers | no_major_referral_barriers | n_prior_formal_coordination | n_m4_q02_referral_scope_score | n_police_coordination_score | n_court_coordination_score | n_referral_path_conf_score | n_referral_explain_conf_score | n_referral_documentation_score | n_referral_feedback_score | n_verified_referral_record_score | n_verified_ref_dest_score | n_idx_referral_practice | n_n_referral_reasons | n_n_referral_barriers | n_no_major_referral_barriers |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Bushenyi | 0.8780487775802612 | 0.8441734313964844 | 0.6951219512195121 | 0.63125 | 0.5670731707317073 | 0.524390243902439 | 0.4817073170731707 | 0.41875 | 0.6785714285714286 | 0.6666666666666666 | 0.5891042351722717 | 2.2195122241973877 | 1.7804877758026123 | 0.2195121943950653 | 41 | 41 | 41 | 40 | 41 | 41 | 41 | 40 | 28 | 27 | 41 | 41 | 41 | 41 |
+| Rubirizi | 0.9642857313156128 | 0.875 | 0.8214285714285714 | 0.7767857142857143 | 0.6607142857142857 | 0.6785714285714286 | 0.48214285714285715 | 0.48214285714285715 | 0.6923076923076923 | 0.59375 | 0.6684204936027527 | 2.7142856121063232 | 1.3928571939468384 | 0.4285714328289032 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 13 | 16 | 28 | 28 | 28 | 28 |
+| Sheema | 0.7916666865348816 | 0.8703703880310059 | 0.75 | 0.7380952380952381 | 0.5625 | 0.5833333333333334 | 0.39285714285714285 | 0.3522727272727273 | 0.8214285714285714 | 0.8461538461538461 | 0.5977265238761902 | 2.1666667461395264 | 1.375 | 0.2916666567325592 | 24 | 24 | 22 | 21 | 24 | 24 | 21 | 22 | 14 | 13 | 24 | 24 | 24 | 24 |

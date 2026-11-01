@@ -4,7 +4,12 @@
    are exported. The Python companion builds the administrative reference CSV.
 */
 version 19
-args project_root export_only
+args project_root export_only companion publication_worker python_runtime
+if "`publication_worker'" != "publication_worker" {
+    display as error "Run Phase 2 administrative preparation through the master publication workflow."
+    exit 198
+}
+confirm file "`project_root'/__publication_workspace.json"
 if `"`project_root'"' == "" {
     local project_root "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice"
 }
@@ -44,6 +49,27 @@ if `"`export_only'"' == "export_only" {
 
 capture log close phase2check
 log using "`output'/phase2_administrative_validation.log", name(phase2check) text replace
+* PDF/Excel extraction remains in the existing pinned-capability runtime.
+local extraction_rc 0
+local extraction_error ""
+python:
+import subprocess
+from sfi import Macro
+try:
+    result = subprocess.run([Macro.getLocal("python_runtime"), Macro.getLocal("companion"),
+                             "--root", Macro.getLocal("project_root"), "--build"],
+                            capture_output=True, text=True,
+                            creationflags=subprocess.CREATE_NO_WINDOW)
+    print(result.stdout + result.stderr)
+    Macro.setLocal("extraction_rc", str(result.returncode))
+except Exception as error:
+    Macro.setLocal("extraction_rc", "603")
+    Macro.setLocal("extraction_error", str(error))
+end
+if `extraction_rc' {
+    display as error "Administrative extraction failed; accepted outputs have not been replaced. `extraction_error'"
+    exit 603
+}
 preserve
     import delimited using "`output'/phase2_administrative_village_frame.csv", ///
         varnames(1) stringcols(_all) encoding(utf8) clear

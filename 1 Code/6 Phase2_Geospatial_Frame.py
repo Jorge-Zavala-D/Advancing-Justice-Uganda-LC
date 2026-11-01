@@ -2908,6 +2908,9 @@ def main():
     p.add_argument("--inspect-workbook", action="store_true")
     p.add_argument("--verify", action="store_true")
     args = p.parse_args()
+    owner = args.root / "__publication_workspace.json"
+    if not owner.is_file() or json.loads(owner.read_text())["workspace"] != args.root.resolve().as_posix():
+        p.error("Writing requires a master-owned publication workspace; use the Stata master.")
     if sum((args.acquire,args.build,args.reconcile,args.neighbors,args.coverage,args.verification,args.official)) > 1:
         p.error("Choose one phase mode; source acquisition and builds are separate steps")
     import importlib.metadata

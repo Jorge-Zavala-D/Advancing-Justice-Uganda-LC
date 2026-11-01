@@ -6,7 +6,12 @@
    No Phase 1 source, score, report, randomization or Master file is modified.
 */
 version 19
-args project_root mode companion
+args project_root mode companion publication_worker
+if "`publication_worker'" != "publication_worker" {
+    display as error "Run Phase 2 geographic preparation through the master publication workflow."
+    exit 198
+}
+confirm file "`project_root'/__publication_workspace.json"
 if `"`project_root'"' == "" {
     local project_root "C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice"
 }

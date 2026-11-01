@@ -21,6 +21,7 @@
 *-------------------------------------------------------------------------------*/
 
 version 19
+args work_dir
 clear all
 set more off
 
@@ -49,46 +50,29 @@ if _rc {
     exit 601
 }
 
-* Keep the historical full-cohort archive outputs intact. This run reports the
-* interviewed members of the 100-unit Final Village List selection frame.
-local exec_dir "${output_dir}/Phase1_Baseline_Selected100_Observed"
-local fig_dir_final "`exec_dir'/figures"
-local fig_dir  "`c(tmpdir)'/phase1_baseline_figures"
+* This script builds only a fresh bundle supplied by the master.
+local work_dir = subinstr(`"`work_dir'"', char(92), "/", .)
+local stage_prefix "${output_dir}/Phase1_Baseline_Selected100_Observed.stage-"
+if strpos(`"`work_dir'"', `"`stage_prefix'"') != 1 {
+    display as error "Run the master with run_analysis=1; do not write directly to published outputs."
+    exit 198
+}
+local exec_dir "`work_dir'"
+local fig_dir  "`exec_dir'/figures"
 local tab_dir  "`exec_dir'/tables"
 local log_dir  "`exec_dir'/logs"
+* Refuse reused work directories: a partial older run cannot supply figures.
+mkdir "`fig_dir'"
+mkdir "`tab_dir'"
 
-capture mkdir "`exec_dir'"
-capture mkdir "`fig_dir'"
-capture mkdir "`fig_dir_final'"
-capture mkdir "`tab_dir'"
-capture mkdir "`log_dir'"
-
-local excel_exec_final   "`tab_dir'/phase1_baseline_executive_results.xlsx"
-local excel_items_final  "`tab_dir'/phase1_baseline_all_item_tabulations.xlsx"
-local excel_origin_final "`tab_dir'/phase1_baseline_origin_comparison.xlsx"
-local excel_reg_final    "`tab_dir'/phase1_baseline_regression_results.xlsx"
-local excel_ind_final    "`tab_dir'/phase1_baseline_indicator_table.xlsx"
-local excel_jlos_final   "`tab_dir'/phase1_baseline_jlos_expanded_analysis.xlsx"
-
-* Assemble multi-sheet workbooks in Stata's session directory, then publish each
-* completed workbook once. This avoids intermittent Windows file contention.
-local excel_exec   "`c(tmpdir)'/phase1_baseline_executive_results.xlsx"
-local excel_items  "`c(tmpdir)'/phase1_baseline_all_item_tabulations.xlsx"
-local excel_origin "`c(tmpdir)'/phase1_baseline_origin_comparison.xlsx"
-local excel_reg    "`c(tmpdir)'/phase1_baseline_regression_results.xlsx"
-local excel_ind    "`c(tmpdir)'/phase1_baseline_indicator_table.xlsx"
-local excel_jlos   "`c(tmpdir)'/phase1_baseline_jlos_expanded_analysis.xlsx"
-
-capture erase "`excel_exec'"
-capture erase "`excel_items'"
-capture erase "`excel_origin'"
-capture erase "`excel_reg'"
-capture erase "`excel_ind'"
-capture erase "`excel_jlos'"
-* Preserve the last published results until all current validation succeeds.
-
-capture log close _all
-log using "`log_dir'/phase1_baseline_executive_analysis.log", replace text
+local excel_exec   "`tab_dir'/phase1_baseline_executive_results.xlsx"
+local excel_items  "`tab_dir'/phase1_baseline_all_item_tabulations.xlsx"
+local excel_origin "`tab_dir'/phase1_baseline_origin_comparison.xlsx"
+local excel_reg    "`tab_dir'/phase1_baseline_regression_results.xlsx"
+local excel_ind    "`tab_dir'/phase1_baseline_indicator_table.xlsx"
+local excel_jlos   "`tab_dir'/phase1_baseline_jlos_expanded_analysis.xlsx"
+capture log close baseline_analysis
+log using "`log_dir'/phase1_baseline_executive_analysis.log", replace text name(baseline_analysis)
 
 set scheme plotplain
 graph set window fontface "Arial"
@@ -646,6 +630,13 @@ end
 **# 1. README and analysis metadata
 *------------------------------------------------------------------------------*
 
+* Map count columns in wide tables to their exact source measures.
+tempfile denominator_map
+tempname denominator_post
+postfile `denominator_post' str64 workbook str31 worksheet ///
+    str32 analysis_variable str32 statistic_variable str8 statistic ///
+    str32 n_variable str32 group_variable using `denominator_map', replace
+
 putexcel set "`excel_exec'", replace sheet("README")
 putexcel A1 = "Advancing Justice Uganda - Final Phase 1 Baseline Analysis"
 putexcel A3 = "Purpose"
@@ -678,6 +669,12 @@ putexcel B11 = "`first_interview'"
 
 putexcel A12 = "Last interview date"
 putexcel B12 = "`last_interview'"
+putexcel A13 = "Denominator rule"
+putexcel B13 = "Each n or n_* counts nonmissing analyzed values for its own measure, not all interviews or raw-question eligibility."
+putexcel A14 = "Construction caveat"
+putexcel B14 = "Existing structural-zero, unknown-code and available-component rules are unchanged. Score N is not necessarily the number answering every component."
+putexcel A15 = "Wide-table count mapping"
+putexcel B15 = "See denominator_dictionary for the source of each n_* column, including truncated count-column names."
 putexcel clear
 
 * 1.1 Report-ready sample table
@@ -841,13 +838,15 @@ preserve
     replace domain = "Perceived legitimacy" if domain == "perceived_legitimacy"
     replace domain = "Safeguards" if domain == "safeguards"
     replace domain = "Reintegration norms" if domain == "reintegration_norms"
-    collapse (mean) mean=score, by(domain)
+    collapse (count) n=score (mean) mean=score, by(domain)
+    replace domain = domain + " (n=" + strtrim(string(n, "%9.0f")) + ")"
     graph hbar mean, over(domain, sort(mean) descending label(labsize(small))) ///
         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean baseline score (0-1)") ///
         title("Phase 1 baseline domain dashboard", size(medsmall)) ///
-        note("N=`primary_n' selected-list LCs. Higher scores indicate stronger baseline capacity or practice.", size(vsmall))
+        note("Selected-list interviews: `primary_n'. Nonmissing index-score N shown for each domain." ///
+             "Higher values indicate stronger baseline capacity or practice.", size(vsmall) span)
     graph export "`fig_dir'/fig_02_core_indices_overall.png", width(2800) replace
     graph export "`fig_dir'/fig_02_core_indices_overall.pdf", replace
 restore
@@ -913,6 +912,7 @@ preserve
     gsort -gap_to_full_score
     export excel using "`excel_exec'", sheet("priority_gaps", replace) firstrow(variables)
 
+    replace domain = domain + " (n=" + strtrim(string(n, "%9.0f")) + ")"
     graph hbar gap_to_full_score, over(domain, sort(gap_to_full_score) descending label(labsize(small))) ///
         bar(1, color("211 118 35")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
@@ -924,12 +924,14 @@ preserve
 restore
 
 * 3.4 Mentor-readiness distribution
+quietly count if !missing(idx_p1_base_mentor_ready_proxy)
+local readiness_n = r(N)
 histogram idx_p1_base_mentor_ready_proxy, percent width(.05) start(0) ///
     xline(.75, lpattern(dash)) ///
     xtitle("Baseline mentor-readiness proxy, 0-1") ///
     ytitle("Percent of LC chairpersons") ///
     title("Distribution of baseline mentor-readiness proxy", size(medsmall)) ///
-    note("The 0.75 line is a descriptive flag, not a final mentor eligibility rule.", size(vsmall))
+    note("Nonmissing readiness scores: n=`readiness_n'. The 0.75 line is descriptive, not final mentor eligibility.", size(vsmall))
 graph export "`fig_dir'/fig_05_mentor_readiness_distribution.png", width(2600) replace
 graph export "`fig_dir'/fig_05_mentor_readiness_distribution.pdf", replace
 
@@ -947,8 +949,15 @@ label var readiness_quartile "Quartile of baseline mentor-readiness proxy"
 
 preserve
     keep readiness_quartile `all_indices' `high_flags'
-    collapse (count) n=idx_p1_base_mentor_ready_proxy ///
-        (mean) `all_indices' `high_flags', by(readiness_quartile)
+    local count_spec ""
+    foreach v in `all_indices' `high_flags' {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_executive_results.xlsx") ("readiness_quartiles") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("readiness_quartile")
+    }
+    collapse (count) `count_spec' (mean) `all_indices' `high_flags', by(readiness_quartile)
+    order readiness_quartile `all_indices' `high_flags'
     export excel using "`excel_exec'", sheet("readiness_quartiles", replace) firstrow(variables)
 restore
 
@@ -1002,7 +1011,15 @@ aju_mean_table `chair_profile', sheet("chair_profile") module("LC chairperson pr
 
 preserve
     keep canonical_district `chair_profile'
-    collapse (count) n=idx_respondent_capacity (mean) `chair_profile', by(canonical_district)
+    local count_spec ""
+    foreach v in `chair_profile' {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_executive_results.xlsx") ("chair_profile_district") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("canonical_district")
+    }
+    collapse (count) `count_spec' (mean) `chair_profile', by(canonical_district)
+    order canonical_district `chair_profile'
     export excel using "`excel_exec'", sheet("chair_profile_district", replace) firstrow(variables)
 restore
 
@@ -1036,7 +1053,15 @@ aju_mean_table `institutional_vars', sheet("institutional_function") module("Ins
 
 preserve
     keep canonical_district `institutional_vars'
-    collapse (count) n=idx_institutional_functioning (mean) `institutional_vars', by(canonical_district)
+    local count_spec ""
+    foreach v in `institutional_vars' {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_executive_results.xlsx") ("institutional_by_district") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("canonical_district")
+    }
+    collapse (count) `count_spec' (mean) `institutional_vars', by(canonical_district)
+    order canonical_district `institutional_vars'
     export excel using "`excel_exec'", sheet("institutional_by_district", replace) firstrow(variables)
 restore
 
@@ -1065,15 +1090,30 @@ aju_mean_table `caseload_vars', sheet("caseload_summary") module("Caseload and d
 
 preserve
     keep canonical_district `caseload_vars'
-    collapse (count) n=caseload_3m (mean) `caseload_vars' ///
+    local count_spec ""
+    foreach v in `caseload_vars' {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_executive_results.xlsx") ("caseload_by_district") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("canonical_district")
+    }
+    collapse (count) `count_spec' (mean) `caseload_vars' ///
         (p50) median_caseload_3m=caseload_3m, by(canonical_district)
+    post `denominator_post' ("phase1_baseline_executive_results.xlsx") ("caseload_by_district") ///
+        ("caseload_3m") ("median_caseload_3m") ("median") ("n_caseload_3m") ("canonical_district")
+    order canonical_district `caseload_vars'
     export excel using "`excel_exec'", sheet("caseload_by_district", replace) firstrow(variables)
 restore
 
+quietly count if !missing(caseload_3m)
+local caseload_n = r(N)
+quietly count if !missing(caseload_3m) & caseload_3m <= 15
+local caseload_zoom_n = r(N)
 histogram caseload_3m if !missing(caseload_3m), frequency discrete ///
     xtitle("Cases received in past 3 months") ///
     ytitle("Number of LC chairpersons") ///
-    title("Distribution of 3-month LCC caseload", size(medsmall))
+    title("Distribution of 3-month LCC caseload", size(medsmall)) ///
+    note("Nonmissing 3-month caseload: n=`caseload_n'.", size(vsmall))
 graph export "`fig_dir'/fig_10_caseload_3m_distribution.png", width(2600) replace
 graph export "`fig_dir'/fig_10_caseload_3m_distribution.pdf", replace
 
@@ -1081,7 +1121,7 @@ histogram caseload_3m if !missing(caseload_3m) & caseload_3m <= 15, frequency di
     xtitle("Cases received in past 3 months") ///
     ytitle("Number of LC chairpersons") ///
     title("Distribution of 3-month LCC caseload: 0-15 cases", size(medsmall)) ///
-    note("Display restricted to 0-15 cases; see the full distribution for all observed values.", size(vsmall))
+    note("Displayed n=`caseload_zoom_n' of `caseload_n' nonmissing caseloads; range restricted to 0-15 cases.", size(vsmall))
 graph export "`fig_dir'/fig_10b_caseload_3m_zoom.png", width(2600) replace
 graph export "`fig_dir'/fig_10b_caseload_3m_zoom.pdf", replace
 
@@ -1155,20 +1195,25 @@ preserve
     egen vignette_child    = rowmean(v05_child_q1_correct v05_child_q2_correct v05_child_q3_correct)
     egen vignette_sgbv     = rowmean(v06_sgbv_q1_correct v06_sgbv_q2_correct v06_sgbv_q3_correct)
     keep vignette_*
-    collapse (mean) vignette_*
+    collapse (count) n_vignette_boundary=vignette_boundary n_vignette_family=vignette_family ///
+        n_vignette_child=vignette_child n_vignette_sgbv=vignette_sgbv (mean) vignette_*
     gen id = 1
-    reshape long vignette_, i(id) j(scenario) string
+    reshape long vignette_ n_vignette_, i(id) j(scenario) string
     rename vignette_ mean
+    rename n_vignette_ n
     replace scenario = "Boundary dispute" if scenario == "boundary"
     replace scenario = "Family dispute" if scenario == "family"
     replace scenario = "Child-protection case" if scenario == "child"
     replace scenario = "SGBV case" if scenario == "sgbv"
+    export excel using "`excel_exec'", sheet("vignette_scenarios", replace) firstrow(variables)
+    replace scenario = scenario + " (n=" + strtrim(string(n, "%9.0f")) + ")"
     graph hbar mean, over(scenario, sort(mean) descending label(labsize(small))) ///
         bar(1, color("32 87 129")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
-        ytitle("Mean correct response: classification, action, and actor involvement (0-1)") ///
+        ytitle("Mean scenario score (0-1)") ///
         title("Case-vignette performance", size(medsmall)) ///
-        note("Sensitive cases are shown alongside ordinary disputes to identify safeguarding training needs.", size(vsmall))
+        note("Scenario means cover classification, action and actor involvement; nonmissing scenario-score N shown." ///
+             "Sensitive cases are shown alongside ordinary disputes to identify safeguarding training needs.", size(vsmall) span)
     graph export "`fig_dir'/fig_13_vignette_performance.png", width(2800) replace
     graph export "`fig_dir'/fig_13_vignette_performance.pdf", replace
 restore
@@ -1471,13 +1516,18 @@ preserve
 restore
 
 * 15.3 Scatterplots for selected diagnostic relationships
+quietly count if !missing(idx_p1_base_mentor_ready_proxy, idx_lcc_case_handling_quality)
+local scatter_case_n = r(N)
+quietly count if !missing(idx_p1_base_mentor_ready_proxy, idx_lcc_legitimacy_and_norms)
+local scatter_norms_n = r(N)
 twoway ///
     (scatter idx_p1_base_mentor_ready_proxy idx_lcc_case_handling_quality, msize(small)) ///
     (lfit idx_p1_base_mentor_ready_proxy idx_lcc_case_handling_quality), ///
     xtitle("Case-handling quality") ///
     ytitle("Mentor-readiness proxy") ///
     title("Mentor readiness and case-handling quality", size(medsmall)) ///
-    legend(off)
+    legend(off) ///
+    note("Pairwise observed N=`scatter_case_n'. Part-whole diagnostic: readiness includes case handling.", size(vsmall))
 graph export "`fig_dir'/fig_30_readiness_vs_case_handling.png", width(2400) replace
 graph export "`fig_dir'/fig_30_readiness_vs_case_handling.pdf", replace
 
@@ -1487,7 +1537,8 @@ twoway ///
     xtitle("Legitimacy and reintegration norms") ///
     ytitle("Mentor-readiness proxy") ///
     title("Mentor readiness and legitimacy/norms", size(medsmall)) ///
-    legend(off)
+    legend(off) ///
+    note("Pairwise observed N=`scatter_norms_n'. Part-whole diagnostic: readiness includes legitimacy/norms.", size(vsmall))
 graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.png", width(2400) replace
 graph export "`fig_dir'/fig_31_readiness_vs_legitimacy_norms.pdf", replace
 
@@ -1722,6 +1773,8 @@ putexcel A6 = "Interpretation"
 putexcel B6 = "Descriptive baseline association, not a causal effect of previous contact."
 putexcel A7 = "Recommended use"
 putexcel B7 = "Use as implementation diagnostics in the Phase 1 Final Baseline Report."
+putexcel A8 = "Denominators"
+putexcel B8 = "n_* columns count nonmissing analyzed values separately for each measure. See the executive denominator_dictionary; group sizes are not verification denominators."
 putexcel clear
 
 * Sample by group
@@ -1949,18 +2002,19 @@ preserve
 
     format mean_selected mean_prev diff_prev_minus_selected p_value abs_diff %9.3f
 
+    * Variable names break tied differences without changing the estimates.
     * Full diagnostic table
-    gsort domain -abs_diff
+    gsort domain -abs_diff variable
     export excel using "`excel_origin'", sheet("final_diff_table", replace) firstrow(variables)
 
     * Ranked table across all domains
-    gsort -abs_diff
+    gsort -abs_diff variable domain
     export excel using "`excel_origin'", sheet("ranked_abs_differences", replace) firstrow(variables)
 
     * Parsimonious high-level comparison table for the Final Baseline Report
     keep if inlist(domain, "Core composites", "Domain indices", "JLOS/referral collaboration", ///
         "Records and safeguards", "Legitimacy and reintegration", "Mentor-readiness flags")
-    gsort -abs_diff
+    gsort -abs_diff variable domain
     export excel using "`excel_origin'", sheet("report_core_comparisons", replace) firstrow(variables)
 restore
 
@@ -1994,21 +2048,21 @@ graph export "`fig_dir'/fig_32_origin_core_composites.png", width(2600) replace
 graph export "`fig_dir'/fig_32_origin_core_composites.pdf", replace
 
 preserve
-    keep p1_admin_previously_contacted ///
-        idx_lcc_operational_capacity ///
-        idx_lcc_case_handling_quality ///
-        idx_lcc_legitimacy_and_norms ///
-        idx_p1_base_mentor_ready_proxy
-
-    collapse (count) n=idx_p1_base_mentor_ready_proxy ///
-        (mean) idx_lcc_operational_capacity ///
-               idx_lcc_case_handling_quality ///
-               idx_lcc_legitimacy_and_norms ///
-               idx_p1_base_mentor_ready_proxy, ///
-        by(p1_admin_previously_contacted)
-
+    keep p1_admin_previously_contacted idx_lcc_operational_capacity idx_lcc_case_handling_quality ///
+        idx_lcc_legitimacy_and_norms idx_p1_base_mentor_ready_proxy
+    local count_spec ""
+    foreach v in idx_lcc_operational_capacity idx_lcc_case_handling_quality idx_lcc_legitimacy_and_norms ///
+        idx_p1_base_mentor_ready_proxy {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_origin_comparison.xlsx") ("fig32_core_composites") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("p1_admin_previously_contacted")
+    }
+    collapse (count) `count_spec' (mean) idx_lcc_operational_capacity idx_lcc_case_handling_quality ///
+        idx_lcc_legitimacy_and_norms idx_p1_base_mentor_ready_proxy, by(p1_admin_previously_contacted)
     decode p1_admin_previously_contacted, gen(origin_group)
-    order p1_admin_previously_contacted origin_group n
+    order p1_admin_previously_contacted origin_group idx_lcc_operational_capacity idx_lcc_case_handling_quality ///
+        idx_lcc_legitimacy_and_norms idx_p1_base_mentor_ready_proxy
     export excel using "`excel_origin'", sheet("fig32_core_composites", replace) firstrow(variables)
 restore
 
@@ -2022,6 +2076,15 @@ restore
 *   "Pre-exposure differences are clearest in justice-sector collaboration"
 *------------------------------------------------------------------------------*
 
+* Count plotted scores within each origin group without changing the universe.
+local jlos_item = 0
+foreach v in prior_formal_coordination police_coordination_score court_coordination_score referral_path_conf_score referral_explain_conf_score referral_feedback_score verified_referral_record_score {
+    local ++jlos_item
+    quietly count if p1_admin_previously_contacted == 0 & !missing(`v')
+    local item_n = r(N)
+    quietly count if p1_admin_previously_contacted == 1 & !missing(`v')
+    local jlos_n`jlos_item' "`item_n'/`r(N)'"
+}
 graph bar (mean) ///
     prior_formal_coordination ///
     police_coordination_score ///
@@ -2044,34 +2107,33 @@ graph bar (mean) ///
                  6 "Feedback after referral" ///
                  7 "Verified referral records") ///
            cols(2) position(6) ring(1) size(vsmall)) ///
-    note("Selected-list N=`primary_n'; previous-contact N=`legacy_n'; item N varies." ///
-         "Descriptive association, not a causal effect. Verification is conditional on observable records.", size(vsmall) span)
+    note("Nonmissing item N (selected / previous): prior coordination `jlos_n1'; police `jlos_n2'; courts `jlos_n3'." ///
+         "Where to refer `jlos_n4'; explain referral `jlos_n5'; feedback `jlos_n6'; verified records `jlos_n7'." ///
+         "Descriptive association, not causal. Verification is conditional on observable records.", size(vsmall) span)
 
 graph export "`fig_dir'/fig_33_origin_jlos_collaboration.png", width(2800) replace
 graph export "`fig_dir'/fig_33_origin_jlos_collaboration.pdf", replace
 
 preserve
-    keep p1_admin_previously_contacted ///
-        prior_formal_coordination ///
-        police_coordination_score ///
-        court_coordination_score ///
-        referral_path_conf_score ///
-        referral_explain_conf_score ///
-        referral_feedback_score ///
+    keep p1_admin_previously_contacted prior_formal_coordination police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score referral_feedback_score ///
         verified_referral_record_score
-
-    collapse (count) n=prior_formal_coordination ///
-        (mean) prior_formal_coordination ///
-               police_coordination_score ///
-               court_coordination_score ///
-               referral_path_conf_score ///
-               referral_explain_conf_score ///
-               referral_feedback_score ///
-               verified_referral_record_score, ///
-        by(p1_admin_previously_contacted)
-
+    local count_spec ""
+    foreach v in prior_formal_coordination police_coordination_score court_coordination_score ///
+        referral_path_conf_score referral_explain_conf_score referral_feedback_score ///
+        verified_referral_record_score {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_origin_comparison.xlsx") ("fig33_jlos_collaboration") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("p1_admin_previously_contacted")
+    }
+    collapse (count) `count_spec' (mean) prior_formal_coordination police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score referral_feedback_score ///
+        verified_referral_record_score, by(p1_admin_previously_contacted)
     decode p1_admin_previously_contacted, gen(origin_group)
-    order p1_admin_previously_contacted origin_group n
+    order p1_admin_previously_contacted origin_group prior_formal_coordination police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score referral_feedback_score ///
+        verified_referral_record_score
     export excel using "`excel_origin'", sheet("fig33_jlos_collaboration", replace) firstrow(variables)
 restore
 
@@ -2139,25 +2201,21 @@ graph export "`fig_dir'/fig_34_origin_priority_gaps.png", width(2800) replace
 graph export "`fig_dir'/fig_34_origin_priority_gaps.pdf", replace
 
 preserve
-    keep p1_admin_previously_contacted ///
-        gap_perceived_legitimacy ///
-        gap_record_quality ///
-        gap_reintegration_norms ///
-        gap_referral_practice ///
-        gap_safeguards ///
-        gap_case_handling
-
-    collapse (count) n=gap_case_handling ///
-        (mean) gap_perceived_legitimacy ///
-               gap_record_quality ///
-               gap_reintegration_norms ///
-               gap_referral_practice ///
-               gap_safeguards ///
-               gap_case_handling, ///
-        by(p1_admin_previously_contacted)
-
+    keep p1_admin_previously_contacted gap_perceived_legitimacy gap_record_quality gap_reintegration_norms ///
+        gap_referral_practice gap_safeguards gap_case_handling
+    local count_spec ""
+    foreach v in gap_perceived_legitimacy gap_record_quality gap_reintegration_norms gap_referral_practice ///
+        gap_safeguards gap_case_handling {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_origin_comparison.xlsx") ("fig34_priority_gaps") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("p1_admin_previously_contacted")
+    }
+    collapse (count) `count_spec' (mean) gap_perceived_legitimacy gap_record_quality gap_reintegration_norms ///
+        gap_referral_practice gap_safeguards gap_case_handling, by(p1_admin_previously_contacted)
     decode p1_admin_previously_contacted, gen(origin_group)
-    order p1_admin_previously_contacted origin_group n
+    order p1_admin_previously_contacted origin_group gap_perceived_legitimacy gap_record_quality ///
+        gap_reintegration_norms gap_referral_practice gap_safeguards gap_case_handling
     export excel using "`excel_origin'", sheet("fig34_priority_gaps", replace) firstrow(variables)
 restore
 
@@ -2191,21 +2249,17 @@ graph export "`fig_dir'/fig_35_origin_high_readiness_flags.png", width(2600) rep
 graph export "`fig_dir'/fig_35_origin_high_readiness_flags.pdf", replace
 
 preserve
-    keep p1_admin_previously_contacted ///
-        high_operational_capacity ///
-        high_case_handling_quality ///
-        high_legitimacy_norms ///
-        high_mentor_readiness_proxy
-
-    collapse (count) n=high_mentor_readiness_proxy ///
-        (mean) high_operational_capacity ///
-               high_case_handling_quality ///
-               high_legitimacy_norms ///
-               high_mentor_readiness_proxy, ///
-        by(p1_admin_previously_contacted)
-
+    keep p1_admin_previously_contacted `high_flags'
+    local count_spec ""
+    foreach v in `high_flags' {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_origin_comparison.xlsx") ("fig35_high_readiness_flags") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("p1_admin_previously_contacted")
+    }
+    collapse (count) `count_spec' (mean) `high_flags', by(p1_admin_previously_contacted)
     decode p1_admin_previously_contacted, gen(origin_group)
-    order p1_admin_previously_contacted origin_group n
+    order p1_admin_previously_contacted origin_group `high_flags'
     export excel using "`excel_origin'", sheet("fig35_high_readiness_flags", replace) firstrow(variables)
 restore
 
@@ -2457,6 +2511,8 @@ putexcel A5 = "JLOS definition"
 putexcel B5 = "Justice, Law and Order Sector: police, courts, probation/child protection, and related justice-sector authorities."
 putexcel A6 = "Interpretation"
 putexcel B6 = "Descriptive baseline analysis only. These figures do not estimate program impact."
+putexcel A7 = "Denominators"
+putexcel B7 = "Item n or n_* counts nonmissing analyzed values for that measure. Conditional verification does not automatically cover all interviews. See executive denominator_dictionary."
 putexcel clear
 
 *------------------------------------------------------------------------------*
@@ -2588,16 +2644,18 @@ preserve
 
     export excel using "`excel_jlos'", sheet("fig37_referral_reasons", replace) firstrow(variables)
 
+    decode item_id, gen(item_with_n)
+    replace item_with_n = item_with_n + " (n=" + strtrim(string(n, "%9.0f")) + ")"
 graph hbar (asis) value, ///
     bar(1, color("32 87 129")) ///
-    over(item_id, sort(value) descending label(labsize(vsmall))) ///
+    over(item_with_n, sort(value) descending label(labsize(vsmall))) ///
     blabel(bar, format(%4.1f) size(vsmall)) ///
     ylabel(0(20)100, labsize(small)) ///
     ytitle("") ///
 	scheme(plotplain) ///
     title("Reasons for referring cases onward", size(medsmall)) ///
     subtitle("Share of chairpersons selecting each reason", size(small)) ///
-    note("Multiple responses allowed. Observed selected-list baseline sample.", size(vsmall))
+    note("Multiple responses allowed; shares use nonmissing responses for each option. Item N shown.", size(vsmall))
 
 graph export "`fig_dir'/fig_37_jlos_referral_reasons.png", width(2800) replace
 graph export "`fig_dir'/fig_37_jlos_referral_reasons.pdf", replace
@@ -2672,16 +2730,18 @@ preserve
 
     export excel using "`excel_jlos'", sheet("fig38_referral_barriers", replace) firstrow(variables)
 
+    decode item_id, gen(item_with_n)
+    replace item_with_n = item_with_n + " (n=" + strtrim(string(n, "%9.0f")) + ")"
 graph hbar (asis) value, ///
     bar(1, color("211 118 35")) ///
-    over(item_id, sort(value) descending label(labsize(vsmall))) ///
+    over(item_with_n, sort(value) descending label(labsize(vsmall))) ///
     blabel(bar, format(%4.1f) size(vsmall)) ///
     ylabel(0(20)100, labsize(small)) ///
     ytitle("") ///
 	scheme(plotplain) ///
     title("Reported barriers to referral", size(medsmall)) ///
     subtitle("Share of chairpersons selecting each barrier", size(small)) ///
-    note("Multiple responses allowed. Observed selected-list baseline sample.", size(vsmall))
+    note("Multiple responses allowed; shares use nonmissing responses for each option. Item N shown.", size(vsmall))
 
 graph export "`fig_dir'/fig_38_jlos_referral_barriers.png", width(2800) replace
 graph export "`fig_dir'/fig_38_jlos_referral_barriers.pdf", replace
@@ -2773,40 +2833,32 @@ restore
 *------------------------------------------------------------------------------*
 
 preserve
-    keep canonical_district ///
-        prior_formal_coordination ///
-        m4_q02_referral_scope_score ///
-        police_coordination_score ///
-        court_coordination_score ///
-        referral_path_conf_score ///
-        referral_explain_conf_score ///
-        referral_documentation_score ///
-        referral_feedback_score ///
-        verified_referral_record_score ///
-        verified_ref_dest_score ///
-        idx_referral_practice ///
-        n_referral_reasons ///
-        n_referral_barriers ///
+    keep canonical_district prior_formal_coordination m4_q02_referral_scope_score police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score ///
+        referral_documentation_score referral_feedback_score verified_referral_record_score ///
+        verified_ref_dest_score idx_referral_practice n_referral_reasons n_referral_barriers ///
         no_major_referral_barriers
-
-    collapse ///
-        (count) n=idx_referral_practice ///
-        (mean) prior_formal_coordination ///
-               m4_q02_referral_scope_score ///
-               police_coordination_score ///
-               court_coordination_score ///
-               referral_path_conf_score ///
-               referral_explain_conf_score ///
-               referral_documentation_score ///
-               referral_feedback_score ///
-               verified_referral_record_score ///
-               verified_ref_dest_score ///
-               idx_referral_practice ///
-               n_referral_reasons ///
-               n_referral_barriers ///
-               no_major_referral_barriers, ///
-        by(canonical_district)
-
+    local count_spec ""
+    foreach v in prior_formal_coordination m4_q02_referral_scope_score police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score ///
+        referral_documentation_score referral_feedback_score verified_referral_record_score ///
+        verified_ref_dest_score idx_referral_practice n_referral_reasons n_referral_barriers ///
+        no_major_referral_barriers {
+        local count_var = strtoname("n_`v'")
+        local count_spec `count_spec' `count_var'=`v'
+        post `denominator_post' ("phase1_baseline_jlos_expanded_analysis.xlsx") ("district_jlos_diagnostic") ///
+            ("`v'") ("`v'") ("mean") ("`count_var'") ("canonical_district")
+    }
+    collapse (count) `count_spec' (mean) prior_formal_coordination m4_q02_referral_scope_score ///
+        police_coordination_score court_coordination_score referral_path_conf_score referral_explain_conf_score ///
+        referral_documentation_score referral_feedback_score verified_referral_record_score ///
+        verified_ref_dest_score idx_referral_practice n_referral_reasons n_referral_barriers ///
+        no_major_referral_barriers, by(canonical_district)
+    order canonical_district prior_formal_coordination m4_q02_referral_scope_score police_coordination_score ///
+        court_coordination_score referral_path_conf_score referral_explain_conf_score ///
+        referral_documentation_score referral_feedback_score verified_referral_record_score ///
+        verified_ref_dest_score idx_referral_practice n_referral_reasons n_referral_barriers ///
+        no_major_referral_barriers
     export excel using "`excel_jlos'", sheet("district_jlos_diagnostic", replace) firstrow(variables)
 restore
 
@@ -2864,21 +2916,22 @@ restore
 
 tempfile norms_figure
 tempname nf
-postfile `nf' str80 measure double mean using `norms_figure', replace
+postfile `nf' str80 measure long n double mean using `norms_figure', replace
 foreach v in idx_perceived_legitimacy idx_safeguards idx_reintegration_norms {
     quietly summarize `v', meanonly
     local vl : variable label `v'
-    post `nf' (`"`vl'"') (r(mean))
+    post `nf' (`"`vl'"') (r(N)) (r(mean))
 }
 postclose `nf'
 preserve
     use `norms_figure', clear
+    replace measure = measure + " (n=" + strtrim(string(n, "%9.0f")) + ")"
     graph hbar mean, over(measure, sort(mean) descending label(labsize(small))) ///
         bar(1, color("63 122 120")) blabel(bar, format(%4.2f) size(small)) ///
         yscale(range(0 1)) ylabel(0(.2)1, format(%3.1f) grid) ///
         ytitle("Mean baseline score (0-1)") ///
         title("Legitimacy, safeguards, and reintegration", size(medsmall)) ///
-        note("Legitimacy/reintegration: chairperson perceptions and norms; safeguards also includes scored knowledge.", size(vsmall))
+        note("Legitimacy/reintegration: chairperson perceptions and norms; safeguards also includes scored knowledge.", size(vsmall) span)
     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.png", width(2800) replace
     graph export "`fig_dir'/fig_41_legitimacy_safeguards_reintegration.pdf", replace
 restore
@@ -3559,46 +3612,38 @@ foreach v of local all_indices {
     assert abs(r(sum) - `index_sum`index_counter'') < 1e-10
 }
 
+* Crosswalk for item-specific counts added to wide summary tables.
+postclose `denominator_post'
+preserve
+    use `denominator_map', clear
+    isid workbook worksheet statistic_variable
+    export excel using "`excel_exec'", sheet("denominator_dictionary", replace) firstrow(variables)
+restore
+
 * Observation-level check also detects offsetting changes hidden by equal sums.
 sort submission_key
 cf `all_indices' using `index_snapshot', all
-copy "`excel_exec'" "`excel_exec_final'", replace
-copy "`excel_items'" "`excel_items_final'", replace
-copy "`excel_origin'" "`excel_origin_final'", replace
-copy "`excel_reg'" "`excel_reg_final'", replace
-copy "`excel_ind'" "`excel_ind_final'", replace
-copy "`excel_jlos'" "`excel_jlos_final'", replace
-
-local png_files : dir "`fig_dir'" files "*.png"
-foreach f of local png_files {
-    copy "`fig_dir'/`f'" "`fig_dir_final'/`f'", replace
-}
-local pdf_files : dir "`fig_dir'" files "*.pdf"
-foreach f of local pdf_files {
-    copy "`fig_dir'/`f'" "`fig_dir_final'/`f'", replace
-}
-
-foreach f in "`excel_exec_final'" "`excel_items_final'" "`excel_origin_final'" "`excel_reg_final'" "`excel_ind_final'" "`excel_jlos_final'" {
+foreach f in "`excel_exec'" "`excel_items'" "`excel_origin'" "`excel_reg'" "`excel_ind'" "`excel_jlos'" {
     confirm file `"`f'"'
 }
 foreach f in fig_02_core_indices_overall fig_04_priority_gaps fig_13_vignette_performance ///
     fig_14_adr_mediation fig_15_adr_barriers fig_39_jlos_referral_loop ///
     fig_40_records_committee_constraints fig_41_legitimacy_safeguards_reintegration ///
     fig_42_adjusted_origin_coefficients {
-    confirm file "`fig_dir_final'/`f'.png"
-    confirm file "`fig_dir_final'/`f'.pdf"
+    confirm file "`fig_dir'/`f'.png"
+    confirm file "`fig_dir'/`f'.pdf"
 }
 
-display as result "Final Phase 1 baseline analysis complete: N=" _N
-display as result "Main workbook: `excel_exec_final'"
-display as result "Supplementary workbook: `excel_items_final'"
-display as result "Origin comparison workbook: `excel_origin_final'"
-display as result "Regression workbook: `excel_reg_final'"
-display as result "Indicator workbook: `excel_ind_final'"
-display as result "Figures folder: `fig_dir_final'"
+display as result "Phase 1 baseline staging bundle validated: N=" _N
+display as result "Main workbook: `excel_exec'"
+display as result "Supplementary workbook: `excel_items'"
+display as result "Origin comparison workbook: `excel_origin'"
+display as result "Regression workbook: `excel_reg'"
+display as result "Indicator workbook: `excel_ind'"
+display as result "Figures folder: `fig_dir'"
 display as result "Log file: `log_dir'/phase1_baseline_executive_analysis.log"
 
-log close
+log close baseline_analysis
 
 /*******************************************************************************
 End of file

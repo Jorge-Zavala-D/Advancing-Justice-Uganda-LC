@@ -13,6 +13,9 @@
 | N records | 93 |
 | First interview date | 18may2026 |
 | Last interview date | 28aug2026 |
+| Denominator rule | Each n or n_* counts nonmissing analyzed values for its own measure, not all interviews or raw-question eligibility. |
+| Construction caveat | Existing structural-zero, unknown-code and available-component rules are unchanged. Score N is not necessarily the number answering every component. |
+| Wide-table count mapping | See denominator_dictionary for the source of each n_* column, including truncated count-column names. |
 ## Sheet: sample_report
 | section | measure | statistic | value | denominator |
 | --- | --- | --- | --- | --- |
@@ -182,12 +185,12 @@
 | High-capacity descriptive flags | high_legitimacy_norms | Legitimacy and reintegration norms index >= 0.75 | 93 | 0.0860215053763441 | 0.2819155752658844 | 0 | 0 | 0 | 0 | 1 |
 | High-capacity descriptive flags | high_mentor_readiness_proxy | Baseline mentor-readiness proxy index >= 0.75 | 93 | 0.0967741935483871 | 0.29725250601768494 | 0 | 0 | 0 | 0 | 1 |
 ## Sheet: readiness_quartiles
-| readiness_quartile | n | idx_respondent_capacity | idx_institutional_functioning | idx_legal_classif_knowledge | idx_adr_mediation_practice | idx_referral_practice | idx_record_quality | idx_committee_functioning | idx_perceived_legitimacy | idx_safeguards | idx_reintegration_norms | idx_lcc_operational_capacity | idx_lcc_case_handling_quality | idx_lcc_legitimacy_and_norms | idx_p1_base_mentor_ready_proxy | high_operational_capacity | high_case_handling_quality | high_legitimacy_norms | high_mentor_readiness_proxy |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Q1 lowest readiness | 24 | 0.4467262029647827 | 0.7445312738418579 | 0.692245364189148 | 0.4838162958621979 | 0.49370452761650085 | 0.39227432012557983 | 0.6517914533615112 | 0.472222238779068 | 0.6140046119689941 | 0.5201625823974609 | 0.5961990356445312 | 0.5709426999092102 | 0.49619239568710327 | 0.5275150537490845 | 0.0416666679084301 | 0.0833333358168602 | 0 | 0 |
-| Q2 | 23 | 0.6290890574455261 | 0.7353131771087646 | 0.6553441882133484 | 0.6326087117195129 | 0.5897601842880249 | 0.4625988006591797 | 0.7265797257423401 | 0.58152174949646 | 0.6100543737411499 | 0.5960144996643066 | 0.6414971947669983 | 0.621941864490509 | 0.5887681245803833 | 0.6203240752220154 | 0.08695652335882187 | 0 | 0 | 0 |
-| Q3 | 23 | 0.6672877669334412 | 0.7827898859977722 | 0.6954709887504578 | 0.7272727489471436 | 0.6489173769950867 | 0.5821896195411682 | 0.7695250511169434 | 0.6322463750839233 | 0.6852355003356934 | 0.6512681245803833 | 0.7115014791488647 | 0.689224123954773 | 0.6417572498321533 | 0.6774426698684692 | 0.30434781312942505 | 0.17391304671764374 | 0.043478261679410934 | 0 |
-| Q4 highest readiness | 23 | 0.710869550704956 | 0.7876811623573303 | 0.7850845456123352 | 0.7832015752792358 | 0.7337387800216675 | 0.6669466495513916 | 0.847920298576355 | 0.7355072498321533 | 0.892814040184021 | 0.7150856256484985 | 0.767516016960144 | 0.7987097501754761 | 0.7252964377403259 | 0.7505979537963867 | 0.739130437374115 | 0.782608687877655 | 0.30434781312942505 | 0.3913043439388275 |
+| readiness_quartile | idx_respondent_capacity | idx_institutional_functioning | idx_legal_classif_knowledge | idx_adr_mediation_practice | idx_referral_practice | idx_record_quality | idx_committee_functioning | idx_perceived_legitimacy | idx_safeguards | idx_reintegration_norms | idx_lcc_operational_capacity | idx_lcc_case_handling_quality | idx_lcc_legitimacy_and_norms | idx_p1_base_mentor_ready_proxy | high_operational_capacity | high_case_handling_quality | high_legitimacy_norms | high_mentor_readiness_proxy | n_idx_respondent_capacity | n_idx_institutional_functioning | n_idx_legal_classif_knowledge | n_idx_adr_mediation_practice | n_idx_referral_practice | n_idx_record_quality | n_idx_committee_functioning | n_idx_perceived_legitimacy | n_idx_safeguards | n_idx_reintegration_norms | n_idx_lcc_operational_capacity | n_idx_lcc_case_handling_quality | n_idx_lcc_legitimacy_and_norms | n_idx_p1_base_mentor_ready_proxy | n_high_operational_capacity | n_high_case_handling_quality | n_high_legitimacy_norms | n_high_mentor_readiness_proxy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Q1 lowest readiness | 0.4467262029647827 | 0.7445312738418579 | 0.692245364189148 | 0.4838162958621979 | 0.49370452761650085 | 0.39227432012557983 | 0.6517914533615112 | 0.472222238779068 | 0.6140046119689941 | 0.5201625823974609 | 0.5961990356445312 | 0.5709426999092102 | 0.49619239568710327 | 0.5275150537490845 | 0.0416666679084301 | 0.0833333358168602 | 0 | 0 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 |
+| Q2 | 0.6290890574455261 | 0.7353131771087646 | 0.6553441882133484 | 0.6326087117195129 | 0.5897601842880249 | 0.4625988006591797 | 0.7265797257423401 | 0.58152174949646 | 0.6100543737411499 | 0.5960144996643066 | 0.6414971947669983 | 0.621941864490509 | 0.5887681245803833 | 0.6203240752220154 | 0.08695652335882187 | 0 | 0 | 0 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 |
+| Q3 | 0.6672877669334412 | 0.7827898859977722 | 0.6954709887504578 | 0.7272727489471436 | 0.6489173769950867 | 0.5821896195411682 | 0.7695250511169434 | 0.6322463750839233 | 0.6852355003356934 | 0.6512681245803833 | 0.7115014791488647 | 0.689224123954773 | 0.6417572498321533 | 0.6774426698684692 | 0.30434781312942505 | 0.17391304671764374 | 0.043478261679410934 | 0 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 |
+| Q4 highest readiness | 0.710869550704956 | 0.7876811623573303 | 0.7850845456123352 | 0.7832015752792358 | 0.7337387800216675 | 0.6669466495513916 | 0.847920298576355 | 0.7355072498321533 | 0.892814040184021 | 0.7150856256484985 | 0.767516016960144 | 0.7987097501754761 | 0.7252964377403259 | 0.7505979537963867 | 0.739130437374115 | 0.782608687877655 | 0.30434781312942505 | 0.3913043439388275 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 | 23 |
 ## Sheet: district_diff_tests
 | outcome | label | p_value |
 | --- | --- | --- |
@@ -226,11 +229,11 @@
 | LC chairperson profile | weekly_lc_time_score | Weekly time spent on LC/LCC duties, normalized 0-1 | 93 | 0.2446236559139785 | 0.12213285267353058 | 0 | 0.25 | 0.25 | 0.25 | 0.75 |
 | LC chairperson profile | idx_respondent_capacity | Respondent capacity | 93 | 0.611699949509354 | 0.14968527853488922 | 0.13571429252624512 | 0.5547618865966797 | 0.6523809432983398 | 0.7095237970352173 | 0.8357142806053162 |
 ## Sheet: chair_profile_district
-| canonical_district | n | respondent_female | completed_secondary_or_above | education_score | lc_experience_years | lc_experience_score | record_literacy_score | can_record_english | can_record_runyankore | cannot_complete_records | prior_justice_training | prior_formal_coordination | prior_cdfu_fhri_training | n_prior_training_topics | case_experience_score | handled_child_or_sgbv_case | weekly_lc_time_score | idx_respondent_capacity |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Bushenyi | 41 | 0.12195122241973877 | 0.1463414579629898 | 0.4349593495934961 | 14.78048780487805 | 0.7536585365853659 | 0.6097560975609756 | 0.39024388790130615 | 0.9512194991111755 | 0 | 0.5609756112098694 | 0.8780487775802612 | 0.2750000059604645 | 2.454545497894287 | 0.6 | 0.12195122241973877 | 0.25609756097560976 | 0.5847851037979126 |
-| Rubirizi | 28 | 0.1428571492433548 | 0.0714285746216774 | 0.3095238095238095 | 22.392857142857142 | 0.932142857142857 | 0.6696428571428571 | 0.0714285746216774 | 1 | 0 | 0.8928571343421936 | 0.9642857313156128 | 0.1538461595773697 | 2 | 0.6357142857142856 | 0.1071428582072258 | 0.25 | 0.6648809313774109 |
-| Sheema | 24 | 0.0416666679084301 | 0.25 | 0.4236111111111111 | 12.458333333333334 | 0.7333333333333334 | 0.71875 | 0.3333333432674408 | 1 | 0 | 0.6666666865348816 | 0.7916666865348816 | 0.043478261679410934 | 2 | 0.6166666666666666 | 0.1666666716337204 | 0.21875 | 0.595634937286377 |
+| canonical_district | respondent_female | completed_secondary_or_above | education_score | lc_experience_years | lc_experience_score | record_literacy_score | can_record_english | can_record_runyankore | cannot_complete_records | prior_justice_training | prior_formal_coordination | prior_cdfu_fhri_training | n_prior_training_topics | case_experience_score | handled_child_or_sgbv_case | weekly_lc_time_score | idx_respondent_capacity | n_respondent_female | n_completed_secondary_or_above | n_education_score | n_lc_experience_years | n_lc_experience_score | n_record_literacy_score | n_can_record_english | n_can_record_runyankore | n_cannot_complete_records | n_prior_justice_training | n_prior_formal_coordination | n_prior_cdfu_fhri_training | n_n_prior_training_topics | n_case_experience_score | n_handled_child_or_sgbv_case | n_weekly_lc_time_score | n_idx_respondent_capacity |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Bushenyi | 0.12195122241973877 | 0.1463414579629898 | 0.4349593495934961 | 14.78048780487805 | 0.7536585365853659 | 0.6097560975609756 | 0.39024388790130615 | 0.9512194991111755 | 0 | 0.5609756112098694 | 0.8780487775802612 | 0.2750000059604645 | 2.454545497894287 | 0.6 | 0.12195122241973877 | 0.25609756097560976 | 0.5847851037979126 | 41 | 41 | 41 | 41 | 41 | 41 | 41 | 41 | 41 | 41 | 41 | 40 | 11 | 41 | 41 | 41 | 41 |
+| Rubirizi | 0.1428571492433548 | 0.0714285746216774 | 0.3095238095238095 | 22.392857142857142 | 0.932142857142857 | 0.6696428571428571 | 0.0714285746216774 | 1 | 0 | 0.8928571343421936 | 0.9642857313156128 | 0.1538461595773697 | 2 | 0.6357142857142856 | 0.1071428582072258 | 0.25 | 0.6648809313774109 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 28 | 26 | 4 | 28 | 28 | 28 | 28 |
+| Sheema | 0.0416666679084301 | 0.25 | 0.4236111111111111 | 12.458333333333334 | 0.7333333333333334 | 0.71875 | 0.3333333432674408 | 1 | 0 | 0.6666666865348816 | 0.7916666865348816 | 0.043478261679410934 | 2 | 0.6166666666666666 | 0.1666666716337204 | 0.21875 | 0.595634937286377 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 24 | 23 | 1 | 24 | 24 | 24 | 24 |
 ## Sheet: institutional_function
 | module | variable | label | n | mean | sd | min | p25 | p50 | p75 | max |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -251,11 +254,11 @@
 | Institutional functioning | recent_entries_uptodate_score_m2 | Enumerator-verified recent entries up-to-date score, 0-1 | 70 | 0.8642857142857143 | 0.2813197374343872 | 0 | 1 | 1 | 1 | 1 |
 | Institutional functioning | idx_institutional_functioning | Institutional functioning | 93 | 0.762384795693941 | 0.155487522482872 | 0.30000001192092896 | 0.625 | 0.7875000238418579 | 0.8812500238418579 | 1 |
 ## Sheet: institutional_by_district
-| canonical_district | n | lcc_members_total | lcc_women_members | lcc_women_share | lcc_has_woman_member | lcc_has_vacancy | lcc_vacancies_count | lcc_sittings_12m | meeting_frequency_score | quorum_score | fixed_place_score | inst_record_exist_score | inst_record_uptodate_score | materials_score | n_materials_missing | record_seen_score_m2 | recent_entries_uptodate_score_m2 | idx_institutional_functioning |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Bushenyi | 41 | 8.658536585365853 | 3.2195121951219514 | 0.38305089219723376 | 1 | 0.46341463923454285 |  | 4.609756097560975 | 0.6000000000000001 | 0.8536585365853658 | 0.9146341463414634 | 0.825 | 0.8375 | 0.5769230769230769 | 2.0731706619262695 | 0.7162162162162162 | 0.90625 | 0.7627032399177551 |
-| Rubirizi | 28 | 8.464285714285714 | 2.6296296296296298 | 0.33166586499919837 | 1 | 0.5714285969734192 |  | 4.714285714285714 | 0.6285714285714284 | 0.8392857142857143 | 0.8928571428571429 | 0.7321428571428571 | 0.6538461538461539 | 0.7115384615384616 | 1.75 | 0.7105263157894737 | 0.75 | 0.7363095283508301 |
-| Sheema | 24 | 8.708333333333334 | 3.125 | 0.37043199855699854 | 1 | 0.4583333432674408 |  | 2.125 | 0.6208333333333332 | 0.875 | 0.9791666666666666 | 0.7083333333333334 | 0.8809523809523809 | 0.7142857142857143 | 1.5 | 0.7619047619047619 | 0.9 | 0.7922618985176086 |
+| canonical_district | lcc_members_total | lcc_women_members | lcc_women_share | lcc_has_woman_member | lcc_has_vacancy | lcc_vacancies_count | lcc_sittings_12m | meeting_frequency_score | quorum_score | fixed_place_score | inst_record_exist_score | inst_record_uptodate_score | materials_score | n_materials_missing | record_seen_score_m2 | recent_entries_uptodate_score_m2 | idx_institutional_functioning | n_lcc_members_total | n_lcc_women_members | n_lcc_women_share | n_lcc_has_woman_member | n_lcc_has_vacancy | n_lcc_vacancies_count | n_lcc_sittings_12m | n_meeting_frequency_score | n_quorum_score | n_fixed_place_score | n_inst_record_exist_score | n_inst_record_uptodate_score | n_materials_score | n_n_materials_missing | n_record_seen_score_m2 | n_recent_entries_uptodate_score_ | n_idx_institutional_functioning |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Bushenyi | 8.658536585365853 | 3.2195121951219514 | 0.38305089219723376 | 1 | 0.46341463923454285 |  | 4.609756097560975 | 0.6000000000000001 | 0.8536585365853658 | 0.9146341463414634 | 0.825 | 0.8375 | 0.5769230769230769 | 2.0731706619262695 | 0.7162162162162162 | 0.90625 | 0.7627032399177551 | 41 | 41 | 41 | 41 | 41 | 0 | 41 | 41 | 41 | 41 | 40 | 40 | 39 | 41 | 37 | 32 | 41 |
+| Rubirizi | 8.464285714285714 | 2.6296296296296298 | 0.33166586499919837 | 1 | 0.5714285969734192 |  | 4.714285714285714 | 0.6285714285714284 | 0.8392857142857143 | 0.8928571428571429 | 0.7321428571428571 | 0.6538461538461539 | 0.7115384615384616 | 1.75 | 0.7105263157894737 | 0.75 | 0.7363095283508301 | 28 | 27 | 27 | 27 | 28 | 0 | 28 | 28 | 28 | 28 | 28 | 26 | 26 | 28 | 19 | 18 | 28 |
+| Sheema | 8.708333333333334 | 3.125 | 0.37043199855699854 | 1 | 0.4583333432674408 |  | 2.125 | 0.6208333333333332 | 0.875 | 0.9791666666666666 | 0.7083333333333334 | 0.8809523809523809 | 0.7142857142857143 | 1.5 | 0.7619047619047619 | 0.9 | 0.7922618985176086 | 24 | 24 | 24 | 24 | 24 | 0 | 24 | 24 | 24 | 24 | 24 | 21 | 21 | 24 | 21 | 20 | 24 |
 ## Sheet: caseload_summary
 | module | variable | label | n | mean | sd | min | p25 | p50 | p75 | max |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -272,11 +275,11 @@
 | Caseload and dispute profile | petty_case_share_score | Perceived share of cases that are petty/minor and locally handleable, 0-1 | 65 | 0.5323076923076924 | 0.35929954051971436 | 0.20000000298023224 | 0.20000000298023224 | 0.4000000059604645 | 1 | 1 |
 | Caseload and dispute profile | caseload_accuracy_score | Respondent confidence in reported caseload, 0-1 | 93 | 0.6747311827956989 | 0.183508038520813 | 0 | 0.5 | 0.75 | 0.75 | 1 |
 ## Sheet: caseload_by_district
-| canonical_district | n | caseload_30d | caseload_3m | pending_cases | pending_share_3m | directly_brought_cases_3m | directly_brought_share_3m | n_case_types_received_3m | any_child_or_sgbv_case_3m | any_reintegration_case_3m | any_serious_or_sensitive_case_3m | petty_case_share_score | caseload_accuracy_score | median_caseload_3m |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Bushenyi | 40 | 0.975609756097561 | 2.05 | 0.1951219512195122 | 0.1005952380952381 | 0.21428571428571427 | 0.13095238095238096 | 2.049999952316284 | 0.07500000298023224 | 0 | 0.07500000298023224 | 0.5642857142857142 | 0.6829268292682927 | 1 |
-| Rubirizi | 27 | 0.8571428571428571 | 2.3333333333333335 | 0.2857142857142857 | 0.0537037037037037 | 0.2631578947368421 | 0.13157894736842105 | 2.222222328186035 | 0.03703703731298447 | 0 | 0.03703703731298447 | 0.5578947368421053 | 0.6875 | 2 |
-| Sheema | 24 | 0.7916666666666666 | 1.5833333333333333 | 0.25 | 0.0625 | 0.16666666666666666 | 0.07407407407407407 | 1.7083333730697632 | 0 | 0 | 0 | 0.4555555555555555 | 0.6458333333333334 | 1 |
+| canonical_district | caseload_30d | caseload_3m | pending_cases | pending_share_3m | directly_brought_cases_3m | directly_brought_share_3m | n_case_types_received_3m | any_child_or_sgbv_case_3m | any_reintegration_case_3m | any_serious_or_sensitive_case_3m | petty_case_share_score | caseload_accuracy_score | n_caseload_30d | n_caseload_3m | n_pending_cases | n_pending_share_3m | n_directly_brought_cases_3m | n_directly_brought_share_3m | n_n_case_types_received_3m | n_any_child_or_sgbv_case_3m | n_any_reintegration_case_3m | n_any_serious_or_sensitive_case_ | n_petty_case_share_score | n_caseload_accuracy_score | median_caseload_3m |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Bushenyi | 0.975609756097561 | 2.05 | 0.1951219512195122 | 0.1005952380952381 | 0.21428571428571427 | 0.13095238095238096 | 2.049999952316284 | 0.07500000298023224 | 0 | 0.07500000298023224 | 0.5642857142857142 | 0.6829268292682927 | 41 | 40 | 41 | 28 | 28 | 28 | 40 | 40 | 28 | 40 | 28 | 41 | 1 |
+| Rubirizi | 0.8571428571428571 | 2.3333333333333335 | 0.2857142857142857 | 0.0537037037037037 | 0.2631578947368421 | 0.13157894736842105 | 2.222222328186035 | 0.03703703731298447 | 0 | 0.03703703731298447 | 0.5578947368421053 | 0.6875 | 28 | 27 | 28 | 18 | 19 | 19 | 27 | 27 | 19 | 27 | 19 | 28 | 2 |
+| Sheema | 0.7916666666666666 | 1.5833333333333333 | 0.25 | 0.0625 | 0.16666666666666666 | 0.07407407407407407 | 1.7083333730697632 | 0 | 0 | 0 | 0.4555555555555555 | 0.6458333333333334 | 24 | 24 | 24 | 16 | 18 | 18 | 24 | 24 | 18 | 24 | 18 | 24 | 1 |
 ## Sheet: caseload_outliers
 | No observations exceeded 15 cases in the prior three months. |
 | --- |
@@ -322,6 +325,13 @@
 | Case-vignette performance | v06_sgbv_q1_correct | SGBV vignette: correct classification | 93 | 0.5376344086021505 | 0.5012840032577515 | 0 | 0 | 1 | 1 | 1 |
 | Case-vignette performance | v06_sgbv_q2_correct | SGBV vignette: correct action/referral | 93 | 0.5268817204301075 | 0.5019829869270325 | 0 | 0 | 1 | 1 | 1 |
 | Case-vignette performance | v06_sgbv_q3_correct | SGBV vignette: appropriate actor involvement/notification | 93 | 0.5161290322580645 | 0.5024484395980835 | 0 | 0 | 1 | 1 | 1 |
+## Sheet: vignette_scenarios
+| id | scenario | mean | n |
+| --- | --- | --- | --- |
+| 1 | Boundary dispute | 0.9068100452423096 | 93 |
+| 1 | Child-protection case | 0.4516129195690155 | 93 |
+| 1 | Family dispute | 0.903225839138031 | 93 |
+| 1 | SGBV case | 0.5268816947937012 | 93 |
 ## Sheet: adr_mediation
 | module | variable | label | n | mean | sd | min | p25 | p50 | p75 | max |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -590,3 +600,106 @@
 | fig_40_records_committee_constraints | Records and committee operational constraints |
 | fig_41_legitimacy_safeguards_reintegration | Legitimacy, safeguards, and reintegration summary |
 | fig_42_adjusted_origin_coefficients | Adjusted administrative-origin association |
+## Sheet: denominator_dictionary
+| workbook | worksheet | analysis_variable | statistic_variable | statistic | n_variable | group_variable |
+| --- | --- | --- | --- | --- | --- | --- |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_respondent_capacity | idx_respondent_capacity | mean | n_idx_respondent_capacity | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_institutional_functioning | idx_institutional_functioning | mean | n_idx_institutional_functioning | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_legal_classif_knowledge | idx_legal_classif_knowledge | mean | n_idx_legal_classif_knowledge | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_adr_mediation_practice | idx_adr_mediation_practice | mean | n_idx_adr_mediation_practice | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_referral_practice | idx_referral_practice | mean | n_idx_referral_practice | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_record_quality | idx_record_quality | mean | n_idx_record_quality | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_committee_functioning | idx_committee_functioning | mean | n_idx_committee_functioning | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_perceived_legitimacy | idx_perceived_legitimacy | mean | n_idx_perceived_legitimacy | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_safeguards | idx_safeguards | mean | n_idx_safeguards | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_reintegration_norms | idx_reintegration_norms | mean | n_idx_reintegration_norms | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_lcc_operational_capacity | idx_lcc_operational_capacity | mean | n_idx_lcc_operational_capacity | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_lcc_case_handling_quality | idx_lcc_case_handling_quality | mean | n_idx_lcc_case_handling_quality | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_lcc_legitimacy_and_norms | idx_lcc_legitimacy_and_norms | mean | n_idx_lcc_legitimacy_and_norms | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | idx_p1_base_mentor_ready_proxy | idx_p1_base_mentor_ready_proxy | mean | n_idx_p1_base_mentor_ready_proxy | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | high_operational_capacity | high_operational_capacity | mean | n_high_operational_capacity | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | high_case_handling_quality | high_case_handling_quality | mean | n_high_case_handling_quality | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | high_legitimacy_norms | high_legitimacy_norms | mean | n_high_legitimacy_norms | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | readiness_quartiles | high_mentor_readiness_proxy | high_mentor_readiness_proxy | mean | n_high_mentor_readiness_proxy | readiness_quartile |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | respondent_female | respondent_female | mean | n_respondent_female | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | completed_secondary_or_above | completed_secondary_or_above | mean | n_completed_secondary_or_above | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | education_score | education_score | mean | n_education_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | lc_experience_years | lc_experience_years | mean | n_lc_experience_years | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | lc_experience_score | lc_experience_score | mean | n_lc_experience_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | record_literacy_score | record_literacy_score | mean | n_record_literacy_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | can_record_english | can_record_english | mean | n_can_record_english | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | can_record_runyankore | can_record_runyankore | mean | n_can_record_runyankore | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | cannot_complete_records | cannot_complete_records | mean | n_cannot_complete_records | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | prior_justice_training | prior_justice_training | mean | n_prior_justice_training | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | prior_formal_coordination | prior_formal_coordination | mean | n_prior_formal_coordination | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | prior_cdfu_fhri_training | prior_cdfu_fhri_training | mean | n_prior_cdfu_fhri_training | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | n_prior_training_topics | n_prior_training_topics | mean | n_n_prior_training_topics | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | case_experience_score | case_experience_score | mean | n_case_experience_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | handled_child_or_sgbv_case | handled_child_or_sgbv_case | mean | n_handled_child_or_sgbv_case | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | weekly_lc_time_score | weekly_lc_time_score | mean | n_weekly_lc_time_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | chair_profile_district | idx_respondent_capacity | idx_respondent_capacity | mean | n_idx_respondent_capacity | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_members_total | lcc_members_total | mean | n_lcc_members_total | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_women_members | lcc_women_members | mean | n_lcc_women_members | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_women_share | lcc_women_share | mean | n_lcc_women_share | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_has_woman_member | lcc_has_woman_member | mean | n_lcc_has_woman_member | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_has_vacancy | lcc_has_vacancy | mean | n_lcc_has_vacancy | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_vacancies_count | lcc_vacancies_count | mean | n_lcc_vacancies_count | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | lcc_sittings_12m | lcc_sittings_12m | mean | n_lcc_sittings_12m | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | meeting_frequency_score | meeting_frequency_score | mean | n_meeting_frequency_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | quorum_score | quorum_score | mean | n_quorum_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | fixed_place_score | fixed_place_score | mean | n_fixed_place_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | inst_record_exist_score | inst_record_exist_score | mean | n_inst_record_exist_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | inst_record_uptodate_score | inst_record_uptodate_score | mean | n_inst_record_uptodate_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | materials_score | materials_score | mean | n_materials_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | n_materials_missing | n_materials_missing | mean | n_n_materials_missing | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | record_seen_score_m2 | record_seen_score_m2 | mean | n_record_seen_score_m2 | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | recent_entries_uptodate_score_m2 | recent_entries_uptodate_score_m2 | mean | n_recent_entries_uptodate_score_ | canonical_district |
+| phase1_baseline_executive_results.xlsx | institutional_by_district | idx_institutional_functioning | idx_institutional_functioning | mean | n_idx_institutional_functioning | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | caseload_30d | caseload_30d | mean | n_caseload_30d | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | caseload_3m | caseload_3m | mean | n_caseload_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | pending_cases | pending_cases | mean | n_pending_cases | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | pending_share_3m | pending_share_3m | mean | n_pending_share_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | directly_brought_cases_3m | directly_brought_cases_3m | mean | n_directly_brought_cases_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | directly_brought_share_3m | directly_brought_share_3m | mean | n_directly_brought_share_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | n_case_types_received_3m | n_case_types_received_3m | mean | n_n_case_types_received_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | any_child_or_sgbv_case_3m | any_child_or_sgbv_case_3m | mean | n_any_child_or_sgbv_case_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | any_reintegration_case_3m | any_reintegration_case_3m | mean | n_any_reintegration_case_3m | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | any_serious_or_sensitive_case_3m | any_serious_or_sensitive_case_3m | mean | n_any_serious_or_sensitive_case_ | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | petty_case_share_score | petty_case_share_score | mean | n_petty_case_share_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | caseload_accuracy_score | caseload_accuracy_score | mean | n_caseload_accuracy_score | canonical_district |
+| phase1_baseline_executive_results.xlsx | caseload_by_district | caseload_3m | median_caseload_3m | median | n_caseload_3m | canonical_district |
+| phase1_baseline_origin_comparison.xlsx | fig32_core_composites | idx_lcc_operational_capacity | idx_lcc_operational_capacity | mean | n_idx_lcc_operational_capacity | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig32_core_composites | idx_lcc_case_handling_quality | idx_lcc_case_handling_quality | mean | n_idx_lcc_case_handling_quality | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig32_core_composites | idx_lcc_legitimacy_and_norms | idx_lcc_legitimacy_and_norms | mean | n_idx_lcc_legitimacy_and_norms | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig32_core_composites | idx_p1_base_mentor_ready_proxy | idx_p1_base_mentor_ready_proxy | mean | n_idx_p1_base_mentor_ready_proxy | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | prior_formal_coordination | prior_formal_coordination | mean | n_prior_formal_coordination | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | police_coordination_score | police_coordination_score | mean | n_police_coordination_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | court_coordination_score | court_coordination_score | mean | n_court_coordination_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | referral_path_conf_score | referral_path_conf_score | mean | n_referral_path_conf_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | referral_explain_conf_score | referral_explain_conf_score | mean | n_referral_explain_conf_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | referral_feedback_score | referral_feedback_score | mean | n_referral_feedback_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig33_jlos_collaboration | verified_referral_record_score | verified_referral_record_score | mean | n_verified_referral_record_score | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_perceived_legitimacy | gap_perceived_legitimacy | mean | n_gap_perceived_legitimacy | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_record_quality | gap_record_quality | mean | n_gap_record_quality | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_reintegration_norms | gap_reintegration_norms | mean | n_gap_reintegration_norms | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_referral_practice | gap_referral_practice | mean | n_gap_referral_practice | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_safeguards | gap_safeguards | mean | n_gap_safeguards | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig34_priority_gaps | gap_case_handling | gap_case_handling | mean | n_gap_case_handling | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig35_high_readiness_flags | high_operational_capacity | high_operational_capacity | mean | n_high_operational_capacity | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig35_high_readiness_flags | high_case_handling_quality | high_case_handling_quality | mean | n_high_case_handling_quality | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig35_high_readiness_flags | high_legitimacy_norms | high_legitimacy_norms | mean | n_high_legitimacy_norms | p1_admin_previously_contacted |
+| phase1_baseline_origin_comparison.xlsx | fig35_high_readiness_flags | high_mentor_readiness_proxy | high_mentor_readiness_proxy | mean | n_high_mentor_readiness_proxy | p1_admin_previously_contacted |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | prior_formal_coordination | prior_formal_coordination | mean | n_prior_formal_coordination | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | m4_q02_referral_scope_score | m4_q02_referral_scope_score | mean | n_m4_q02_referral_scope_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | police_coordination_score | police_coordination_score | mean | n_police_coordination_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | court_coordination_score | court_coordination_score | mean | n_court_coordination_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | referral_path_conf_score | referral_path_conf_score | mean | n_referral_path_conf_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | referral_explain_conf_score | referral_explain_conf_score | mean | n_referral_explain_conf_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | referral_documentation_score | referral_documentation_score | mean | n_referral_documentation_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | referral_feedback_score | referral_feedback_score | mean | n_referral_feedback_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | verified_referral_record_score | verified_referral_record_score | mean | n_verified_referral_record_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | verified_ref_dest_score | verified_ref_dest_score | mean | n_verified_ref_dest_score | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | idx_referral_practice | idx_referral_practice | mean | n_idx_referral_practice | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | n_referral_reasons | n_referral_reasons | mean | n_n_referral_reasons | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | n_referral_barriers | n_referral_barriers | mean | n_n_referral_barriers | canonical_district |
+| phase1_baseline_jlos_expanded_analysis.xlsx | district_jlos_diagnostic | no_major_referral_barriers | no_major_referral_barriers | mean | n_no_major_referral_barriers | canonical_district |

@@ -120,8 +120,8 @@ def download_sources(root: Path) -> None:
                     raise
                 time.sleep(2)
         assert payload is not None
+        assert hashlib.sha256(payload).hexdigest() == SOURCE_SHA256[name], f"Official source revision differs from audited snapshot: {name}"
         target.write_bytes(payload)
-        assert digest(target) == SOURCE_SHA256[name], f"Official source revision differs from audited snapshot: {name}"
         print(f"Downloaded {name}: {len(payload):,} bytes; sha256={digest(target)}", flush=True)
 
 
@@ -646,9 +646,19 @@ def build_census(root: Path):
     ]
     input_hashes = {str(p.relative_to(root)): digest(p) for p in source_paths}
     manifest_path = output / "phase2_administrative_source_manifest.json"
+    previous = None
     if manifest_path.exists():
         previous = json.loads(manifest_path.read_text())
         assert all(input_hashes.get(p) == h for p, h in previous["input_sha256"].items()), "Source versions changed; review rather than silently rebuild"
+    # Reusing a cached website is not a new retrieval on today's date.
+    website_reference_date = "Undated; snapshot retrieval date not documented"
+    issues_path = output / "phase2_administrative_issues.csv"
+    if issues_path.exists():
+        with issues_path.open(encoding="utf-8-sig", newline="") as stream:
+            prior_dates = [r["reference_date"] for r in csv.DictReader(stream)
+                           if r["source_row_id"] == "RUBIRIZI_WEBSITE_DISTRICT_TOTAL"]
+        if len(prior_dates) == 1:
+            website_reference_date = prior_dates[0]
     for name in SOURCE_URLS:
         assert digest(snapshots / name) == SOURCE_SHA256[name], f"Wrong official PDF snapshot: {name}"
     for name, url in CONTEXT_URLS.items():
@@ -686,7 +696,7 @@ def build_census(root: Path):
                 "candidate_names": "", "resolution": f"Printed {c['declared_villages']}; extracted {c['extracted_rows']}. Source inconsistency, no count forced."})
     issues.append({"source_row_id": "RUBIRIZI_WEBSITE_DISTRICT_TOTAL", "source_id": "RUBIRIZI_WEBSITE",
         "source_file": "rubirizi_administrative_structure.html", "source_location": "Political and Administrative Structure",
-        "reference_date": "Undated; retrieved " + date.today().isoformat(), "district": "RUBIRIZI",
+        "reference_date": website_reference_date, "district": "RUBIRIZI",
         "subcounty": "", "parish": "", "village": "", "phase2_lc_uid": "",
         "match_status": "cross_source_district_count_discrepancy", "candidate_uids": "", "candidate_names": "",
         "resolution": "District website reports 294 villages; EC village-level list contains 293. No evidence identifying an additional current LC; not resolved by adding a row."})
@@ -819,6 +829,9 @@ def build_census(root: Path):
         "source_counts": sources,
         "non_actions": ["No Phase 1/report change", "No training/mentor eligibility inference", "No neighbors, GIS buffers or geocoding", "No randomization", "No impact analysis"]}
     assert {str(p.relative_to(root)): digest(p) for p in source_paths} == input_hashes, "An existing source changed during read-only build"
+    # Keep an identical accepted generation's receipt; the publisher dates this revalidation.
+    if previous and {**manifest, "created_or_verified": previous["created_or_verified"]} == previous:
+        manifest = previous
     manifest_path.write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding="utf-8")
     print("FINAL REFERENCE CENSUS:", json.dumps({k: manifest[k] for k in ("canonical_lcs", "district_counts", "source_reference_rows", "unassigned_source_rows", "issue_rows", "checksum_passes", "source_count_discrepancies")}), flush=True)
     return manifest
@@ -838,6 +851,11 @@ def main() -> None:
     parser.add_argument("--checks", action="store_true")
     parser.add_argument("--build", action="store_true")
     args = parser.parse_args()
+    if any((args.download, args.locate, args.extract, args.sheema_tables,
+            args.local, args.project, args.reconcile, args.checks, args.build)):
+        owner = args.root / "__publication_workspace.json"
+        if not owner.is_file() or json.loads(owner.read_text())["workspace"] != args.root.resolve().as_posix():
+            parser.error("Writing requires a master-owned publication workspace; use the Stata master.")
     if args.download:
         download_sources(args.root)
     if args.inspect:

@@ -1,0 +1,4 @@
+# Transient analysis bundles and recoverable prior outputs are not release files.
+2 Output/Phase1_Baseline_Selected100_Observed.stage-*/
+2 Output/Phase1_Baseline_Selected100_Observed.backup-*/
+2 Output/Phase1_Baseline_Selected100_Observed.publish-lock/

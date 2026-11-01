@@ -1,16 +1,16 @@
-# Graph Report - Advancing-Justice-Uganda-LC  (2026-10-16)
+# Graph Report - Advancing-Justice-Uganda-LC  (2026-11-01)
 
 ## Corpus Check
-- 54 files · ~1,733,921 words
+- 55 files · ~1,762,768 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 779 nodes · 963 edges · 77 communities (53 shown, 24 thin omitted)
-- Extraction: 91% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
+- 835 nodes · 1018 edges · 81 communities (57 shown, 24 thin omitted)
+- Extraction: 92% EXTRACTED · 8% INFERRED · 0% AMBIGUOUS · INFERRED: 81 edges (avg confidence: 0.89)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `bbebab78`
+- Built from commit: `472029f8`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -91,19 +91,23 @@
 - phase1_baseline_regression_results_d60827fb.md
 - 5 Phase2_Administrative_Frame.py
 - 6 Phase2_Geospatial_Review.mjs
-- build_dropbox_corpus_snapshot.py
+- 3. Ranked findings
+- Advancing Justice Uganda: Stata workflow and reproducibility audit
+- Implementation follow-up: baseline preparation and Phase 2 publication (1 November 2026)
+- Implementation follow-up: denominators and baseline output publication (1 November 2026)
+- Implementation follow-up: safe master (1 November 2026)
 
 ## God Nodes (most connected - your core abstractions)
 1. `Dropbox corpus snapshot 31 August 2026` - 115 edges
 2. `folders()` - 22 edges
-3. `sha()` - 18 edges
-4. `main()` - 18 edges
-5. `write_json()` - 17 edges
-6. `Institutional functioning and operational readiness` - 17 edges
-7. `coverage()` - 16 edges
-8. `saved_path()` - 15 edges
-9. `reconcile()` - 15 edges
-10. `Average baseline scores across core domains` - 15 edges
+3. `3. Ranked findings` - 19 edges
+4. `sha()` - 18 edges
+5. `main()` - 18 edges
+6. `write_json()` - 17 edges
+7. `Institutional functioning and operational readiness` - 17 edges
+8. `coverage()` - 16 edges
+9. `saved_path()` - 15 edges
+10. `reconcile()` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `Village Dispute Mediation in China, 2002-10: An Enduring Institution amid Rural Change` --semantically_similar_to--> `Local Council justice capacity`  [INFERRED] [semantically similar]
@@ -135,7 +139,7 @@
 - **Phase 1 Baseline Survey Variants** — converted_phase_1_baseline_bf189e82_lcc_baseline_measurement_modules, converted_phase_1_baseline_version_2_a201723a_lcc_baseline_measurement_modules, converted_phase_1_baseline_version_runyankore_edited_1_20ce2e11_runyankore_localization, converted_phase_1_baseline_version_runyankore_edited_74c9ad4c_updated_runyankore_localization [INFERRED 0.95]
 - **Reintegration Support and Acceptance System** — 2_output_phase1_baseline_executive_figures_fig_26_reintegration_norms_reintegration_norms_and_support_capacity, 2_output_phase1_baseline_executive_figures_fig_27_reintegration_support_support_types_for_successful_reintegration, 2_output_phase1_baseline_executive_figures_fig_28_reintegration_barriers_perceived_barriers_to_reintegration [INFERRED 0.95]
 
-## Communities (77 total, 24 thin omitted)
+## Communities (81 total, 24 thin omitted)
 
 ### Community 1 - "Advancing Justice Uganda Inception Report"
 Cohesion: 0.08
@@ -315,7 +319,7 @@ Nodes (5): Sheet: indicator_table, Sheet: README, Sheet: section10_crosswalk, Sh
 
 ### Community 68 - "phase1_baseline_executive_results_febcbf27.md"
 Cohesion: 0.04
-Nodes (45): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+37 more)
+Nodes (47): Sheet: adr_barriers, Sheet: adr_mediation, Sheet: adr_methods, Sheet: case_types_3m, Sheet: caseload_by_district, Sheet: caseload_outliers, Sheet: caseload_summary, Sheet: chair_profile (+39 more)
 
 ### Community 69 - "phase1_baseline_origin_comparison_6ba0ef47.md"
 Cohesion: 0.17
@@ -338,16 +342,32 @@ Cohesion: 0.50
 Nodes (3): Sheet: multivariable_diagnostics, Sheet: origin_adjusted, Sheet: README
 
 ### Community 74 - "5 Phase2_Administrative_Frame.py"
-Cohesion: 0.13
-Nodes (38): build_census(), clean(), coded_name(), digest(), download_sources(), ec_uid(), extract_ec_sources(), extract_local_sources() (+30 more)
+Cohesion: 0.07
+Nodes (60): build_census(), clean(), coded_name(), digest(), download_sources(), ec_uid(), extract_ec_sources(), extract_local_sources() (+52 more)
 
 ### Community 75 - "6 Phase2_Geospatial_Review.mjs"
 Cohesion: 0.09
 Nodes (20): coverage, coverageMode, coverageSheets, data, editableReviewFields, inputs, neighbors, neighborSheets (+12 more)
 
-### Community 76 - "build_dropbox_corpus_snapshot.py"
-Cohesion: 0.13
-Nodes (22): basic_profile(), dbf_profile(), legacy_xls_profile(), main(), Path, Build a read-only metadata and schema snapshot of the project Dropbox corpus.…, Read DBF header metadata without optional GIS dependencies., Read the ESRI shapefile header and count records dependency-free. (+14 more)
+### Community 76 - "3. Ranked findings"
+Cohesion: 0.11
+Nodes (19): 3. Ranked findings, F01. The documented master is not a complete runnable entry point, F02. M5 non-occurrence is scored as inappropriate behavior, F03. Several unknown responses are treated as negative factual/practice answers, F04. A canonical spelling correction creates a misleading historical crosswalk slot, F05. Publication/privacy boundaries are not established by dropping six fields, F06. Accepted inputs and outputs may be overwritten before drift is detected, F07. Table denominators are not always item denominators (+11 more)
+
+### Community 77 - "Advancing Justice Uganda: Stata workflow and reproducibility audit"
+Cohesion: 0.14
+Nodes (13): 10. Repeating the bounded model checks, 1. Verdict and scope, 2. Fresh verification record, 4. Positive findings and scientific definitions preserved, 5. Code-to-output map, 6. External replication-package review, 7. Guides and templates actually consulted, 8. Source inventory and coverage (+5 more)
+
+### Community 78 - "Implementation follow-up: baseline preparation and Phase 2 publication (1 November 2026)"
+Cohesion: 0.25
+Nodes (8): Administrative source custody and date metadata, Approved deterministic audit-only crosswalk choice, Authorization, scope and entry points, Execution records and source versions, Implementation follow-up: baseline preparation and Phase 2 publication (1 November 2026), Publication mechanism and owned files, Remaining boundary, Validation actually performed
+
+### Community 79 - "Implementation follow-up: denominators and baseline output publication (1 November 2026)"
+Cohesion: 0.29
+Nodes (7): Execution and failure-path evidence, F06: staged, serialized baseline output publication, F07: item-specific denominator reporting, Implementation follow-up: denominators and baseline output publication (1 November 2026), Numerical and source preservation, Remaining work requiring a separate decision or pass, Scope and scientific boundary
+
+### Community 80 - "Implementation follow-up: safe master (1 November 2026)"
+Cohesion: 0.40
+Nodes (5): Explicit remaining boundary, Implementation follow-up: safe master (1 November 2026), Retained execution evidence, Scope and changes, Verification actually performed
 
 ## Ambiguous Edges - Review These
 - `The Power of Community Mediation: Government and Formation of Self-Identity` → `Restorative justice conferences`  [AMBIGUOUS]
@@ -356,7 +376,7 @@ Nodes (22): basic_profile(), dbf_profile(), legacy_xls_profile(), main(), Path, 
   C:/Users/jzava/Dropbox (Personal)/Research & Consulting/1 Research/Legatum Uganda Advancing Justice/1 Literature/McCart et al. - 2022 - Randomized trial of a diversion program for property offenders with drug use.pdf · relation: conceptually_related_to
 
 ## Knowledge Gaps
-- **414 isolated node(s):** `reconcile`, `neighbors`, `coverageMode`, `verificationMode`, `data` (+409 more)
+- **461 isolated node(s):** `reconcile`, `neighbors`, `coverageMode`, `verificationMode`, `data` (+456 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -368,12 +388,12 @@ _Questions this graph is uniquely positioned to answer:_
 - **What is the exact relationship between `Randomized trial of a diversion program for property offenders with drug use` and `Restorative justice conferences`?**
   _Edge tagged AMBIGUOUS (relation: conceptually_related_to) - confidence is low._
 - **Why does `Dropbox corpus snapshot 31 August 2026` connect `Dropbox corpus snapshot 31 August 2026` to `Procedural justice and decision acceptance`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
-- **Why does `Phase 1 baseline reconciliation and analytical guidance` connect `Procedural justice and decision acceptance` to `Dropbox corpus snapshot 31 August 2026`?**
+  _High betweenness centrality (0.021) - this node is a cross-community bridge._
+- **Why does `Advancing Justice Uganda: Stata workflow and reproducibility audit` connect `Advancing Justice Uganda: Stata workflow and reproducibility audit` to `Implementation follow-up: safe master (1 November 2026)`, `3. Ranked findings`, `Implementation follow-up: baseline preparation and Phase 2 publication (1 November 2026)`, `Implementation follow-up: denominators and baseline output publication (1 November 2026)`?**
+  _High betweenness centrality (0.003) - this node is a cross-community bridge._
+- **Why does `3. Ranked findings` connect `3. Ranked findings` to `Advancing Justice Uganda: Stata workflow and reproducibility audit`?**
   _High betweenness centrality (0.002) - this node is a cross-community bridge._
 - **What connects `reconcile`, `neighbors`, `coverageMode` to the rest of the system?**
-  _414 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _461 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Dropbox corpus snapshot 31 August 2026` be split into smaller, more focused modules?**
   _Cohesion score 0.017391304347826087 - nodes in this community are weakly interconnected._
-- **Should `Advancing Justice Uganda Inception Report` be split into smaller, more focused modules?**
-  _Cohesion score 0.07692307692307693 - nodes in this community are weakly interconnected._

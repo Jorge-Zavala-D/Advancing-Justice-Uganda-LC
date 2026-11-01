@@ -8,6 +8,7 @@
 | Definition | 1 if admin list marks village as Last_CDFU_phase == 1 or Inherited_FHRI == 1; 0 otherwise. |
 | Interpretation | Descriptive baseline association, not a causal effect of previous contact. |
 | Recommended use | Use as implementation diagnostics in the Phase 1 Final Baseline Report. |
+| Denominators | n_* columns count nonmissing analyzed values separately for each measure. See the executive denominator_dictionary; group sizes are not verification denominators. |
 ## Sheet: sample_by_origin
 | p1_admin_previously_contacted | origin_group | n | share | total |
 | --- | --- | --- | --- | --- |
@@ -82,8 +83,8 @@
 | Other/context | completed_secondary_or_above | Completed secondary education or above | 93 | 0.1505376344086022 | 22 | 0.3181818181818182 | 0.167644183773216 | 0.0681994072868709 | 0.167644183773216 |
 | Other/context | can_record_english | Can complete LCC records in English | 93 | 0.2795698924731183 | 22 | 0.1363636363636364 | -0.1432062561094819 | 0.167091014464043 | 0.1432062561094819 |
 | Other/context | lcc_women_share | Share of current LCC/LC committee members who are women | 92 | 0.3646786184829663 | 22 | 0.4325150859241768 | 0.0678364674412105 | 0.0252551364217717 | 0.0678364674412105 |
-| Other/context | any_serious_or_sensitive_case_3m | Reported child-related or SGBV case in past 3 months | 91 | 0.043956043956044 | 22 | 0.0909090909090909 | 0.0469530469530469 | 0.382612075263589 | 0.0469530469530469 |
 | Other/context | any_child_or_sgbv_case_3m | LCC received child-related or SGBV case in past 3 months | 91 | 0.043956043956044 | 22 | 0.0909090909090909 | 0.0469530469530469 | 0.382612075263589 | 0.0469530469530469 |
+| Other/context | any_serious_or_sensitive_case_3m | Reported child-related or SGBV case in past 3 months | 91 | 0.043956043956044 | 22 | 0.0909090909090909 | 0.0469530469530469 | 0.382612075263589 | 0.0469530469530469 |
 | Other/context | can_record_runyankore | Can complete LCC records in Runyankore/Runyakitara | 93 | 0.978494623655914 | 22 | 1 | 0.021505376344086 | 0.492059771927674 | 0.021505376344086 |
 | Records and safeguards | n_record_challenges | Number of reported record-keeping challenges | 93 | 2.301075268817204 | 22 | 1.590909090909091 | -0.710166177908113 | 0.0019609477212618 | 0.710166177908113 |
 | Records and safeguards | m7_q15_3 | Record challenge: need training on case records | 93 | 0.5591397849462365 | 22 | 0.0909090909090909 | -0.4682306940371456 | 4.94375614732e-05 | 0.4682306940371456 |
@@ -250,32 +251,32 @@
 | Mentor-readiness flags | high_legitimacy_norms | Legitimacy and reintegration norms index >= 0.75 | 93 | 0.0860215053763441 | 22 | 0.0909090909090909 | 0.0048875855327468 | 0.9423104520786998 | 0.0048875855327468 |
 | Records and safeguards | m7_q15_2 | Record challenge: no pens/basic stationery | 93 | 0.7741935483870968 | 22 | 0.7727272727272727 | -0.001466275659824 | 0.9883321736490267 | 0.001466275659824 |
 ## Sheet: fig32_core_composites
-| p1_admin_previously_contacted | origin_group | n | idx_lcc_operational_capacity | idx_lcc_case_handling_quality | idx_lcc_legitimacy_and_norms | idx_p1_base_mentor_ready_proxy |
-| --- | --- | --- | --- | --- | --- | --- |
-| Selected-list (observed) | Selected-list (observed) | 93 | 0.6782861948013306 | 0.6691372990608215 | 0.6117475032806396 | 0.642717719078064 |
-| Previously contacted | Previously contacted | 22 | 0.8084242343902588 | 0.7412330508232117 | 0.6348355412483215 | 0.7175788283348083 |
-## Sheet: fig33_jlos_collaboration
-| p1_admin_previously_contacted | origin_group | n | prior_formal_coordination | police_coordination_score | court_coordination_score | referral_path_conf_score | referral_explain_conf_score | referral_feedback_score | verified_referral_record_score |
+| p1_admin_previously_contacted | origin_group | idx_lcc_operational_capacity | idx_lcc_case_handling_quality | idx_lcc_legitimacy_and_norms | idx_p1_base_mentor_ready_proxy | n_idx_lcc_operational_capacity | n_idx_lcc_case_handling_quality | n_idx_lcc_legitimacy_and_norms | n_idx_p1_base_mentor_ready_proxy |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Selected-list (observed) | Selected-list (observed) | 93 | 0.8817204236984253 | 0.7472527472527473 | 0.702247191011236 | 0.5940860215053764 | 0.5860215053763441 | 0.4222222222222222 | 0.7181818181818181 |
-| Previously contacted | Previously contacted | 22 | 0.9545454382896423 | 0.7840909090909091 | 0.75 | 0.6477272727272727 | 0.6590909090909091 | 0.6071428571428571 | 0.65625 |
+| Selected-list (observed) | Selected-list (observed) | 0.6782861948013306 | 0.6691372990608215 | 0.6117475032806396 | 0.642717719078064 | 93 | 93 | 93 | 93 |
+| Previously contacted | Previously contacted | 0.8084242343902588 | 0.7412330508232117 | 0.6348355412483215 | 0.7175788283348083 | 22 | 22 | 22 | 22 |
+## Sheet: fig33_jlos_collaboration
+| p1_admin_previously_contacted | origin_group | prior_formal_coordination | police_coordination_score | court_coordination_score | referral_path_conf_score | referral_explain_conf_score | referral_feedback_score | verified_referral_record_score | n_prior_formal_coordination | n_police_coordination_score | n_court_coordination_score | n_referral_path_conf_score | n_referral_explain_conf_score | n_referral_feedback_score | n_verified_referral_record_score |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Selected-list (observed) | Selected-list (observed) | 0.8817204236984253 | 0.7472527472527473 | 0.702247191011236 | 0.5940860215053764 | 0.5860215053763441 | 0.4222222222222222 | 0.7181818181818181 | 93 | 91 | 89 | 93 | 93 | 90 | 55 |
+| Previously contacted | Previously contacted | 0.9545454382896423 | 0.7840909090909091 | 0.75 | 0.6477272727272727 | 0.6590909090909091 | 0.6071428571428571 | 0.65625 | 22 | 22 | 22 | 22 | 22 | 21 | 16 |
 ## Sheet: fig34_priority_gaps
-| p1_admin_previously_contacted | origin_group | n | gap_perceived_legitimacy | gap_record_quality | gap_reintegration_norms | gap_referral_practice | gap_safeguards | gap_case_handling |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Selected-list (observed) | Selected-list (observed) | 93 | 0.3960573471361591 | 0.4754355863457726 | 0.3804476216275205 | 0.38479049279484695 | 0.300403217314392 | 0.33086271856420785 |
-| Previously contacted | Previously contacted | 22 | 0.3825757598335093 | 0.28551136363636365 | 0.347753106193109 | 0.30170003934340045 | 0.2406881180676547 | 0.25876695053143933 |
+| p1_admin_previously_contacted | origin_group | gap_perceived_legitimacy | gap_record_quality | gap_reintegration_norms | gap_referral_practice | gap_safeguards | gap_case_handling | n_gap_perceived_legitimacy | n_gap_record_quality | n_gap_reintegration_norms | n_gap_referral_practice | n_gap_safeguards | n_gap_case_handling |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Selected-list (observed) | Selected-list (observed) | 0.3960573471361591 | 0.4754355863457726 | 0.3804476216275205 | 0.38479049279484695 | 0.300403217314392 | 0.33086271856420785 | 93 | 93 | 93 | 93 | 93 | 93 |
+| Previously contacted | Previously contacted | 0.3825757598335093 | 0.28551136363636365 | 0.347753106193109 | 0.30170003934340045 | 0.2406881180676547 | 0.25876695053143933 | 22 | 22 | 22 | 22 | 22 | 22 |
 ## Sheet: fig35_high_readiness_flags
-| p1_admin_previously_contacted | origin_group | n | high_operational_capacity | high_case_handling_quality | high_legitimacy_norms | high_mentor_readiness_proxy |
-| --- | --- | --- | --- | --- | --- | --- |
-| Selected-list (observed) | Selected-list (observed) | 93 | 0.29032257199287415 | 0.25806450843811035 | 0.08602150529623032 | 0.09677419066429138 |
-| Previously contacted | Previously contacted | 22 | 0.7727272510528564 | 0.5909090638160706 | 0.09090909361839294 | 0.3636363744735718 |
+| p1_admin_previously_contacted | origin_group | high_operational_capacity | high_case_handling_quality | high_legitimacy_norms | high_mentor_readiness_proxy | n_high_operational_capacity | n_high_case_handling_quality | n_high_legitimacy_norms | n_high_mentor_readiness_proxy |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Selected-list (observed) | Selected-list (observed) | 0.29032257199287415 | 0.25806450843811035 | 0.08602150529623032 | 0.09677419066429138 | 93 | 93 | 93 | 93 |
+| Previously contacted | Previously contacted | 0.7727272510528564 | 0.5909090638160706 | 0.09090909361839294 | 0.3636363744735718 | 22 | 22 | 22 | 22 |
 ## Sheet: district_adjusted_diagnostics
 | outcome | label | n | mean_selected | mean_prev | raw_diff_prev_minus_selected | coef_prev_contacted | se | ci_low | ci_high | p_value | model_note | df_residual |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | idx_lcc_operational_capacity | Operational capacity | 115 | 0.6782861906354145 | 0.8084242479367689 | 0.13013805449008942 | 0.1307590160288556 | 0.0233359914001027 | 0.08451718837022781 | 0.17700083553791046 | 1.54891284812e-07 | Cross-sectional baseline associations; not causal estimates. | 111 |
-| idx_lcc_case_handling_quality | Case-handling quality | 115 | 0.6691372814357922 | 0.7412330494685606 | 0.07209576666355133 | 0.0723909127725405 | 0.0324354503367436 | 0.008117903023958206 | 0.13666392862796783 | 0.0276335367971771 | Cross-sectional baseline associations; not causal estimates. | 111 |
+| idx_lcc_case_handling_quality | Case-handling quality | 115 | 0.6691372814357922 | 0.7412330494685606 | 0.07209576666355133 | 0.0723909127725406 | 0.0324354503367436 | 0.008117903023958206 | 0.13666392862796783 | 0.0276335367971768 | Cross-sectional baseline associations; not causal estimates. | 111 |
 | idx_lcc_legitimacy_and_norms | Legitimacy and reintegration | 115 | 0.6117475141761124 | 0.6348355656320398 | 0.02308805100619793 | 0.023925287751463 | 0.024653485998333 | -0.02492723986506462 | 0.07277781516313553 | 0.3339258666841523 | Cross-sectional baseline associations; not causal estimates. | 111 |
-| idx_p1_base_mentor_ready_proxy | Baseline mentor-readiness proxy | 115 | 0.6427177325371773 | 0.7175788391720165 | 0.07486110925674438 | 0.0753517923485101 | 0.0196703019828515 | 0.03637377545237541 | 0.11432980746030807 | 0.0002120617825066 | Cross-sectional baseline associations; not causal estimates. | 111 |
+| idx_p1_base_mentor_ready_proxy | Baseline mentor-readiness proxy | 115 | 0.6427177325371773 | 0.7175788391720165 | 0.07486110925674438 | 0.07535179234851 | 0.0196703019828515 | 0.03637377545237541 | 0.11432980746030807 | 0.0002120617825066 | Cross-sectional baseline associations; not causal estimates. | 111 |
 | idx_record_quality | Record quality | 115 | 0.5245644136542275 | 0.7144886363636364 | 0.1899242252111435 | 0.1913353996206353 | 0.0481787522838297 | 0.09586598724126816 | 0.28680482506752014 | 0.0001272769286991 | Cross-sectional baseline associations; not causal estimates. | 111 |
 | idx_referral_practice | Referral practice | 115 | 0.615209507205153 | 0.6982999606565996 | 0.08309045433998108 | 0.0850532234853178 | 0.0372079688556646 | 0.01132314931601286 | 0.15878330171108246 | 0.0241592955839613 | Cross-sectional baseline associations; not causal estimates. | 111 |
 | idx_safeguards | Safeguards/referral knowledge | 115 | 0.699596782685608 | 0.7593118819323453 | 0.05971509963274002 | 0.050797553231642 | 0.0507967899631682 | -0.049859676510095596 | 0.15145477652549744 | 0.3194782682452041 | Cross-sectional baseline associations; not causal estimates. | 111 |

@@ -20,6 +20,20 @@
 *-------------------------------------------------------------------------------*/
 
 
+version 19
+args publication_root publication_worker
+if "`publication_worker'" != "publication_worker" {
+    display as error "Run baseline preparation through the master publication workflow. Historical sampling is frozen."
+    exit 198
+}
+confirm file "`publication_root'/__publication_workspace.json"
+if "${input_dir}" != "`publication_root'/3 Data" {
+    display as error "Preparation input/output root must be the master-owned private workspace."
+    exit 198
+}
+
+* Historical construction and sampling are retained verbatim, never rerun.
+if 0 {
 *-----------------------------------------------*
 **#		0. Admin Case Data at village level		*
 *-----------------------------------------------*
@@ -377,6 +391,7 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 	
 }
 	
+}
 *---------------------------*
 **#		II. Baseline		*
 *---------------------------*	
@@ -1748,7 +1763,9 @@ use "${input_dir}/2 Working/village_cases_2025_clean.dta", ///
 		bysort canonical_village_uid: egen n_survey_submissions = count(submission_key)
 		bysort canonical_village_uid: egen has_original_submission = max(baseline_wave == 1)
 		bysort canonical_village_uid: egen has_final_baseline = max(final_baseline_record)
-		bysort canonical_village_uid: keep if _n == 1
+		* Audit-only raw aliases: use the earliest collection/source row, with
+		* the unique submission key breaking ties; not the analytical selection rule.
+		bysort canonical_village_uid (baseline_wave baseline_source_row submission_key): keep if _n == 1
 		keep canonical_district canonical_subcounty canonical_parish canonical_village canonical_village_uid ///
 			p1_admin_last_cdfu p1_admin_inherited_fhri p1_admin_previously_contacted p1_admin_new p1_admin_origin ///
 			district_scto subcounty_scto parish_scto village_scto n_survey_submissions ///
